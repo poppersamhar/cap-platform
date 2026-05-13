@@ -1,5 +1,5 @@
 import { store, useSession } from '../store/Store';
-import type { RoundScore, ChatMessage } from '../types';
+import type { RoundScore } from '../types';
 
 export function DebriefScreen() {
   const session = useSession();
@@ -212,8 +212,8 @@ export function DebriefScreen() {
   );
 }
 
-function ScoreBar({ label, value }: { label: string; value: number }) {
-  const color = value >= 80 ? 'bg-cap-mint' : value >= 60 ? 'bg-cap-sky' : value >= 40 ? 'bg-cap-butter' : 'bg-cap-rose';
+function ScoreBar({ label, value, color }: { label: string; value: number; color?: string }) {
+  const barColor = color || (value >= 80 ? 'bg-cap-mint' : value >= 60 ? 'bg-cap-sky' : value >= 40 ? 'bg-cap-butter' : 'bg-cap-rose');
 
   return (
     <div>
@@ -222,7 +222,7 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
         <span className="font-black text-cap-ink">{value}</span>
       </div>
       <div className="h-3 bg-white rounded-full overflow-hidden border-[2px] border-cap-line shadow-[0_1px_0_#2B1E16]">
-        <div className={`h-full ${color} transition-all duration-500`} style={{ width: `${value}%` }} />
+        <div className={`h-full ${barColor} transition-all duration-500`} style={{ width: `${value}%` }} />
       </div>
     </div>
   );
