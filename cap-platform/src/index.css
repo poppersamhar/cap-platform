@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+@layer base {
+  body {
+    background: #FFF6E6;
+    color: #3B2A1F;
+    font-family: 'Nunito', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100vh;
+    width: 100%;
+  }
+}
+
+@layer components {
+  /* Plush card — thick border, big radius, drop shadow */
+  .plush-lg {
+    border: 3px solid #2B1E16;
+    border-radius: 22px;
+    background: white;
+    box-shadow: 0 6px 0 #2B1E16, 0 14px 28px rgba(43,30,22,0.18);
+  }
+
+  .plush-md {
+    border: 3px solid #2B1E16;
+    border-radius: 14px;
+    background: white;
+    box-shadow: 0 4px 0 #2B1E16, 0 8px 16px rgba(43,30,22,0.15);
+  }
+
+  /* Plush button — pill shape, thick border, bouncy press */
+  .btn-plush {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #3B2A1F;
+    border: 3px solid #2B1E16;
+    border-radius: 999px;
+    background: #FFD86B;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #2B1E16, 0 10px 18px rgba(43,30,22,0.18);
+    transition: transform 150ms ease;
+    letter-spacing: 0.01em;
+  }
+  .btn-plush:hover {
+    transform: translateY(-2px) rotate(-0.5deg);
+  }
+  .btn-plush:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #2B1E16, 0 4px 8px rgba(43,30,22,0.2);
+  }
+  .btn-plush:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 5px 0 #2B1E16, 0 10px 18px rgba(43,30,22,0.18);
+  }
+
+  .btn-plush-peach  { background: #FFB68A; }
+  .btn-plush-mint   { background: #A8E5C8; }
+  .btn-plush-butter { background: #FFD86B; }
+  .btn-plush-sky    { background: #A6D8FF; }
+  .btn-plush-rose   { background: #FFB3C0; }
+  .btn-plush-ghost  { background: white; }
+
+  /* Chip — small pill tag */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 13px;
+    border: 2.5px solid #2B1E16;
+    border-radius: 999px;
+    background: white;
+    color: #3B2A1F;
+    padding: 6px 14px;
+    white-space: nowrap;
+    box-shadow: 0 2px 0 #2B1E16;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .chip-peach  { background: #FFB68A; }
+  .chip-butter { background: #FFD86B; }
+  .chip-mint   { background: #A8E5C8; }
+  .chip-sky    { background: #A6D8FF; }
+  .chip-rose   { background: #FFB3C0; }
+
+  /* Section backgrounds */
+  .bg-cream-2 { background: #FFEFD1; }
+  .bg-peach-soft { background: linear-gradient(180deg, #FFE6D1 0%, #FFD0AE 100%); }
+  .bg-mint-soft  { background: linear-gradient(180deg, #DFF7EA 0%, #B7ECD0 100%); }
+  .bg-sky-soft   { background: linear-gradient(180deg, #DFF1FF 0%, #B6DFFE 100%); }
+  .bg-butter-soft{ background: linear-gradient(180deg, #FFF1C2 0%, #FFE08A 100%); }
+}
+
+@layer utilities {
+  /* Animations */
+  @keyframes wobble-soft {
+    0%, 100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+  }
+  @keyframes float-up {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes pop-in {
+    0% { transform: scale(0.85) translateY(10px); opacity: 0; }
+    60% { transform: scale(1.04) translateY(-2px); opacity: 1; }
+    100% { transform: scale(1) translateY(0); }
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+
+  .animate-wobble { animation: wobble-soft 3.6s ease-in-out infinite; transform-origin: 50% 90%; }
+  .animate-floaty { animation: float-up 3s ease-in-out infinite; }
+  .animate-popin  { animation: pop-in 600ms cubic-bezier(.5,1.7,.4,1) backwards; }
+  .animate-breathe{ animation: breathe 3.5s ease-in-out infinite; }
+}
