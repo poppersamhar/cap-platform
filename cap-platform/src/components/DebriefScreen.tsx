@@ -1,5 +1,5 @@
 import { store, useSession } from '../store/Store';
-import type { RoundScore } from '../types';
+import type { AppMode, RoundScore, TrainingRoundScore, ResearchRoundScore } from '../types';
 
 export function DebriefScreen() {
   const session = useSession();
@@ -12,34 +12,18 @@ export function DebriefScreen() {
   const evaluation = session.evaluation;
   const isTraining = session.mode === 'training';
 
-  // 计算平均分
-  const avgScores: RoundScore | null = evaluation?.round_scores?.length
-    ? evaluation.round_scores.reduce((acc, s) => ({
-        insight: acc.insight + s.insight,
-        adaptation: acc.adaptation + s.adaptation,
-        matching: acc.matching + s.matching,
-        objection: acc.objection + s.objection,
-        trust_building: acc.trust_building + s.trust_building,
-      }), { insight: 0, adaptation: 0, matching: 0, objection: 0, trust_building: 0 })
-    : null;
-
-  if (avgScores && evaluation) {
-    const count = evaluation.round_scores.length;
-    avgScores.insight = Math.round(avgScores.insight / count);
-    avgScores.adaptation = Math.round(avgScores.adaptation / count);
-    avgScores.matching = Math.round(avgScores.matching / count);
-    avgScores.objection = Math.round(avgScores.objection / count);
-    avgScores.trust_building = Math.round(avgScores.trust_building / count);
-  }
-
-  const overallScore = avgScores
-    ? Math.round((avgScores.insight + avgScores.adaptation + avgScores.matching + avgScores.objection + avgScores.trust_building) / 5)
+  // 综合评分
+  const overallScore = evaluation
+    ? Math.round(Object.values(evaluation.round_scores).reduce((a, b) => a + b, 0) / 5)
     : 0;
 
   const grade = overallScore >= 90 ? 'A' : overallScore >= 75 ? 'B' : overallScore >= 60 ? 'C' : 'D';
   const gradeColor = grade === 'A' ? 'bg-cap-mint' : grade === 'B' ? 'bg-cap-sky' : grade === 'C' ? 'bg-cap-butter' : 'bg-cap-rose';
 
-  // 提取对话摘要：每轮的关键消息
+  // 维度评分条目
+  const scoreBars = evaluation ? getScoreBars(session.mode, evaluation.round_scores) : [];
+
+  // 提取对话摘要
   const roundMessages: { round: number; user: string; client: string }[] = [];
   const msgs = session.messages;
   for (let i = 0; i < msgs.length; i += 2) {
@@ -61,7 +45,7 @@ export function DebriefScreen() {
           onClick={() => store.setScreen('home')}
           className="text-cap-ink-2 hover:text-cap-ink text-sm font-bold mb-6 transition-colors"
         >
-          ← 返回首页
+          ← 返回
         </button>
 
         <div className="mb-8">
@@ -72,6 +56,16 @@ export function DebriefScreen() {
             {session.round} 轮对话 · {Math.round((Date.now() - session.created_at) / 60000)} 分钟
           </p>
         </div>
+
+        {/* Coaching Summary */}
+        {evaluation?.coaching_summary && (
+          <div className="plush-lg p-5 mb-6 bg-cap-butter/20 border-[3px] border-cap-butter">
+            <h3 className="font-black text-cap-ink mb-2 flex items-center gap-2 text-sm">
+              <span>🎯</span> 督导点评
+            </h3>
+            <p className="text-cap-ink font-bold text-sm leading-relaxed">{evaluation.coaching_summary}</p>
+          </div>
+        )}
 
         {/* Overall Score + Grade */}
         <div className="plush-lg p-8 mb-6 text-center">
@@ -92,37 +86,132 @@ export function DebriefScreen() {
         </div>
 
         {/* Dimension Scores */}
-        {avgScores && (
+        {scoreBars.length > 0 && (
           <div className="plush-lg p-6 mb-6">
             <h3 className="font-black mb-4 text-cap-ink text-lg">维度评分</h3>
             <div className="space-y-4">
-              <ScoreBar label="客户洞察" value={avgScores.insight} color="bg-cap-mint" />
-              <ScoreBar label="需求适配" value={avgScores.adaptation} color="bg-cap-sky" />
-              <ScoreBar label="方案匹配" value={avgScores.matching} color="bg-cap-peach" />
-              <ScoreBar label="异议处理" value={avgScores.objection} color="bg-cap-butter" />
-              <ScoreBar label="信任建立" value={avgScores.trust_building} color="bg-cap-rose" />
+              {scoreBars.map((bar) => (
+                <ScoreBar key={bar.label} label={bar.label} value={bar.value} color={bar.color} />
+              ))}
             </div>
           </div>
         )}
 
-        {/* Round-by-round scores */}
-        {evaluation?.round_scores && evaluation.round_scores.length > 0 && (
+        {/* Hidden Info Check */}
+        {evaluation?.hidden_info_check && evaluation.hidden_info_check.length > 0 && (
           <div className="plush-lg p-6 mb-6">
-            <h3 className="font-black mb-4 text-cap-ink text-lg">逐轮评分</h3>
+            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
+              <span>🔓</span> 隐藏信息挖掘
+            </h3>
             <div className="space-y-3">
-              {evaluation.round_scores.map((s, i) => (
+              {evaluation.hidden_info_check.map((hi, i) => (
+                <div key={i} className={`p-3 rounded-xl border-[2.5px] border-cap-line ${hi.triggered ? 'bg-cap-mint/15' : 'bg-cap-rose/10'}`}>
+                  <div className="flex items-start gap-2 mb-1">
+                    <span className="text-lg">{hi.triggered ? '✅' : '❌'}</span>
+                    <p className="text-sm font-bold text-cap-ink flex-1">{hi.content}</p>
+                  </div>
+                  {hi.triggered && hi.round && (
+                    <p className="text-xs text-cap-ink-2 font-semibold ml-7">第 {hi.round} 轮触发 · {hi.note}</p>
+                  )}
+                  {!hi.triggered && (
+                    <p className="text-xs text-cap-rose-deep font-semibold ml-7">未触发 · {hi.note}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Pain Points Check */}
+        {evaluation?.pain_points_check && evaluation.pain_points_check.length > 0 && (
+          <div className="plush-lg p-6 mb-6">
+            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
+              <span>⚡</span> 核心痛点识别
+            </h3>
+            <div className="space-y-3">
+              {evaluation.pain_points_check.map((pp, i) => (
+                <div key={i} className={`p-3 rounded-xl border-[2.5px] border-cap-line ${pp.recognized ? 'bg-cap-mint/15' : 'bg-cap-rose/10'}`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{pp.recognized ? '✅' : '❌'}</span>
+                      <span className="text-sm font-bold text-cap-ink">{pp.topic}</span>
+                    </div>
+                    {pp.recognized && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black border-[2px] border-cap-line bg-cap-butter">
+                        {isTraining
+                          ? (pp.response_quality === 'good' ? '回应优秀' : pp.response_quality === 'fair' ? '回应一般' : '回应不足')
+                          : (pp.depth === 'deep' ? '挖掘深入' : '挖掘浅显')
+                        }
+                      </span>
+                    )}
+                  </div>
+                  {pp.recognized && pp.round && (
+                    <p className="text-xs text-cap-ink-2 font-semibold ml-7">第 {pp.round} 轮识别 · {pp.note}</p>
+                  )}
+                  {!pp.recognized && (
+                    <p className="text-xs text-cap-rose-deep font-semibold ml-7">未识别 · {pp.note}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Missed Opportunities */}
+        {evaluation?.missed_opportunities && evaluation.missed_opportunities.length > 0 && (
+          <div className="plush-lg p-6 mb-6 bg-cap-butter/10 border-[3px] border-cap-butter">
+            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
+              <span>💡</span> 遗漏机会
+            </h3>
+            <div className="space-y-3">
+              {evaluation.missed_opportunities.map((mo, i) => (
                 <div key={i} className="p-3 rounded-xl bg-cap-cream-2 border-[2.5px] border-cap-line">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="chip chip-butter text-xs">第{i + 1}轮</span>
-                    <span className="font-black text-cap-ink">{Math.round((s.insight + s.adaptation + s.matching + s.objection + s.trust_building) / 5)}分</span>
+                  <p className="text-sm font-bold text-cap-ink mb-1.5">{mo.item}</p>
+                  <p className="text-xs text-cap-ink-2 font-semibold">
+                    <span className="text-cap-sage-deep font-black">应问：</span>{mo.should_ask}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Highlights */}
+        {evaluation?.highlights && evaluation.highlights.length > 0 && (
+          <div className="plush-lg p-6 mb-6 bg-cap-mint/10">
+            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
+              <span>✨</span> 亮点
+            </h3>
+            <div className="space-y-3">
+              {evaluation.highlights.map((h, i) => (
+                <div key={i} className="flex gap-3 text-sm">
+                  <span className="chip chip-mint shrink-0 text-xs">第{h.round}轮</span>
+                  <span className="text-cap-ink-2 font-semibold">{h.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Failures */}
+        {evaluation?.failures && evaluation.failures.length > 0 && (
+          <div className="plush-lg p-6 mb-6 bg-cap-rose/15 border-[3px] border-cap-rose-deep">
+            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
+              <span>🛠️</span> 改进点
+            </h3>
+            <div className="space-y-4">
+              {evaluation.failures.map((f, i) => (
+                <div key={i} className="text-sm">
+                  <div className="flex gap-3 mb-1">
+                    <span className="chip chip-rose shrink-0 text-xs">第{f.round}轮</span>
+                    <span className="text-cap-ink font-bold">{f.text}</span>
                   </div>
-                  <div className="grid grid-cols-5 gap-2">
-                    <MiniBar label="洞察" value={s.insight} />
-                    <MiniBar label="适配" value={s.adaptation} />
-                    <MiniBar label="匹配" value={s.matching} />
-                    <MiniBar label="异议" value={s.objection} />
-                    <MiniBar label="信任" value={s.trust_building} />
-                  </div>
+                  <p className="text-cap-ink-2 ml-14 text-xs font-semibold mb-1">建议: {f.suggestion}</p>
+                  {f.better_approach && (
+                    <p className="text-cap-sage-deep ml-14 text-xs font-bold">
+                      💬 {f.better_approach}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -143,43 +232,6 @@ export function DebriefScreen() {
                   <p className="text-xs text-cap-ink font-semibold">
                     <span className="text-cap-mint-deep font-black">客户：</span>{rm.client}
                   </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Highlights */}
-        {evaluation?.highlights && evaluation.highlights.length > 0 && (
-          <div className="plush-lg p-6 mb-6 bg-cap-mint-soft">
-            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
-              <span>✨</span> 亮点
-            </h3>
-            <div className="space-y-3">
-              {evaluation.highlights.map((h, i) => (
-                <div key={i} className="flex gap-3 text-sm">
-                  <span className="chip chip-mint shrink-0 text-xs">第{h.round}轮</span>
-                  <span className="text-cap-ink-2 font-semibold">{h.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Failures */}
-        {evaluation?.failures && evaluation.failures.length > 0 && (
-          <div className="plush-lg p-6 mb-6 bg-cap-rose/20">
-            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
-              <span>💡</span> 改进点
-            </h3>
-            <div className="space-y-4">
-              {evaluation.failures.map((f, i) => (
-                <div key={i} className="text-sm">
-                  <div className="flex gap-3 mb-1">
-                    <span className="chip chip-rose shrink-0 text-xs">第{f.round}轮</span>
-                    <span className="text-cap-ink font-bold">{f.text}</span>
-                  </div>
-                  <p className="text-cap-ink-2 ml-14 text-xs font-semibold">建议: {f.suggestion}</p>
                 </div>
               ))}
             </div>
@@ -212,6 +264,27 @@ export function DebriefScreen() {
   );
 }
 
+function getScoreBars(mode: AppMode, scores: RoundScore) {
+  if (mode === 'training') {
+    const s = scores as TrainingRoundScore;
+    return [
+      { label: '需求挖掘', value: s.needs_discovery, color: 'bg-cap-mint' },
+      { label: '信任建立', value: s.trust_building, color: 'bg-cap-sky' },
+      { label: '异议处理', value: s.objection_handling, color: 'bg-cap-peach' },
+      { label: '方案匹配', value: s.solution_matching, color: 'bg-cap-butter' },
+      { label: '成交意识', value: s.closing_awareness, color: 'bg-cap-rose' },
+    ];
+  }
+  const s = scores as ResearchRoundScore;
+  return [
+    { label: '提问质量', value: s.question_quality, color: 'bg-cap-mint' },
+    { label: '信息完整度', value: s.information_completeness, color: 'bg-cap-sky' },
+    { label: '隐藏需求挖掘', value: s.hidden_needs_uncovered, color: 'bg-cap-peach' },
+    { label: '情感洞察', value: s.emotional_insight, color: 'bg-cap-butter' },
+    { label: '偏见规避', value: s.bias_avoidance, color: 'bg-cap-rose' },
+  ];
+}
+
 function ScoreBar({ label, value, color }: { label: string; value: number; color?: string }) {
   const barColor = color || (value >= 80 ? 'bg-cap-mint' : value >= 60 ? 'bg-cap-sky' : value >= 40 ? 'bg-cap-butter' : 'bg-cap-rose');
 
@@ -224,18 +297,6 @@ function ScoreBar({ label, value, color }: { label: string; value: number; color
       <div className="h-3 bg-white rounded-full overflow-hidden border-[2px] border-cap-line shadow-[0_1px_0_#2B1E16]">
         <div className={`h-full ${barColor} transition-all duration-500`} style={{ width: `${value}%` }} />
       </div>
-    </div>
-  );
-}
-
-function MiniBar({ label, value }: { label: string; value: number }) {
-  const color = value >= 80 ? 'bg-cap-mint' : value >= 60 ? 'bg-cap-sky' : value >= 40 ? 'bg-cap-butter' : 'bg-cap-rose';
-  return (
-    <div className="text-center">
-      <div className="h-2 bg-white rounded-full overflow-hidden border-[2px] border-cap-line mb-1">
-        <div className={`h-full ${color}`} style={{ width: `${value}%` }} />
-      </div>
-      <span className="text-[10px] font-bold text-cap-ink-2">{label}</span>
     </div>
   );
 }

@@ -55,6 +55,7 @@ class Store {
     onboardingStep: 0,
     viewedHistoryId: null,
     history: readHistory(),
+    previewPersona: null,
   };
 
   private listeners = new Set<() => void>();
@@ -115,14 +116,18 @@ class Store {
   }
 
   // ── Session ──
-  async createSession(personaId: string, mode: AppMode) {
+  async createSession(personaId: string, mode: AppMode, personaOverride?: Persona) {
     this.setLoading(true);
     this.setError(null);
     try {
+      const body: any = { persona_id: personaId, mode };
+      if (personaOverride) {
+        body.persona_override = personaOverride;
+      }
       const resp = await fetch(`${API_BASE}/api/session/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ persona_id: personaId, mode }),
+        body: JSON.stringify(body),
       });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
@@ -238,6 +243,56 @@ class Store {
     writeHistory([]);
     this.set({ history: [] });
   };
+
+  // ── Persona Import ──
+  setPreviewPersona = (persona: Persona | null) =>
+    this.set({ previewPersona: persona });
+
+  async extractPersona(dialogue: string) {
+    this.setLoading(true);
+    this.setError(null);
+    try {
+      const resp = await fetch(`${API_BASE}/api/extract`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dialogue }),
+      });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      this.set({ previewPersona: data.persona as Persona, screen: 'importPersona' });
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '提取失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  async extractPersonaFromExcel(file: File) {
+    this.setLoading(true);
+    this.setError(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const resp = await fetch(`${API_BASE}/api/extract/excel`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      this.set({ previewPersona: data.persona as Persona, screen: 'importPersona' });
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '提取失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
 }
 
 export const store = new Store();
@@ -273,4 +328,8 @@ export function useAppState(): AppState {
 
 export function useHistory() {
   return useStore((s) => s.history);
+}
+
+export function usePreviewPersona() {
+  return useStore((s) => s.previewPersona);
 }

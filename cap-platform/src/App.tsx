@@ -10,6 +10,7 @@ import { EncounterScreen } from './components/EncounterScreen';
 import { EndConfirmScreen } from './components/EndConfirmScreen';
 import { DebriefScreen } from './components/DebriefScreen';
 import { HistoryScreen } from './components/HistoryScreen';
+import { ImportPersonaScreen } from './components/ImportPersonaScreen';
 
 export default function App() {
   const screen = useScreen();
@@ -36,6 +37,7 @@ export default function App() {
       {screen === 'endConfirm' && <EndConfirmScreen />}
       {screen === 'debrief' && <DebriefScreen />}
       {screen === 'history' && <HistoryScreen />}
+      {screen === 'importPersona' && <ImportPersonaScreen />}
     </div>
   );
 }

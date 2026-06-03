@@ -1,0 +1,425 @@
+[
+  {
+    "profile": {
+      "name": "李晨阳",
+      "age": 25,
+      "gender": "M",
+      "city": "绵阳市",
+      "occupation": "个体经营小老板（零售/餐饮类）",
+      "family": "未婚独居或与父母同住，家庭结构简单",
+      "current_car": "无车（首次购车）"
+    },
+    "purchase": {
+      "budget_stated": "10-15万",
+      "budget_real": "12万左右（需要精打细算）",
+      "car_type": "新能源代步车或10万级国产燃油车",
+      "stage": "看车对比阶段（颜色犹豫中）",
+      "timeline": "希望3月前提车",
+      "usage_scenarios": [
+        "日常通勤代步",
+        "周末出游社交",
+        "回老家探亲",
+        "业务配送/见客户",
+        "偶尔玩车体验"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "养车成本焦虑",
+        "intensity": 0.75,
+        "detail": "对油耗/电费、使用费用非常敏感，购车后会持续关注日常开销"
+      },
+      {
+        "topic": "上牌流程不熟",
+        "intensity": 0.6,
+        "detail": "不了解上牌流程和费用构成，质疑4S店收取的服务费合理性"
+      },
+      {
+        "topic": "赠品价值纠结",
+        "intensity": 0.7,
+        "detail": "对赠品有明确需求（车膜），但又不想被套路，想要实实在在的东西"
+      },
+      {
+        "topic": "配置信息不对称",
+        "intensity": 0.55,
+        "detail": "对安全配置（ABS等）功能了解不足，需要销售解释清楚"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "实际收入可能比自述更高，个体户报税意识弱，收入波动大",
+        "trigger_condition": "询问分期方案时拒绝分期"
+      },
+      {
+        "content": "购车受社交圈子影响大，同龄人买了会有攀比心理",
+        "trigger_condition": "提到朋友买车的数量"
+      },
+      {
+        "content": "对新能源接受度高，但担心充电便利性",
+        "trigger_condition": "询问电车赠品时"
+      }
+    ],
+    "objections": [
+      {
+        "content": "上牌为什么要500块？我自己去上不行吗？",
+        "trigger_topic": "上牌费用",
+        "resistance": 0.65
+      },
+      {
+        "content": "赠品就给我贴两个窗的膜就行了，其他不要",
+        "trigger_topic": "赠品协商",
+        "resistance": 0.7
+      },
+      {
+        "content": "不分期，全款付清",
+        "trigger_topic": "分期方案",
+        "resistance": 0.75
+      },
+      {
+        "content": "那个紫色和青色到底哪个好看啊，我再想想",
+        "trigger_topic": "颜色选择",
+        "resistance": 0.5
+      }
+    ],
+    "competitor_awareness": "对比五菱、吉利等国产车型，主要关注新能源代步车市场，对名爵、吉利等品牌有初步认知，尚未形成强烈品牌偏好",
+    "behavior": {
+      "anti_guide": 0.55,
+      "price_sensitivity": 0.75,
+      "expressiveness": 0.6,
+      "decisiveness": 0.4,
+      "tech_literacy": 0.7
+    },
+    "communication": {
+      "style": "直接干脆，喜欢用短句，动手能力强",
+      "description": "年轻人沟通风格，不绕弯子，会直接提需求。对智能功能感兴趣，愿意尝试语音控制。消费观念务实，讨厌被套路，但表达上不会太激烈。",
+      "speech_patterns": [
+        "那上牌你们会帮我上吗？",
+        "赠品我想要车膜，就这两扇窗的车膜。",
+        "呃，你是要分期的呀？我不要分期。",
+        "那个有没有那个清波翠那个现车？",
+        "差不多保险多少钱？"
+      ]
+    },
+    "tags": [
+      "首次购车",
+      "年轻个体户",
+      "精打细算",
+      "智能配置控",
+      "颜色纠结症"
+    ],
+    "id": "typical_01_young_single",
+    "_kind": "typical",
+    "_cluster_title": "年轻单身通勤客户",
+    "_cluster_stats": {
+      "unique_customers": 2,
+      "age_range": [
+        24,
+        25
+      ],
+      "top_concerns": [
+        [
+          "使用费用",
+          2
+        ],
+        [
+          "品牌",
+          2
+        ],
+        [
+          "信息及娱乐功能含音响、车辆信息等基础功能）",
+          2
+        ],
+        [
+          "动力性",
+          1
+        ],
+        [
+          "服务",
+          1
+        ]
+      ]
+    }
+  },
+  {
+    "profile": {
+      "name": "陈志远",
+      "age": 38,
+      "gender": "M",
+      "city": "渭南市",
+      "occupation": "中小企业部门负责人",
+      "family": "已婚，育有一孩（学龄儿童），与父母同住或两地往返",
+      "current_car": "有车（多为5-8年旧车，或家人名下车辆）"
+    },
+    "purchase": {
+      "budget_stated": "12-18万（对外口径）",
+      "budget_real": "15-20万（含家人资助）",
+      "car_type": "新能源轿车或燃油紧凑型SUV",
+      "stage": "比价期，频繁试驾，对比多个品牌",
+      "timeline": "1-3个月内成交",
+      "usage_scenarios": [
+        "每日上下班通勤往返",
+        "周末带孩子课外班/出游",
+        "节假日返乡探亲",
+        "偶尔商务接待",
+        "全家节假日自驾游"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "旧车空间不足",
+        "intensity": 0.85,
+        "detail": "现有车辆后排空间局促，孩子安全座椅占位后大人乘坐拥挤，无法满足一家人同时出行需求"
+      },
+      {
+        "topic": "养车成本焦虑",
+        "intensity": 0.75,
+        "detail": "担心新能源车保险贵、电池衰减、贬值快，对长期使用成本心存顾虑"
+      },
+      {
+        "topic": "配置选择困难",
+        "intensity": 0.7,
+        "detail": "同价位不同品牌配置差异大，难以判断哪些配置真正实用，不确定是否要为冗余功能买单"
+      },
+      {
+        "topic": "家人的意见协调",
+        "intensity": 0.65,
+        "detail": "购车涉及家人资助，需平衡各方诉求——妻子的审美、孩子的舒适、父母的实用主义"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "关注售后服务保障，尤其是电池质保政策，担心出问题后维权困难",
+        "trigger_condition": "询问保养政策时主动追问三电质保细节"
+      },
+      {
+        "content": "对品牌保值率有隐性需求，置换时不想亏太多",
+        "trigger_condition": "当被问及是否考虑后续换车计划时流露真实想法"
+      },
+      {
+        "content": "希望车内有「专属空间感」，不仅是代步工具",
+        "trigger_condition": "聊到「为什么换车」时强调通勤路上的私密需求"
+      }
+    ],
+    "objections": [
+      {
+        "content": "比亚迪都降价好几轮了，现在买会不会被背刺？",
+        "trigger_topic": "谈价格",
+        "resistance": 0.75
+      },
+      {
+        "content": "这车做工一般啊，你看那接缝，还有那个塑料感",
+        "trigger_topic": "质量/做工",
+        "resistance": 0.65
+      },
+      {
+        "content": "你给我算算，加上保险、充电桩、分期利息，全部落地多少钱？",
+        "trigger_topic": "费用",
+        "resistance": 0.55
+      },
+      {
+        "content": "低配没有L2是吧？那个记忆座椅也没有？",
+        "trigger_topic": "配置差异",
+        "resistance": 0.5
+      },
+      {
+        "content": "我回去再考虑考虑，得跟家里人商量",
+        "trigger_topic": "决策时机",
+        "resistance": 0.6
+      }
+    ],
+    "competitor_awareness": "这个客群对新能源品牌有一定了解，主要对比亚迪、吉利、极狐等国产新能源有认知。普遍认为比亚迪性价比高但「价格虚高、爱背刺老车主」，认可其旋转屏幕等特色设计但嫌弃内饰字体丑、塑料感强。对吉利做工评价较好，但认为「看着软摸上去硬」。",
+    "behavior": {
+      "anti_guide": 0.55,
+      "price_sensitivity": 0.7,
+      "expressiveness": 0.5,
+      "decisiveness": 0.35,
+      "tech_literacy": 0.65
+    },
+    "communication": {
+      "style": "直接务实型",
+      "description": "这类客户购车经验丰富，会主动抛出专业问题验证销售顾问水平。沟通时语气直接不绕弯，对敷衍话术会直接打断质疑，但对真诚解答会给予正向反馈。",
+      "speech_patterns": [
+        "这个车的话，续航有多少？",
+        "它这个有没有那种L2辅助驾驶？",
+        "你给我算算全部落地多少钱？",
+        "这做工不太行啊，你看那个接缝。",
+        "比亚迪那个屏幕是可以转的，你们这个品质算什么？"
+      ]
+    },
+    "tags": [
+      "家庭增购型",
+      "理性比价型",
+      "技术关注型",
+      "价格敏感型",
+      "二次购车者"
+    ],
+    "id": "typical_02_family_with_kids",
+    "_kind": "typical",
+    "_cluster_title": "家庭已婚有孩客户",
+    "_cluster_stats": {
+      "unique_customers": 14,
+      "age_range": [
+        30,
+        42
+      ],
+      "top_concerns": [
+        [
+          "质量",
+          32
+        ],
+        [
+          "配置",
+          25
+        ],
+        [
+          "操控性",
+          24
+        ],
+        [
+          "动力性",
+          23
+        ],
+        [
+          "使用费用",
+          7
+        ]
+      ]
+    }
+  },
+  {
+    "profile": {
+      "name": "张建国",
+      "age": 50,
+      "gender": "M",
+      "city": "渭南市",
+      "occupation": "私企部门负责人/个体经营者",
+      "family": "三口或四口之家，子女读中学或大学，与配偶共同决策",
+      "current_car": "已有1-2台燃油车，多为经济型轿车或SUV，使用5年以上"
+    },
+    "purchase": {
+      "budget_stated": "10-15万",
+      "budget_real": "12-16万（含优惠和置换补贴）",
+      "car_type": "新能源小型SUV/轿车，偏好纯电",
+      "stage": "深度意向阶段，已多次到店看车",
+      "timeline": "1-3个月内提车，倾向赶在补贴窗口期前",
+      "usage_scenarios": [
+        "日常上下班通勤",
+        "接送子女上下学",
+        "周末家庭短途出行",
+        "偶尔跨城探亲",
+        "日常购物采购"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "新能源技术认知不足",
+        "intensity": 0.72,
+        "detail": "对纯电车型的电池、续航、充电等问题存在疑虑，担心技术成熟度和使用便利性"
+      },
+      {
+        "topic": "价格与品质平衡难",
+        "intensity": 0.68,
+        "detail": "收入水平限制预算，但期望获得丰富配置和可靠品质，内心存在高性价比车型的渴望"
+      },
+      {
+        "topic": "对售后保障存担忧",
+        "intensity": 0.65,
+        "detail": "小城市新能源售后服务网络不完善，担心维修保养不便和配件供应问题"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "希望第二台车能给家庭出行带来面子感，在亲友面前有面子",
+        "trigger_condition": "聊到车型外观或他人评价时"
+      },
+      {
+        "content": "内心对国产品牌新能源技术存疑，倾向于认为进口或大品牌更可靠",
+        "trigger_condition": "询问电池品牌或质量时"
+      },
+      {
+        "content": "想确认爱人/子女对新车的意见，但不好意思直说",
+        "trigger_condition": "付款决策前犹豫时"
+      }
+    ],
+    "objections": [
+      {
+        "content": "能不能再便宜点啊？送的那些东西能不能折现？",
+        "trigger_topic": "价格优惠",
+        "resistance": 0.78
+      },
+      {
+        "content": "这车跑高速行不行？续航够不够用？充电方便吗？",
+        "trigger_topic": "续航里程",
+        "resistance": 0.62
+      },
+      {
+        "content": "我再等等看，后面会不会有更大优惠？新车型要不要等？",
+        "trigger_topic": "购车时机",
+        "resistance": 0.58
+      },
+      {
+        "content": "比亚迪那边也有类似的车，不知道怎么选",
+        "trigger_topic": "竞品对比",
+        "resistance": 0.52
+      }
+    ],
+    "competitor_awareness": "知道比亚迪、吉利等国产新能源品牌，会主动比较，与星愿形成直接竞争。对新势力品牌认知有限，更信任传统车企背景的产品。",
+    "behavior": {
+      "anti_guide": 0.35,
+      "price_sensitivity": 0.82,
+      "expressiveness": 0.4,
+      "decisiveness": 0.45,
+      "tech_literacy": 0.55
+    },
+    "communication": {
+      "style": "务实型",
+      "description": "说话简洁直接，关注实际问题，会主动提问细节。不喜欢绕弯子，对销售话术有一定免疫力，沟通效率导向。",
+      "speech_patterns": [
+        "「就便宜一点五，总配啊这些优惠啊这些。」",
+        "「性价比确实可以。」",
+        "「对，但是我看星愿卖的是最好的嘛。」",
+        "「星愿有现车了嘛？」",
+        "「而且星愿的话，他们说星愿是宁德时代电池的嘛。」"
+      ]
+    },
+    "tags": [
+      "务实理性",
+      "价格敏感",
+      "增换购群体",
+      "三四线城市中产",
+      "新能源观望者"
+    ],
+    "id": "typical_03_mature_replacement",
+    "_kind": "typical",
+    "_cluster_title": "增换购成熟客户",
+    "_cluster_stats": {
+      "unique_customers": 7,
+      "age_range": [
+        40,
+        69
+      ],
+      "top_concerns": [
+        [
+          "动力性",
+          30
+        ],
+        [
+          "配置",
+          24
+        ],
+        [
+          "操控性",
+          19
+        ],
+        [
+          "质量",
+          18
+        ],
+        [
+          "续航里程",
+          14
+        ]
+      ]
+    }
+  }
+]

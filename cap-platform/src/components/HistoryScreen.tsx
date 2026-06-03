@@ -53,11 +53,11 @@ export function HistoryScreen() {
         <div className="space-y-4"
         >
           {history.map((session) => {
-            const overallScore = session.evaluation
+            const scores = session.evaluation?.round_scores;
+            const overallScore = scores
               ? Math.round(
-                  session.evaluation.round_scores.reduce((acc, s) =>
-                    acc + s.insight + s.adaptation + s.matching + s.objection + s.trust_building, 0
-                  ) / (session.evaluation.round_scores.length * 5)
+                  Object.values(scores).reduce((a, b) => a + b, 0) /
+                    Object.keys(scores).length
                 )
               : 0;
             return (
