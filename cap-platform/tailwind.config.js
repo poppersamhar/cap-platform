@@ -7,46 +7,71 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Medkit cozy plush palette
-        'cap-cream': '#FFF6E6',
-        'cap-cream-2': '#FFEFD1',
-        'cap-paper': '#FFFAF0',
-        'cap-peach': '#FFB68A',
-        'cap-peach-deep': '#FF8E5C',
-        'cap-butter': '#FFD86B',
-        'cap-butter-deep': '#F5B73D',
-        'cap-mint': '#A8E5C8',
-        'cap-mint-deep': '#5FCFA0',
-        'cap-sky': '#A6D8FF',
-        'cap-sky-deep': '#5AB7F2',
-        'cap-rose': '#FFB3C0',
-        'cap-rose-deep': '#F47A92',
-        'cap-ink': '#3B2A1F',
-        'cap-ink-2': '#6B4F3F',
-        'cap-ink-soft': '#8E7261',
-        'cap-line': '#2B1E16',
+        // ── 上汽商务风格色板 ──
+        'cap-cream': '#F8F9FA',
+        'cap-cream-2': '#F5F5F7',
+        'cap-paper': '#FFFFFF',
 
-        // Legacy aliases (mapped to new palette for gradual migration)
-        'cap-bg': '#FFF6E6',
-        'cap-surface': '#FFFAF0',
-        'cap-surface-2': '#FFEFD1',
-        'cap-border': '#2B1E16',
-        'cap-text': '#3B2A1F',
-        'cap-text-muted': '#6B4F3F',
-        'cap-primary': '#FFB68A',
-        'cap-primary-dim': '#FFE6D1',
-        'cap-accent': '#A8E5C8',
-        'cap-accent-warm': '#FFD86B',
-        'cap-accent-danger': '#F47A92',
-        'cap-accent-purple': '#A6D8FF',
+        // 主色：上汽红系
+        'cap-peach': '#C9232C',
+        'cap-peach-deep': '#A81B23',
+        'cap-peach-soft': '#FDF2F2',
+
+        // 强调：MG橙系
+        'cap-butter': '#FF6B00',
+        'cap-butter-deep': '#E55A00',
+        'cap-butter-soft': '#FFF5EB',
+
+        // 成功/积极：科技青
+        'cap-mint': '#00A896',
+        'cap-mint-deep': '#008F7E',
+        'cap-mint-soft': '#E6F7F5',
+
+        // 信息：科技蓝
+        'cap-sky': '#2563EB',
+        'cap-sky-deep': '#1D4ED8',
+        'cap-sky-soft': '#EFF6FF',
+
+        // 警告：琥珀
+        'cap-rose': '#D97706',
+        'cap-rose-deep': '#B45309',
+        'cap-rose-soft': '#FFFBEB',
+
+        // 文字层级
+        'cap-ink': '#1A1A1A',
+        'cap-ink-2': '#666666',
+        'cap-ink-soft': '#999999',
+
+        // 边框/分割线
+        'cap-line': '#E5E5E5',
+        'cap-line-light': '#F0F0F0',
+
+        // Legacy aliases (保持兼容)
+        'cap-bg': '#F8F9FA',
+        'cap-surface': '#FFFFFF',
+        'cap-surface-2': '#F5F5F7',
+        'cap-border': '#E5E5E5',
+        'cap-text': '#1A1A1A',
+        'cap-text-muted': '#666666',
+        'cap-primary': '#C9232C',
+        'cap-primary-dim': '#FDF2F2',
+        'cap-accent': '#00A896',
+        'cap-accent-warm': '#FF6B00',
+        'cap-accent-danger': '#D92B4B',
+        'cap-accent-purple': '#2563EB',
       },
       borderRadius: {
-        'plush': '36px',
-        'plush-md': '22px',
-        'plush-sm': '14px',
+        'plush': '16px',
+        'plush-md': '12px',
+        'plush-sm': '8px',
       },
       fontFamily: {
-        'cozy': ['"Nunito"', 'system-ui', '-apple-system', 'sans-serif'],
+        'cozy': ['system-ui', '-apple-system', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
+      },
+      boxShadow: {
+        'card': '0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)',
+        'card-hover': '0 4px 12px rgba(0,0,0,0.12), 0 8px 24px rgba(0,0,0,0.08)',
+        'elevated': '0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04)',
       },
     },
   },

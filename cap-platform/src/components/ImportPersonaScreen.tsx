@@ -67,7 +67,7 @@ export function ImportPersonaScreen() {
         </button>
 
         <div className="mb-8">
-          <h2 className="text-3xl font-black mb-2 text-cap-ink">导入客户分身</h2>
+          <h2 className="text-3xl font-bold mb-2 text-cap-ink">导入客户分身</h2>
           <p className="text-cap-ink-2 font-semibold">
             上传包含客户基础信息和对话记录的 Excel 文件，AI 将自动提取客户画像
           </p>
@@ -81,9 +81,9 @@ export function ImportPersonaScreen() {
           onClick={() => fileInputRef.current?.click()}
           className={`
             plush-lg p-8 mb-5 text-center cursor-pointer transition-all
-            border-[3px] border-dashed
+            border border-dashed
             ${dragOver
-              ? 'border-cap-sage bg-cap-sage/10 scale-[1.02]'
+              ? 'border-cap-sage bg-cap-mint-soft scale-[1.02]'
               : 'border-cap-line hover:border-cap-ink-2 hover:bg-cap-cream-2'
             }
           `}
@@ -96,7 +96,7 @@ export function ImportPersonaScreen() {
             className="hidden"
           />
           <div className="text-5xl mb-4">📊</div>
-          <h3 className="font-black text-cap-ink mb-2">
+          <h3 className="font-bold text-cap-ink mb-2">
             {dragOver ? '松开即可上传' : '点击或拖拽上传 Excel'}
           </h3>
           <p className="text-xs text-cap-ink-2 font-semibold">
@@ -106,7 +106,7 @@ export function ImportPersonaScreen() {
 
         {/* 已选文件 */}
         {selectedFile && (
-          <div className="plush-lg p-4 mb-5 bg-cap-sage/10 border-[2.5px] border-cap-sage">
+          <div className="plush-lg p-4 mb-5 bg-cap-mint-soft border border-cap-mint">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📄</span>
@@ -131,7 +131,7 @@ export function ImportPersonaScreen() {
         )}
 
         {error && (
-          <div className="plush-lg p-4 mb-5 border-[3px] border-cap-rose-deep bg-cap-rose/10">
+          <div className="plush-lg p-4 mb-5 border border-cap-rose-deep bg-cap-rose-soft">
             <p className="text-sm font-bold text-cap-rose-deep">❌ {error}</p>
           </div>
         )}
@@ -152,7 +152,7 @@ export function ImportPersonaScreen() {
 
         {/* Excel 格式说明 */}
         <div className="plush-lg p-5 bg-cap-cream-2">
-          <h4 className="font-black text-cap-ink mb-3 text-sm">💡 Excel 格式说明</h4>
+          <h4 className="font-bold text-cap-ink mb-3 text-sm">💡 Excel 格式说明</h4>
           <div className="text-xs text-cap-ink-2 font-semibold space-y-2 leading-relaxed">
             <p>Excel 文件中可以包含以下工作表（Sheet）：</p>
             <ul className="space-y-1.5 ml-4 list-disc">
@@ -197,10 +197,10 @@ function PreviewStep({
 
         {/* Header */}
         <div className="plush-lg p-6 mb-5 text-center relative">
-          <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-cap-butter border-[4px] border-cap-line flex items-center justify-center text-4xl shadow-[0_4px_0_#2B1E16]">
+          <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-cap-butter border border-cap-line flex items-center justify-center text-4xl shadow-sm">
             {p.profile.gender === 'M' ? '👨' : '👩'}
           </div>
-          <h2 className="text-2xl font-black text-cap-ink">{p.profile.name}</h2>
+          <h2 className="text-2xl font-bold text-cap-ink">{p.profile.name}</h2>
           <p className="text-cap-ink-2 font-bold text-sm mt-1">
             {p.profile.age}岁 · {p.profile.city} · {p.profile.occupation}
           </p>
@@ -213,16 +213,16 @@ function PreviewStep({
 
         {/* 隐藏信息 */}
         {p.hidden_info.length > 0 && (
-          <div className="plush-lg p-5 mb-5 border-[3px] border-cap-rose-deep">
-            <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <div className="plush-lg p-5 mb-5 border border-cap-rose-deep">
+            <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
               <span className="text-lg">🔓</span> 隐藏信息（不会主动透露）
             </h3>
             <div className="space-y-3">
               {p.hidden_info.map((hi, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-cap-rose/15 border-[2.5px] border-cap-line">
+                <div key={idx} className="p-3 rounded-xl bg-cap-rose-soft border border-cap-line">
                   <p className="text-sm font-bold text-cap-ink mb-1.5 leading-relaxed">{hi.content}</p>
                   <p className="text-xs text-cap-ink-2 font-semibold">
-                    <span className="text-cap-rose-deep font-black">触发条件：</span>{hi.trigger_condition}
+                    <span className="text-cap-rose-deep font-bold">触发条件：</span>{hi.trigger_condition}
                   </p>
                 </div>
               ))}
@@ -232,12 +232,12 @@ function PreviewStep({
 
         {/* 核心痛点 */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">⚡</span> 核心痛点
           </h3>
           <div className="space-y-3">
             {p.pain_points.map((pp) => (
-              <div key={pp.topic} className="p-3 rounded-xl bg-cap-rose/20 border-[2.5px] border-cap-line">
+              <div key={pp.topic} className="p-3 rounded-xl bg-cap-rose-soft border border-cap-line">
                 <div className="flex justify-between items-center mb-1">
                   <span className="font-bold text-cap-ink text-sm">{pp.topic}</span>
                   <IntensityBadge value={pp.intensity} />
@@ -250,12 +250,12 @@ function PreviewStep({
 
         {/* 常见异议 */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">🛡️</span> 常见异议
           </h3>
           <div className="space-y-3">
             {p.objections.map((obj, idx) => (
-              <div key={idx} className="p-3 rounded-xl bg-cap-butter/30 border-[2.5px] border-cap-line">
+              <div key={idx} className="p-3 rounded-xl bg-cap-butter-soft border border-cap-line">
                 <p className="text-sm font-bold text-cap-ink mb-1">「{obj.content}」</p>
                 <div className="flex justify-between items-center">
                   <p className="text-xs text-cap-ink-2 font-semibold">触发：{obj.trigger_topic}</p>
@@ -268,20 +268,20 @@ function PreviewStep({
 
         {/* 沟通风格 */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">💬</span> 沟通风格
           </h3>
           <div className="space-y-3">
-            <div className="p-3 rounded-xl bg-cap-cream-2 border-[2.5px] border-cap-line">
-              <span className="text-xs font-extrabold text-cap-ink-2 uppercase block mb-1">风格标签</span>
+            <div className="p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
+              <span className="text-xs font-semibold text-cap-ink-2 uppercase block mb-1">风格标签</span>
               <p className="text-cap-ink font-bold text-sm">{p.communication.style}</p>
               <p className="text-cap-ink-2 text-xs font-semibold mt-1">{p.communication.description}</p>
             </div>
-            <div className="p-3 rounded-xl bg-cap-cream-2 border-[2.5px] border-cap-line">
-              <span className="text-xs font-extrabold text-cap-ink-2 uppercase block mb-2">口头禅</span>
+            <div className="p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
+              <span className="text-xs font-semibold text-cap-ink-2 uppercase block mb-2">口头禅</span>
               <div className="flex flex-wrap gap-2">
                 {p.communication.speech_patterns.map((sp) => (
-                  <span key={sp} className="px-2.5 py-1 rounded-full text-xs font-bold bg-cap-sky border-[2px] border-cap-line" style={{ boxShadow: '0 1px 0 #2B1E16' }}>
+                  <span key={sp} className="px-2.5 py-1 rounded-full text-xs font-bold bg-cap-sky border border-cap-line" >
                     「{sp}」
                   </span>
                 ))}
@@ -292,7 +292,7 @@ function PreviewStep({
 
         {/* 行为倾向 */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">📊</span> 行为倾向
           </h3>
           <div className="space-y-3">
@@ -306,7 +306,7 @@ function PreviewStep({
 
         {/* 购车画像 */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">🚗</span> 购车画像
           </h3>
           <div className="grid grid-cols-2 gap-3 text-sm">
@@ -316,11 +316,11 @@ function PreviewStep({
             <InfoRow label="心理真实预算" value={p.purchase.budget_real} highlight />
             <InfoRow label="购车时间" value={p.purchase.timeline} />
           </div>
-          <div className="mt-3 p-3 rounded-xl bg-cap-cream-2 border-[2.5px] border-cap-line">
-            <span className="text-xs font-extrabold text-cap-ink-2 uppercase">用车场景</span>
+          <div className="mt-3 p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
+            <span className="text-xs font-semibold text-cap-ink-2 uppercase">用车场景</span>
             <div className="flex flex-wrap gap-2 mt-2">
               {p.purchase.usage_scenarios.map((s) => (
-                <span key={s} className="px-2.5 py-1 rounded-full text-xs font-bold bg-cap-mint border-[2px] border-cap-line" style={{ boxShadow: '0 1px 0 #2B1E16' }}>{s}</span>
+                <span key={s} className="px-2.5 py-1 rounded-full text-xs font-bold bg-cap-mint border border-cap-line" >{s}</span>
               ))}
             </div>
           </div>
@@ -328,7 +328,7 @@ function PreviewStep({
 
         {/* 竞品认知 */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">🏁</span> 竞品认知
           </h3>
           <p className="text-sm text-cap-ink font-semibold leading-relaxed">{p.competitor_awareness}</p>
@@ -336,7 +336,7 @@ function PreviewStep({
 
         {/* 基本信息 */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">👤</span> 基本信息
           </h3>
           <div className="grid grid-cols-2 gap-3 text-sm">
@@ -367,8 +367,8 @@ function PreviewStep({
 
 function InfoRow({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={`p-3 rounded-xl border-[2.5px] border-cap-line ${highlight ? 'bg-cap-peach/20' : 'bg-cap-cream-2'}`}>
-      <span className="text-xs font-extrabold text-cap-ink-2 uppercase block mb-0.5">{label}</span>
+    <div className={`p-3 rounded-xl border border-cap-line ${highlight ? 'bg-cap-peach-soft' : 'bg-cap-cream-2'}`}>
+      <span className="text-xs font-semibold text-cap-ink-2 uppercase block mb-0.5">{label}</span>
       <span className="font-bold text-cap-ink">{value}</span>
     </div>
   );
@@ -380,7 +380,7 @@ function IntensityBadge({ value }: { value: number }) {
   if (value >= 0.8) { color = 'bg-cap-rose'; label = '重度'; }
   else if (value >= 0.5) { color = 'bg-cap-butter'; label = '中度'; }
   return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-black border-[2px] border-cap-line ${color}`} style={{ boxShadow: '0 1px 0 #2B1E16' }}>
+    <span className={`px-2.5 py-1 rounded-full text-xs font-bold border border-cap-line ${color}`} >
       {label} {Math.round(value * 100)}%
     </span>
   );
@@ -392,7 +392,7 @@ function ResistanceBadge({ value }: { value: number }) {
   if (value >= 0.75) { color = 'bg-cap-rose text-cap-ink'; label = '高抵触'; }
   else if (value >= 0.5) { color = 'bg-cap-butter text-cap-ink'; label = '中抵触'; }
   return (
-    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black border-[2px] border-cap-line ${color}`} style={{ boxShadow: '0 1px 0 #2B1E16' }}>
+    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border border-cap-line ${color}`} >
       {label}
     </span>
   );
@@ -411,9 +411,9 @@ function BehaviorBar({ label, value, desc }: { label: string; value: number; des
           <span className="text-sm font-bold text-cap-ink">{label}</span>
           <span className="text-[10px] text-cap-ink-2 font-semibold ml-2">{desc}</span>
         </div>
-        <span className="text-xs font-black text-cap-ink-2">{pct}%</span>
+        <span className="text-xs font-bold text-cap-ink-2">{pct}%</span>
       </div>
-      <div className="h-2.5 bg-white rounded-full overflow-hidden border-[2px] border-cap-line shadow-[0_1px_0_#2B1E16]">
+      <div className="h-2.5 bg-white rounded-full overflow-hidden border border-cap-line ">
         <div className={`h-full ${barColor} transition-all duration-500`} style={{ width: `${pct}%` }} />
       </div>
     </div>

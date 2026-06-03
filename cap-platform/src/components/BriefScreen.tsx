@@ -22,7 +22,7 @@ export function BriefScreen() {
       <div className="max-w-2xl mx-auto">
         <button
           onClick={() => store.setScreen('personaList')}
-          className="text-cap-ink-2 hover:text-cap-ink text-sm font-bold mb-6 transition-colors"
+          className="text-cap-ink-2 hover:text-cap-ink text-sm font-semibold mb-6 transition-colors"
         >
           ← 返回
         </button>
@@ -30,15 +30,15 @@ export function BriefScreen() {
         {/* ── Header ── */}
         <div className="plush-lg p-6 mb-5 text-center relative">
           {isTypical && (
-            <span className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-cap-sage text-white border border-cap-sage tracking-wider">
+            <span className="absolute top-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-bold bg-cap-peach text-white tracking-wider">
               典型分身
             </span>
           )}
-          <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-cap-butter border-[4px] border-cap-line flex items-center justify-center text-4xl shadow-[0_4px_0_#2B1E16]">
+          <div className="w-20 h-20 mx-auto mb-3 rounded-xl bg-cap-butter-soft flex items-center justify-center text-4xl">
             {p.profile.gender === 'M' ? '👨' : '👩'}
           </div>
-          <h2 className="text-2xl font-black text-cap-ink">{p.profile.name}</h2>
-          <p className="text-cap-ink-2 font-bold text-sm mt-1">
+          <h2 className="text-2xl font-bold text-cap-ink">{p.profile.name}</h2>
+          <p className="text-cap-ink-2 font-medium text-sm mt-1">
             {p.profile.age}岁 · {p.profile.city} · {p.profile.occupation}
           </p>
           <div className="flex flex-wrap justify-center gap-2 mt-3">
@@ -48,20 +48,20 @@ export function BriefScreen() {
           </div>
         </div>
 
-        {/* ── 销售必读：隐藏信息 ── */}
+        {/* ── 隐藏信息 ── */}
         {p.hidden_info.length > 0 && (
-          <div className="plush-lg p-5 mb-5 border-[3px] border-cap-rose-deep">
-            <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <div className="plush-lg p-5 mb-5 border border-cap-rose/20">
+            <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
               <span className="text-lg">🔓</span> 隐藏信息（不会主动透露）
             </h3>
             <div className="space-y-3">
               {p.hidden_info.map((hi, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-cap-rose/15 border-[2.5px] border-cap-line">
-                  <p className="text-sm font-bold text-cap-ink mb-1.5 leading-relaxed">
+                <div key={idx} className="p-3 rounded-xl bg-cap-rose-soft border border-cap-line">
+                  <p className="text-sm font-medium text-cap-ink mb-1.5 leading-relaxed">
                     {hi.content}
                   </p>
-                  <p className="text-xs text-cap-ink-2 font-semibold">
-                    <span className="text-cap-rose-deep font-black">触发条件：</span>
+                  <p className="text-xs text-cap-ink-2 font-medium">
+                    <span className="text-cap-rose-deep font-semibold">触发条件：</span>
                     {hi.trigger_condition}
                   </p>
                 </div>
@@ -72,17 +72,17 @@ export function BriefScreen() {
 
         {/* ── 核心痛点 ── */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">⚡</span> 核心痛点
           </h3>
           <div className="space-y-3">
             {p.pain_points.map((pp) => (
-              <div key={pp.topic} className="p-3 rounded-xl bg-cap-rose/20 border-[2.5px] border-cap-line">
+              <div key={pp.topic} className="p-3 rounded-xl bg-cap-rose-soft border border-cap-line">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="font-bold text-cap-ink text-sm">{pp.topic}</span>
+                  <span className="font-medium text-cap-ink text-sm">{pp.topic}</span>
                   <IntensityBadge value={pp.intensity} />
                 </div>
-                <p className="text-xs text-cap-ink-2 font-semibold leading-relaxed">{pp.detail}</p>
+                <p className="text-xs text-cap-ink-2 font-medium leading-relaxed">{pp.detail}</p>
               </div>
             ))}
           </div>
@@ -90,15 +90,15 @@ export function BriefScreen() {
 
         {/* ── 常见异议 ── */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">🛡️</span> 常见异议
           </h3>
           <div className="space-y-3">
             {p.objections.map((obj, idx) => (
-              <div key={idx} className="p-3 rounded-xl bg-cap-butter/30 border-[2.5px] border-cap-line">
-                <p className="text-sm font-bold text-cap-ink mb-1">「{obj.content}」</p>
+              <div key={idx} className="p-3 rounded-xl bg-cap-butter-soft border border-cap-line">
+                <p className="text-sm font-medium text-cap-ink mb-1">「{obj.content}」</p>
                 <div className="flex justify-between items-center">
-                  <p className="text-xs text-cap-ink-2 font-semibold">
+                  <p className="text-xs text-cap-ink-2 font-medium">
                     触发：{obj.trigger_topic}
                   </p>
                   <ResistanceBadge value={obj.resistance} />
@@ -108,22 +108,22 @@ export function BriefScreen() {
           </div>
         </div>
 
-        {/* ── 沟通风格 + 口头禅 ── */}
+        {/* ── 沟通风格 ── */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">💬</span> 沟通风格
           </h3>
           <div className="space-y-3">
-            <div className="p-3 rounded-xl bg-cap-cream-2 border-[2.5px] border-cap-line">
-              <span className="text-xs font-extrabold text-cap-ink-2 uppercase block mb-1">风格标签</span>
-              <p className="text-cap-ink font-bold text-sm">{p.communication.style}</p>
-              <p className="text-cap-ink-2 text-xs font-semibold mt-1">{p.communication.description}</p>
+            <div className="p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
+              <span className="text-xs font-semibold text-cap-ink-2 uppercase block mb-1">风格标签</span>
+              <p className="text-cap-ink font-medium text-sm">{p.communication.style}</p>
+              <p className="text-cap-ink-2 text-xs font-medium mt-1">{p.communication.description}</p>
             </div>
-            <div className="p-3 rounded-xl bg-cap-cream-2 border-[2.5px] border-cap-line">
-              <span className="text-xs font-extrabold text-cap-ink-2 uppercase block mb-2">口头禅（对话中高频出现）</span>
+            <div className="p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
+              <span className="text-xs font-semibold text-cap-ink-2 uppercase block mb-2">口头禅</span>
               <div className="flex flex-wrap gap-2">
                 {p.communication.speech_patterns.map((sp) => (
-                  <span key={sp} className="px-2.5 py-1 rounded-full text-xs font-bold bg-cap-sky border-[2px] border-cap-line" style={{ boxShadow: '0 1px 0 #2B1E16' }}>
+                  <span key={sp} className="px-2.5 py-1 rounded-md text-xs font-medium bg-cap-sky-soft border border-cap-sky/20 text-cap-sky-deep">
                     「{sp}」
                   </span>
                 ))}
@@ -134,7 +134,7 @@ export function BriefScreen() {
 
         {/* ── 行为倾向 ── */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">📊</span> 行为倾向
           </h3>
           <div className="space-y-3">
@@ -148,7 +148,7 @@ export function BriefScreen() {
 
         {/* ── 购车画像 ── */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">🚗</span> 购车画像
           </h3>
           <div className="grid grid-cols-2 gap-3 text-sm">
@@ -158,11 +158,11 @@ export function BriefScreen() {
             <InfoRow label="心理真实预算" value={p.purchase.budget_real} highlight />
             <InfoRow label="购车时间" value={p.purchase.timeline} />
           </div>
-          <div className="mt-3 p-3 rounded-xl bg-cap-cream-2 border-[2.5px] border-cap-line">
-            <span className="text-xs font-extrabold text-cap-ink-2 uppercase">用车场景</span>
+          <div className="mt-3 p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
+            <span className="text-xs font-semibold text-cap-ink-2 uppercase">用车场景</span>
             <div className="flex flex-wrap gap-2 mt-2">
               {p.purchase.usage_scenarios.map((s) => (
-                <span key={s} className="px-2.5 py-1 rounded-full text-xs font-bold bg-cap-mint border-[2px] border-cap-line" style={{ boxShadow: '0 1px 0 #2B1E16' }}>{s}</span>
+                <span key={s} className="px-2.5 py-1 rounded-md text-xs font-medium bg-cap-mint-soft border border-cap-mint/20 text-cap-mint-deep">{s}</span>
               ))}
             </div>
           </div>
@@ -170,17 +170,17 @@ export function BriefScreen() {
 
         {/* ── 竞品认知 ── */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">🏁</span> 竞品认知
           </h3>
-          <p className="text-sm text-cap-ink font-semibold leading-relaxed">
+          <p className="text-sm text-cap-ink font-medium leading-relaxed">
             {p.competitor_awareness}
           </p>
         </div>
 
-        {/* ── 基本信息（次要） ── */}
+        {/* ── 基本信息 ── */}
         <div className="plush-lg p-5 mb-5">
-          <h3 className="font-black text-cap-ink mb-3 flex items-center gap-2">
+          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
             <span className="text-lg">👤</span> 基本信息
           </h3>
           <div className="grid grid-cols-2 gap-3 text-sm">
@@ -190,11 +190,11 @@ export function BriefScreen() {
         </div>
 
         {/* ── 目标提醒 ── */}
-        <div className="plush-lg p-5 mb-6 bg-cap-mint-soft">
-          <h3 className="font-black text-cap-ink mb-2 flex items-center gap-2">
+        <div className="plush-lg p-5 mb-6 bg-cap-mint-soft border border-cap-mint/20">
+          <h3 className="font-bold text-cap-ink mb-2 flex items-center gap-2">
             <span className="text-lg">🎯</span> {isTraining ? '对练目标' : '访谈目标'}
           </h3>
-          <p className="text-sm text-cap-ink font-semibold leading-relaxed">
+          <p className="text-sm text-cap-ink font-medium leading-relaxed">
             {isTraining
               ? '通过对话了解客户需求，建立信任，处理异议，最终达成成交或获取明确的下一步行动。注意：不要过早报价，先挖需求。'
               : '通过深度访谈了解客户的真实需求、痛点、偏好和决策因素，输出结构化洞察。保持开放，不要引导。'}
@@ -214,32 +214,32 @@ export function BriefScreen() {
 
 function InfoRow({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={`p-3 rounded-xl border-[2.5px] border-cap-line ${highlight ? 'bg-cap-peach/20' : 'bg-cap-cream-2'}`}>
-      <span className="text-xs font-extrabold text-cap-ink-2 uppercase block mb-0.5">{label}</span>
-      <span className={`font-bold ${highlight ? 'text-cap-ink' : 'text-cap-ink'}`}>{value}</span>
+    <div className={`p-3 rounded-xl border border-cap-line ${highlight ? 'bg-cap-peach-soft' : 'bg-cap-cream-2'}`}>
+      <span className="text-xs font-semibold text-cap-ink-2 uppercase block mb-0.5">{label}</span>
+      <span className="font-medium text-cap-ink">{value}</span>
     </div>
   );
 }
 
 function IntensityBadge({ value }: { value: number }) {
-  let color = 'bg-cap-mint';
+  let color = 'bg-cap-mint-soft text-cap-mint-deep border-cap-mint/20';
   let label = '轻度';
-  if (value >= 0.8) { color = 'bg-cap-rose'; label = '重度'; }
-  else if (value >= 0.5) { color = 'bg-cap-butter'; label = '中度'; }
+  if (value >= 0.8) { color = 'bg-cap-rose-soft text-cap-rose-deep border-cap-rose/20'; label = '重度'; }
+  else if (value >= 0.5) { color = 'bg-cap-butter-soft text-cap-butter-deep border-cap-butter/20'; label = '中度'; }
   return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-black border-[2px] border-cap-line ${color}`} style={{ boxShadow: '0 1px 0 #2B1E16' }}>
+    <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${color}`}>
       {label} {Math.round(value * 100)}%
     </span>
   );
 }
 
 function ResistanceBadge({ value }: { value: number }) {
-  let color = 'bg-cap-mint text-cap-ink';
+  let color = 'bg-cap-mint-soft text-cap-mint-deep border-cap-mint/20';
   let label = '低抵触';
-  if (value >= 0.75) { color = 'bg-cap-rose text-cap-ink'; label = '高抵触'; }
-  else if (value >= 0.5) { color = 'bg-cap-butter text-cap-ink'; label = '中抵触'; }
+  if (value >= 0.75) { color = 'bg-cap-rose-soft text-cap-rose-deep border-cap-rose/20'; label = '高抵触'; }
+  else if (value >= 0.5) { color = 'bg-cap-butter-soft text-cap-butter-deep border-cap-butter/20'; label = '中抵触'; }
   return (
-    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black border-[2px] border-cap-line ${color}`} style={{ boxShadow: '0 1px 0 #2B1E16' }}>
+    <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${color}`}>
       {label}
     </span>
   );
@@ -255,12 +255,12 @@ function BehaviorBar({ label, value, desc }: { label: string; value: number; des
     <div>
       <div className="flex justify-between items-end mb-1">
         <div>
-          <span className="text-sm font-bold text-cap-ink">{label}</span>
-          <span className="text-[10px] text-cap-ink-2 font-semibold ml-2">{desc}</span>
+          <span className="text-sm font-medium text-cap-ink">{label}</span>
+          <span className="text-[10px] text-cap-ink-2 font-medium ml-2">{desc}</span>
         </div>
-        <span className="text-xs font-black text-cap-ink-2">{pct}%</span>
+        <span className="text-xs font-bold text-cap-ink-2">{pct}%</span>
       </div>
-      <div className="h-2.5 bg-white rounded-full overflow-hidden border-[2px] border-cap-line shadow-[0_1px_0_#2B1E16]">
+      <div className="h-1.5 bg-cap-line-light rounded-full overflow-hidden">
         <div className={`h-full ${barColor} transition-all duration-500`} style={{ width: `${pct}%` }} />
       </div>
     </div>

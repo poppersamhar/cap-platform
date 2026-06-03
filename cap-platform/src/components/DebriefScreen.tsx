@@ -59,8 +59,8 @@ export function DebriefScreen() {
 
         {/* Coaching Summary */}
         {evaluation?.coaching_summary && (
-          <div className="plush-lg p-5 mb-6 bg-cap-butter/20 border-[3px] border-cap-butter">
-            <h3 className="font-black text-cap-ink mb-2 flex items-center gap-2 text-sm">
+          <div className="plush-lg p-5 mb-6 bg-cap-butter-soft border border-cap-butter">
+            <h3 className="font-bold text-cap-ink mb-2 flex items-center gap-2 text-sm">
               <span>🎯</span> 督导点评
             </h3>
             <p className="text-cap-ink font-bold text-sm leading-relaxed">{evaluation.coaching_summary}</p>
@@ -70,11 +70,11 @@ export function DebriefScreen() {
         {/* Overall Score + Grade */}
         <div className="plush-lg p-8 mb-6 text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="w-24 h-24 rounded-full bg-cap-butter border-[4px] border-cap-line flex items-center justify-center shadow-[0_5px_0_#2B1E16]">
-              <span className="text-4xl font-black text-cap-ink">{overallScore}</span>
+            <div className="w-24 h-24 rounded-full bg-cap-butter border border-cap-line flex items-center justify-center shadow-sm">
+              <span className="text-4xl font-bold text-cap-ink">{overallScore}</span>
             </div>
-            <div className={`w-16 h-16 rounded-full ${gradeColor} border-[4px] border-cap-line flex items-center justify-center shadow-[0_4px_0_#2B1E16]`}>
-              <span className="text-2xl font-black text-cap-ink">{grade}</span>
+            <div className={`w-16 h-16 rounded-full ${gradeColor} border border-cap-line flex items-center justify-center shadow-sm`}>
+              <span className="text-2xl font-bold text-cap-ink">{grade}</span>
             </div>
           </div>
           <div className="text-cap-ink-2 text-sm font-bold mb-2">综合评分 · {gradeLabel(grade)}</div>
@@ -88,7 +88,7 @@ export function DebriefScreen() {
         {/* Dimension Scores */}
         {scoreBars.length > 0 && (
           <div className="plush-lg p-6 mb-6">
-            <h3 className="font-black mb-4 text-cap-ink text-lg">维度评分</h3>
+            <h3 className="font-bold mb-4 text-cap-ink text-lg">维度评分</h3>
             <div className="space-y-4">
               {scoreBars.map((bar) => (
                 <ScoreBar key={bar.label} label={bar.label} value={bar.value} color={bar.color} />
@@ -100,12 +100,12 @@ export function DebriefScreen() {
         {/* Hidden Info Check */}
         {evaluation?.hidden_info_check && evaluation.hidden_info_check.length > 0 && (
           <div className="plush-lg p-6 mb-6">
-            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
+            <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
               <span>🔓</span> 隐藏信息挖掘
             </h3>
             <div className="space-y-3">
               {evaluation.hidden_info_check.map((hi, i) => (
-                <div key={i} className={`p-3 rounded-xl border-[2.5px] border-cap-line ${hi.triggered ? 'bg-cap-mint/15' : 'bg-cap-rose/10'}`}>
+                <div key={i} className={`p-3 rounded-xl border border-cap-line ${hi.triggered ? 'bg-cap-mint-soft' : 'bg-cap-rose-soft'}`}>
                   <div className="flex items-start gap-2 mb-1">
                     <span className="text-lg">{hi.triggered ? '✅' : '❌'}</span>
                     <p className="text-sm font-bold text-cap-ink flex-1">{hi.content}</p>
@@ -125,19 +125,19 @@ export function DebriefScreen() {
         {/* Pain Points Check */}
         {evaluation?.pain_points_check && evaluation.pain_points_check.length > 0 && (
           <div className="plush-lg p-6 mb-6">
-            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
+            <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
               <span>⚡</span> 核心痛点识别
             </h3>
             <div className="space-y-3">
               {evaluation.pain_points_check.map((pp, i) => (
-                <div key={i} className={`p-3 rounded-xl border-[2.5px] border-cap-line ${pp.recognized ? 'bg-cap-mint/15' : 'bg-cap-rose/10'}`}>
+                <div key={i} className={`p-3 rounded-xl border border-cap-line ${pp.recognized ? 'bg-cap-mint-soft' : 'bg-cap-rose-soft'}`}>
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{pp.recognized ? '✅' : '❌'}</span>
                       <span className="text-sm font-bold text-cap-ink">{pp.topic}</span>
                     </div>
                     {pp.recognized && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black border-[2px] border-cap-line bg-cap-butter">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border border-cap-line bg-cap-butter">
                         {isTraining
                           ? (pp.response_quality === 'good' ? '回应优秀' : pp.response_quality === 'fair' ? '回应一般' : '回应不足')
                           : (pp.depth === 'deep' ? '挖掘深入' : '挖掘浅显')
@@ -159,16 +159,16 @@ export function DebriefScreen() {
 
         {/* Missed Opportunities */}
         {evaluation?.missed_opportunities && evaluation.missed_opportunities.length > 0 && (
-          <div className="plush-lg p-6 mb-6 bg-cap-butter/10 border-[3px] border-cap-butter">
-            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
+          <div className="plush-lg p-6 mb-6 bg-cap-butter-soft border border-cap-butter">
+            <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
               <span>💡</span> 遗漏机会
             </h3>
             <div className="space-y-3">
               {evaluation.missed_opportunities.map((mo, i) => (
-                <div key={i} className="p-3 rounded-xl bg-cap-cream-2 border-[2.5px] border-cap-line">
+                <div key={i} className="p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
                   <p className="text-sm font-bold text-cap-ink mb-1.5">{mo.item}</p>
                   <p className="text-xs text-cap-ink-2 font-semibold">
-                    <span className="text-cap-sage-deep font-black">应问：</span>{mo.should_ask}
+                    <span className="text-cap-mint-deep font-bold">应问：</span>{mo.should_ask}
                   </p>
                 </div>
               ))}
@@ -179,7 +179,7 @@ export function DebriefScreen() {
         {/* Highlights */}
         {evaluation?.highlights && evaluation.highlights.length > 0 && (
           <div className="plush-lg p-6 mb-6 bg-cap-mint/10">
-            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
+            <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
               <span>✨</span> 亮点
             </h3>
             <div className="space-y-3">
@@ -195,8 +195,8 @@ export function DebriefScreen() {
 
         {/* Failures */}
         {evaluation?.failures && evaluation.failures.length > 0 && (
-          <div className="plush-lg p-6 mb-6 bg-cap-rose/15 border-[3px] border-cap-rose-deep">
-            <h3 className="font-black mb-4 text-cap-ink text-lg flex items-center gap-2">
+          <div className="plush-lg p-6 mb-6 bg-cap-rose-soft border border-cap-rose-deep">
+            <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
               <span>🛠️</span> 改进点
             </h3>
             <div className="space-y-4">
@@ -208,7 +208,7 @@ export function DebriefScreen() {
                   </div>
                   <p className="text-cap-ink-2 ml-14 text-xs font-semibold mb-1">建议: {f.suggestion}</p>
                   {f.better_approach && (
-                    <p className="text-cap-sage-deep ml-14 text-xs font-bold">
+                    <p className="text-cap-mint-deep ml-14 text-xs font-bold">
                       💬 {f.better_approach}
                     </p>
                   )}
@@ -221,16 +221,16 @@ export function DebriefScreen() {
         {/* Conversation Summary */}
         {roundMessages.length > 0 && (
           <div className="plush-lg p-6 mb-6">
-            <h3 className="font-black mb-4 text-cap-ink text-lg">对话摘要</h3>
+            <h3 className="font-bold mb-4 text-cap-ink text-lg">对话摘要</h3>
             <div className="space-y-3">
               {roundMessages.map((rm) => (
-                <div key={rm.round} className="p-3 rounded-xl bg-cap-cream-2 border-[2.5px] border-cap-line">
+                <div key={rm.round} className="p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
                   <span className="chip chip-butter text-xs mb-2 inline-block">第{rm.round}轮</span>
                   <p className="text-xs text-cap-ink-2 font-semibold mb-1">
-                    <span className="text-cap-peach-deep font-black">你：</span>{rm.user}
+                    <span className="text-cap-peach-deep font-bold">你：</span>{rm.user}
                   </p>
                   <p className="text-xs text-cap-ink font-semibold">
-                    <span className="text-cap-mint-deep font-black">客户：</span>{rm.client}
+                    <span className="text-cap-mint-deep font-bold">客户：</span>{rm.client}
                   </p>
                 </div>
               ))}
@@ -292,9 +292,9 @@ function ScoreBar({ label, value, color }: { label: string; value: number; color
     <div>
       <div className="flex justify-between text-sm mb-1">
         <span className="font-bold text-cap-ink">{label}</span>
-        <span className="font-black text-cap-ink">{value}</span>
+        <span className="font-bold text-cap-ink">{value}</span>
       </div>
-      <div className="h-3 bg-white rounded-full overflow-hidden border-[2px] border-cap-line shadow-[0_1px_0_#2B1E16]">
+      <div className="h-3 bg-white rounded-full overflow-hidden border border-cap-line ">
         <div className={`h-full ${barColor} transition-all duration-500`} style={{ width: `${value}%` }} />
       </div>
     </div>
