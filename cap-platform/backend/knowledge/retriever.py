@@ -29,8 +29,12 @@ def retrieve_for_avatar(
     history: list[dict[str, str]],
     user_message: str,
     top_k: int = 3,
+    persona_id: str | None = None,
 ) -> list[dict[str, Any]]:
     """为 Avatar Agent 检索相关知识
+
+    同时检索全局知识库 + 该 persona 的专属知识库（如果是典型用户），
+    合并去重后返回。
 
     Returns:
         知识片段列表，每项包含 text, source
@@ -41,9 +45,29 @@ def retrieve_for_avatar(
     if len(query) > 500:
         query = user_message[-200:]
 
-    results = store.search(query, top_k=top_k)
-    logger.debug(f"Retrieved {len(results)} knowledge chunks for query: {query[:60]}...")
-    return results
+    # 1. 检索全局知识库
+    all_results: list[dict[str, Any]] = store.search(query, top_k=top_k)
+
+    # 2. 检索典型用户专属知识库
+    if persona_id and persona_id.startswith("typical_"):
+        collection_name = f"persona_{persona_id}_docs"
+        try:
+            personal_results = store.search(query, top_k=top_k, collection_name=collection_name)
+            # 合并并去重（按 text 内容）
+            seen_texts = {r["text"] for r in all_results}
+            for r in personal_results:
+                if r["text"] not in seen_texts:
+                    all_results.append(r)
+                    seen_texts.add(r["text"])
+            logger.info(
+                f"Retrieved {len(personal_results)} personal + {len(all_results) - len(personal_results)} "
+                f"global chunks for persona {persona_id}"
+            )
+        except Exception as e:
+            logger.warning(f"Personal knowledge retrieval failed for {persona_id}: {e}")
+
+    logger.debug(f"Retrieved {len(all_results)} knowledge chunks for query: {query[:60]}...")
+    return all_results
 
 
 def format_knowledge_prompt(results: list[dict[str, Any]]) -> str:

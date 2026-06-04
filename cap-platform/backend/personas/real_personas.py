@@ -88,3 +88,63 @@ def get_persona(persona_id: str) -> Persona | None:
         if p.id == persona_id:
             return p
     return None
+
+
+def _persona_to_dict(p: Persona) -> dict:
+    """将 Persona Pydantic 模型转回 JSON 字典（保留 extra metadata）"""
+    return {
+        "id": p.id,
+        "profile": p.profile.model_dump(),
+        "purchase": p.purchase.model_dump(),
+        "pain_points": [pp.model_dump() for pp in p.pain_points],
+        "hidden_info": [hi.model_dump() for hi in p.hidden_info],
+        "objections": [obj.model_dump() for obj in p.objections],
+        "behavior": p.behavior.model_dump(),
+        "communication": {
+            "style": p.communication.style,
+            "description": p.communication.description,
+            "speech_patterns": p.communication.speech_patterns,
+        },
+        "competitor_awareness": p.competitor_awareness,
+        "tags": p.tags,
+    }
+
+
+def update_persona(persona_id: str, data: dict) -> Persona:
+    """更新典型分身并持久化到 JSON
+
+    仅支持 typical_ 前缀的分身（可配置角色）。
+    更新内存列表并写回 typical_personas.json。
+    """
+    if not persona_id.startswith("typical_"):
+        raise ValueError("只有典型分身(typical_)支持编辑")
+
+    # 1. 用新数据构建 Persona 模型（做校验）
+    updated = _dict_to_persona(data)
+    if updated.id != persona_id:
+        raise ValueError(f"ID 不匹配: {updated.id} != {persona_id}")
+
+    # 2. 更新内存列表
+    for i, p in enumerate(ALL_PERSONAS):
+        if p.id == persona_id:
+            ALL_PERSONAS[i] = updated
+            break
+    else:
+        raise ValueError(f"未找到分身: {persona_id}")
+
+    # 3. 持久化到 JSON
+    save_typical_personas()
+    logger.info(f"典型分身已更新并持久化: {persona_id}")
+    return updated
+
+
+def save_typical_personas() -> None:
+    """将当前内存中的所有典型分身写回 typical_personas.json"""
+    typicals = [p for p in ALL_PERSONAS if p.id.startswith("typical_")]
+    # 按原有文件中的顺序和 metadata 保留——这里用简化方式：只保存 schema 字段
+    # 如果原 JSON 有 _kind/_cluster_title 等额外字段，会丢失。POC 阶段可接受。
+    out = [_persona_to_dict(p) for p in typicals]
+    path = DATA_DIR / "typical_personas.json"
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, indent=2)
+    logger.info(f"已保存 {len(typicals)} 个典型分身到 {path}")

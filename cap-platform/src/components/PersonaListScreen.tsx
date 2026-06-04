@@ -1,47 +1,66 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { store, useStore } from '../store/Store';
 import type { Persona } from '../types';
+import { PersonaEditorModal } from './PersonaEditorModal';
 
-function PersonaCard({ p, onSelect }: { p: Persona; onSelect: (p: Persona) => void }) {
+function PersonaCard({
+  p,
+  onSelect,
+  onEdit,
+}: {
+  p: Persona;
+  onSelect: (p: Persona) => void;
+  onEdit?: (p: Persona) => void;
+}) {
   const isTypical = p.id.startsWith('typical_');
   return (
-    <button
-      key={p.id}
-      onClick={() => onSelect(p)}
-      className="group p-5 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200 relative"
-    >
-      {/* 类型角标 */}
+    <div className="group p-5 plush-lg hover:-translate-y-0.5 transition-all duration-200 relative text-left">
+      {/* 类型角标 + 编辑按钮 */}
       {isTypical && (
-        <span className="absolute top-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-bold bg-cap-peach text-white tracking-wider">
-          典型
-        </span>
+        <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit?.(p);
+            }}
+            className="w-7 h-7 rounded-md bg-cap-butter-soft border border-cap-line flex items-center justify-center text-cap-ink-2 hover:text-cap-ink hover:bg-cap-butter transition-colors"
+            title="编辑分身"
+          >
+            ⚙️
+          </button>
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-cap-peach text-white tracking-wider">
+            典型
+          </span>
+        </div>
       )}
 
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-12 h-12 rounded-xl bg-cap-butter-soft flex items-center justify-center text-2xl">
-          {p.profile.gender === 'M' ? '👨' : '👩'}
+      <button onClick={() => onSelect(p)} className="w-full text-left">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-12 h-12 rounded-xl bg-cap-butter-soft flex items-center justify-center text-2xl">
+            {p.profile.gender === 'M' ? '👨' : '👩'}
+          </div>
+          <div>
+            <h3 className="font-bold text-cap-ink">{p.profile.name}</h3>
+            <p className="text-xs text-cap-ink-2 font-medium">
+              {p.profile.age}岁 · {p.profile.city} · {p.profile.occupation}
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 className="font-bold text-cap-ink">{p.profile.name}</h3>
-          <p className="text-xs text-cap-ink-2 font-medium">
-            {p.profile.age}岁 · {p.profile.city} · {p.profile.occupation}
-          </p>
+        <p className="text-sm text-cap-ink-2 font-medium mb-3">
+          {p.purchase.car_type} · {p.purchase.budget_stated}
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {p.tags.slice(0, 3).map((tag) => (
+            <span
+              key={tag}
+              className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-cap-cream-2 border border-cap-line text-cap-ink-2"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
-      </div>
-      <p className="text-sm text-cap-ink-2 font-medium mb-3">
-        {p.purchase.car_type} · {p.purchase.budget_stated}
-      </p>
-      <div className="flex flex-wrap gap-1.5">
-        {p.tags.slice(0, 3).map((tag) => (
-          <span
-            key={tag}
-            className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-cap-cream-2 border border-cap-line text-cap-ink-2"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }
 
@@ -49,6 +68,7 @@ export function PersonaListScreen() {
   const personas = useStore((s) => s.personas);
   const isLoading = useStore((s) => s.isLoading);
   const mode = useStore((s) => s.mode);
+  const [editingPersona, setEditingPersona] = useState<Persona | null>(null);
 
   useEffect(() => {
     if (personas.length === 0) {
@@ -87,15 +107,6 @@ export function PersonaListScreen() {
         </p>
       </div>
 
-      {/* ── 导入入口 ── */}
-      <div className="plush-lg p-5 mb-10 bg-cap-mint-soft border border-dashed border-cap-mint/30 text-center cursor-pointer hover:bg-cap-mint/10 transition-colors"
-        onClick={() => store.setScreen('importPersona')}
-      >
-        <div className="text-3xl mb-2">📥</div>
-        <h3 className="font-bold text-cap-ink mb-1">导入新的客户分身</h3>
-        <p className="text-xs text-cap-ink-2 font-medium">上传 Excel 文件，AI 自动提取客户画像</p>
-      </div>
-
       {isLoading && (
         <div className="text-center py-12 text-cap-ink-2 font-medium">
           <div className="text-4xl mb-3 animate-bounce">🔄</div>
@@ -109,12 +120,12 @@ export function PersonaListScreen() {
           <div className="mb-5">
             <h3 className="text-lg font-bold text-cap-ink">典型用户</h3>
             <p className="text-xs text-cap-ink-2 font-medium">
-              由同类客户数据聚类合成的代表性分身
+              由同类客户数据聚类合成的代表性分身，可编辑配置和专属知识库
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {typical.map((p) => (
-              <PersonaCard key={p.id} p={p} onSelect={handleSelect} />
+              <PersonaCard key={p.id} p={p} onSelect={handleSelect} onEdit={setEditingPersona} />
             ))}
           </div>
         </section>
@@ -123,11 +134,19 @@ export function PersonaListScreen() {
       {/* ── 个体用户 ── */}
       {individual.length > 0 && (
         <section>
-          <div className="mb-5">
-            <h3 className="text-lg font-bold text-cap-ink">个体用户</h3>
-            <p className="text-xs text-cap-ink-2 font-medium">
-              由单个客户真实对话深度提取的一对一分身
-            </p>
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-bold text-cap-ink">个体用户</h3>
+              <p className="text-xs text-cap-ink-2 font-medium">
+                由单个客户真实对话深度提取的一对一分身
+              </p>
+            </div>
+            <button
+              onClick={() => store.setScreen('importPersona')}
+              className="px-4 py-2 rounded-xl bg-cap-mint text-white text-sm font-bold hover:bg-cap-mint/90 transition-colors flex items-center gap-1.5 shrink-0"
+            >
+              <span>📥</span> 导入新用户
+            </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {individual.map((p) => (
@@ -135,6 +154,18 @@ export function PersonaListScreen() {
             ))}
           </div>
         </section>
+      )}
+
+      {/* 编辑浮窗 */}
+      {editingPersona && (
+        <PersonaEditorModal
+          persona={editingPersona}
+          onClose={() => setEditingPersona(null)}
+          onSave={async (updated) => {
+            await store.updatePersona(updated.id, updated);
+            setEditingPersona(null);
+          }}
+        />
       )}
     </div>
   );
