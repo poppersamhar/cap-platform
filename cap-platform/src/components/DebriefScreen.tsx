@@ -351,7 +351,7 @@ function ConversationDialog({
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
           {messages.map((msg, i) => (
-            <MessageBubble key={i} message={msg} />
+            <MessageBubble key={i} message={msg} mode={mode} />
           ))}
           <div ref={messagesEndRef} />
         </div>
@@ -360,17 +360,20 @@ function ConversationDialog({
   );
 }
 
-function MessageBubble({ message }: { message: ChatMessage }) {
+function MessageBubble({ message, mode }: { message: ChatMessage; mode: AppMode }) {
   const isUser = message.role === 'user';
+  const isTraining = mode === 'training';
+
+  const userBubbleClass = isTraining
+    ? 'bg-cap-peach text-white rounded-2xl rounded-br-md shadow-sm'
+    : 'bg-cap-mint text-white rounded-2xl rounded-br-md shadow-sm';
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div className={`max-w-[80%] ${isUser ? 'order-2' : ''}`}>
         <div
           className={`px-4 py-3 text-sm leading-relaxed font-medium ${
-            isUser
-              ? 'bg-cap-peach text-white rounded-2xl rounded-br-md shadow-sm'
-              : 'bg-white text-cap-ink rounded-2xl rounded-bl-md border border-cap-line shadow-sm'
+            isUser ? userBubbleClass : 'bg-white text-cap-ink rounded-2xl rounded-bl-md border border-cap-line shadow-sm'
           }`}
         >
           {message.content}
@@ -381,14 +384,19 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             {message.triggered_tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-cap-butter-soft text-cap-butter-deep border border-cap-butter/20"
+                className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
+                  isTraining
+                    ? 'bg-cap-butter-soft text-cap-butter-deep border-cap-butter/20'
+                    : 'bg-cap-sky-soft text-cap-sky-deep border-cap-sky/20'
+                }`}
               >
-                {tag}
+                {isTraining ? '🏷️' : '📌'} {tag}
               </span>
             ))}
           </div>
         )}
-        {!isUser && message.hidden_revealed && message.hidden_revealed.length > 0 && (
+        {/* 隐藏信息 — 仅训练模式 */}
+        {!isUser && isTraining && message.hidden_revealed && message.hidden_revealed.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-1.5">
             {message.hidden_revealed.map((h) => (
               <span

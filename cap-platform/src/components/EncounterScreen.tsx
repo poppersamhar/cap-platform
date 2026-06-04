@@ -30,7 +30,14 @@ export function EncounterScreen() {
     }
   };
 
-  const emotion = session.emotion_state;
+    const emotion = session.emotion_state;
+  const isTraining = session.mode === 'training';
+  const maxRounds = isTraining ? 15 : 20;
+
+  // 情绪维度标签映射（同一组 backend 字段，不同语义）
+  const emotionLabels = isTraining
+    ? ['信任度', '购买意愿', '好感度', '抵触', '焦虑']
+    : ['配合度', '信息开放度', '表达深度', '兴趣度', '顾虑感'];
 
   return (
     <div className="flex flex-col h-screen bg-cap-cream">
@@ -45,10 +52,10 @@ export function EncounterScreen() {
             ←
           </button>
           <div>
-            <h3 className="font-bold text-sm text-cap-ink">{session.mode === 'training' ? '销售对练' : '用户调研'}</h3>
+            <h3 className="font-bold text-sm text-cap-ink">{isTraining ? '销售对练' : '用户调研'}</h3>
             <div className="flex items-center gap-2">
-              <p className="text-xs text-cap-ink-2 font-medium">第 {session.round} / 15 轮</p>
-              <RoundProgressBar round={session.round} />
+              <p className="text-xs text-cap-ink-2 font-medium">第 {session.round} / {maxRounds} 轮</p>
+              <RoundProgressBar round={session.round} maxRounds={maxRounds} />
             </div>
           </div>
         </div>
@@ -63,11 +70,11 @@ export function EncounterScreen() {
       {/* Emotion Bar — 商务仪表盘风格 */}
       <div className="px-6 py-3 border-b border-cap-line bg-cap-cream-2">
         <div className="grid grid-cols-5 gap-4">
-          <EmotionItem label="信任度" value={emotion.trust} color="bg-cap-mint" />
-          <EmotionItem label="购买意愿" value={emotion.intent} color="bg-cap-peach" />
-          <EmotionItem label="好感度" value={emotion.rapport} color="bg-cap-sky" />
-          <EmotionItem label="抵触" value={emotion.resistance} color="bg-cap-rose" />
-          <EmotionItem label="焦虑" value={emotion.anxiety} color="bg-cap-butter" />
+          <EmotionItem label={emotionLabels[0]} value={emotion.trust} color="bg-cap-mint" />
+          <EmotionItem label={emotionLabels[1]} value={emotion.intent} color="bg-cap-peach" />
+          <EmotionItem label={emotionLabels[2]} value={emotion.rapport} color="bg-cap-sky" />
+          <EmotionItem label={emotionLabels[3]} value={emotion.resistance} color="bg-cap-rose" />
+          <EmotionItem label={emotionLabels[4]} value={emotion.anxiety} color="bg-cap-butter" />
         </div>
         {session.special_state && (
           <div className={`mt-2 text-xs px-3 py-1.5 rounded-md inline-block font-semibold ${
@@ -75,9 +82,19 @@ export function EncounterScreen() {
             session.special_state === 'decision_phase' ? 'bg-cap-mint-soft text-cap-mint-deep border border-cap-mint/20' :
             'bg-cap-butter-soft text-cap-butter-deep border border-cap-butter/20'
           }`}>
-            {session.special_state === 'customer_leaving' && '⚠️ 客户准备离店'}
-            {session.special_state === 'decision_phase' && '✅ 进入决策阶段'}
-            {session.special_state === 'confrontation' && '⚠️ 进入对抗模式'}
+            {isTraining ? (
+              <>
+                {session.special_state === 'customer_leaving' && '⚠️ 客户准备离店'}
+                {session.special_state === 'decision_phase' && '✅ 进入决策阶段'}
+                {session.special_state === 'confrontation' && '⚠️ 进入对抗模式'}
+              </>
+            ) : (
+              <>
+                {session.special_state === 'customer_leaving' && '⚠️ 访谈意愿降低'}
+                {session.special_state === 'decision_phase' && '✅ 进入深度分享'}
+                {session.special_state === 'confrontation' && '⚠️ 话题回避'}
+              </>
+            )}
           </div>
         )}
       </div>
@@ -90,9 +107,11 @@ export function EncounterScreen() {
               👋
             </div>
             <p className="text-lg font-bold mb-1 text-cap-ink">对话开始</p>
-            <p className="text-sm font-medium mb-6">向客户打个招呼，开始你的{session.mode === 'training' ? '销售对练' : '调研访谈'}</p>
+            <p className="text-sm font-medium mb-6">
+              {isTraining ? '向客户打个招呼，开始你的销售对练' : '向受访者问好，开始你的调研访谈'}
+            </p>
             <div className="flex flex-wrap justify-center gap-2 max-w-md mx-auto">
-              {(session.mode === 'training' ? TRAINING_HINTS : RESEARCH_HINTS).map((hint) => (
+              {(isTraining ? TRAINING_HINTS : RESEARCH_HINTS).map((hint) => (
                 <button
                   key={hint}
                   onClick={() => {
@@ -109,7 +128,7 @@ export function EncounterScreen() {
           </div>
         )}
         {session.messages.map((msg, i) => (
-          <MessageBubble key={i} message={msg} />
+          <MessageBubble key={i} message={msg} mode={session.mode} />
         ))}
         {isLoading && (
           <div className="flex items-center gap-2 text-cap-ink-2 text-sm font-medium ml-2">
@@ -131,7 +150,7 @@ export function EncounterScreen() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={session.mode === 'training' ? '输入你的销售话术...' : '输入你的调研问题...'}
+            placeholder={isTraining ? '输入你的销售话术...' : '输入你的调研问题...'}
             className="flex-1 px-4 py-3 rounded-xl bg-cap-cream border border-cap-line resize-none focus:outline-none focus:border-cap-peach focus:ring-2 focus:ring-cap-peach/10 text-sm min-h-[48px] max-h-[120px] font-medium text-cap-ink"
             rows={1}
             disabled={isLoading}
@@ -163,8 +182,7 @@ const RESEARCH_HINTS = [
   '您一般会在什么场景下用车？',
 ];
 
-function RoundProgressBar({ round }: { round: number }) {
-  const maxRounds = 15;
+function RoundProgressBar({ round, maxRounds }: { round: number; maxRounds: number }) {
   const pct = Math.min((round / maxRounds) * 100, 100);
   const color = pct >= 80 ? 'bg-cap-rose' : pct >= 60 ? 'bg-cap-butter' : 'bg-cap-mint';
   return (
@@ -215,35 +233,44 @@ function EmotionItem({ label, value, color }: { label: string; value: number; co
   );
 }
 
-function MessageBubble({ message }: { message: ChatMessage }) {
+function MessageBubble({ message, mode }: { message: ChatMessage; mode: string }) {
   const isUser = message.role === 'user';
+  const isTraining = mode === 'training';
+
+  // 用户消息颜色差异化：training 红色 / research 青色
+  const userBubbleClass = isTraining
+    ? 'bg-cap-peach text-white rounded-2xl rounded-br-md shadow-sm'
+    : 'bg-cap-mint text-white rounded-2xl rounded-br-md shadow-sm';
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div className={`max-w-[75%] ${isUser ? 'order-2' : ''}`}>
         <div
           className={`px-4 py-3 text-sm leading-relaxed font-medium ${
-            isUser
-              ? 'bg-cap-peach text-white rounded-2xl rounded-br-md shadow-sm'
-              : 'bg-white text-cap-ink rounded-2xl rounded-bl-md border border-cap-line shadow-sm'
+            isUser ? userBubbleClass : 'bg-white text-cap-ink rounded-2xl rounded-bl-md border border-cap-line shadow-sm'
           }`}
         >
           {message.content}
         </div>
-        {/* Tags */}
+        {/* Tags — 训练模式显示触达标签，调研模式显示话题标签 */}
         {!isUser && message.triggered_tags && message.triggered_tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {message.triggered_tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-cap-butter-soft text-cap-butter-deep border border-cap-butter/20"
+                className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
+                  isTraining
+                    ? 'bg-cap-butter-soft text-cap-butter-deep border-cap-butter/20'
+                    : 'bg-cap-sky-soft text-cap-sky-deep border-cap-sky/20'
+                }`}
               >
-                {tag}
+                {isTraining ? '🏷️' : '📌'} {tag}
               </span>
             ))}
           </div>
         )}
-        {!isUser && message.hidden_revealed && message.hidden_revealed.length > 0 && (
+        {/* 隐藏信息解锁 — 仅训练模式显示 */}
+        {!isUser && isTraining && message.hidden_revealed && message.hidden_revealed.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-1.5">
             {message.hidden_revealed.map((h) => (
               <span
