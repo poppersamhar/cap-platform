@@ -7,13 +7,17 @@ from . import parser, store
 logger = logging.getLogger("cap.knowledge")
 
 
-def ingest_document(file_bytes: bytes, filename: str) -> dict:
+def ingest_document(file_bytes: bytes, filename: str, collection_name: str = "training_docs") -> dict:
     """单文档入库流程
+
+    Args:
+        collection_name: 目标集合名，默认全局 training_docs；
+                         典型用户专属文档使用 persona_{id}_docs
 
     Returns:
         {"filename": str, "chunks": int, "status": str}
     """
-    logger.info(f"Ingesting document: {filename}")
+    logger.info(f"Ingesting document: {filename} into collection: {collection_name}")
 
     # 1. 解析文本
     raw_text = parser.parse_document(file_bytes, filename)
@@ -26,6 +30,6 @@ def ingest_document(file_bytes: bytes, filename: str) -> dict:
         return {"filename": filename, "chunks": 0, "status": "no_chunks"}
 
     # 3. 入库
-    store.add_chunks(chunks, source=filename)
+    store.add_chunks(chunks, source=filename, collection_name=collection_name)
 
     return {"filename": filename, "chunks": len(chunks), "status": "success"}

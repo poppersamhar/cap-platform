@@ -372,6 +372,80 @@ class Store {
     }
   }
 
+  // ── Persona Edit ──
+  async updatePersona(personaId: string, data: Persona) {
+    this.setLoading(true);
+    this.setError(null);
+    try {
+      const resp = await fetch(`${API_BASE}/api/persona/${encodeURIComponent(personaId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ persona: data }),
+      });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${resp.status}`);
+      }
+      await this.loadPersonas();
+      this.showToast('分身已更新', 'success');
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '更新失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  // ── Persona Knowledge ──
+  async loadPersonaKnowledgeSources(personaId: string) {
+    try {
+      const resp = await fetch(`${API_BASE}/api/persona/${encodeURIComponent(personaId)}/knowledge/sources`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      return data.sources || [];
+    } catch (e) {
+      console.error('Failed to load persona knowledge sources:', e);
+      return [];
+    }
+  }
+
+  async uploadPersonaKnowledge(personaId: string, file: File) {
+    this.setLoading(true);
+    this.setError(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const resp = await fetch(`${API_BASE}/api/knowledge/upload?persona_id=${encodeURIComponent(personaId)}`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${resp.status}`);
+      }
+      this.showToast('专属文档已上传', 'success');
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '上传失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  async deletePersonaKnowledgeSource(personaId: string, sourceName: string) {
+    this.setLoading(true);
+    try {
+      const resp = await fetch(
+        `${API_BASE}/api/persona/${encodeURIComponent(personaId)}/knowledge/source/${encodeURIComponent(sourceName)}`,
+        { method: 'DELETE' }
+      );
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      this.showToast('文档已删除', 'success');
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '删除失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
   // ── Persona Import ──
   setPreviewPersona = (persona: Persona | null) =>
     this.set({ previewPersona: persona });

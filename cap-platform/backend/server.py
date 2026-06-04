@@ -9,14 +9,14 @@ import uuid
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Query
 
 # 加载环境变量
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from personas.real_personas import ALL_PERSONAS, get_persona
+from personas.real_personas import ALL_PERSONAS, get_persona, update_persona
 from personas.schema import Persona
 from engine.emotion_state import EmotionState
 from agents import avatar_agent, supervisor_agent, analyst_agent, extractor_agent, sales_agent
@@ -160,32 +160,48 @@ async def health():
 # ── 分身列表 ──
 @app.get("/api/personas")
 async def list_personas():
-    """返回所有可用分身（嵌套结构，与前端类型匹配）"""
+    """返回所有可用分身（完整结构，与前端 Persona 类型匹配）"""
     return {
         "personas": [
             {
                 "id": p.id,
-                "profile": {
-                    "name": p.profile.name,
-                    "age": p.profile.age,
-                    "gender": p.profile.gender,
-                    "city": p.profile.city,
-                    "occupation": p.profile.occupation,
-                    "family": p.profile.family,
-                    "current_car": p.profile.current_car,
-                },
-                "purchase": {
-                    "budget_stated": p.purchase.budget_stated,
-                    "budget_real": p.purchase.budget_real,
-                    "car_type": p.purchase.car_type,
-                    "stage": p.purchase.stage,
-                    "timeline": p.purchase.timeline,
-                    "usage_scenarios": p.purchase.usage_scenarios,
-                },
+                "profile": p.profile.model_dump(),
+                "purchase": p.purchase.model_dump(),
+                "pain_points": [pp.model_dump() for pp in p.pain_points],
+                "hidden_info": [hi.model_dump() for hi in p.hidden_info],
+                "objections": [obj.model_dump() for obj in p.objections],
+                "behavior": p.behavior.model_dump(),
+                "communication": p.communication.model_dump(),
+                "competitor_awareness": p.competitor_awareness,
                 "tags": p.tags,
             }
             for p in ALL_PERSONAS
         ]
+    }
+
+
+# ── 更新典型分身 ──
+@app.put("/api/persona/{persona_id}")
+async def update_persona_endpoint(persona_id: str, req: CreatePersonaRequest):
+    """更新典型分身（仅 typical_ 前缀支持编辑）"""
+    try:
+        updated = update_persona(persona_id, req.persona)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.exception("Update persona failed")
+        raise HTTPException(status_code=500, detail=f"更新失败: {str(e)}")
+
+    return {
+        "id": updated.id,
+        "profile": updated.profile.model_dump(),
+        "purchase": updated.purchase.model_dump(),
+        "pain_points": [pp.model_dump() for pp in updated.pain_points],
+        "hidden_info": [hi.model_dump() for hi in updated.hidden_info],
+        "objections": [obj.model_dump() for obj in updated.objections],
+        "behavior": updated.behavior.model_dump(),
+        "communication": updated.communication.model_dump(),
+        "tags": updated.tags,
     }
 
 
@@ -275,11 +291,13 @@ async def chat(req: ChatRequest):
     # 构建历史
     history = session["messages"].copy()
 
-    # 检索培训知识库（训练模式下生效）
+    # 检索培训知识库（训练模式下生效）+ 典型用户专属知识库
     knowledge_context = ""
     if session["mode"] == "training":
         try:
-            kb_results = retriever.retrieve_for_avatar(history, req.message, top_k=3)
+            kb_results = retriever.retrieve_for_avatar(
+                history, req.message, top_k=3, persona_id=session["persona_id"]
+            )
             if kb_results:
                 knowledge_context = retriever.format_knowledge_prompt(kb_results)
                 logger.info(f"Injected {len(kb_results)} knowledge chunks for session {req.session_id}")
@@ -554,15 +572,27 @@ async def end_session(session_id: str):
 
 # ── 知识库管理 ──
 @app.post("/api/knowledge/upload")
-async def upload_knowledge(file: UploadFile = File(...)):
-    """上传培训文档（PDF/DOCX/PPTX/TXT/MD），入库到向量知识库"""
+async def upload_knowledge(
+    file: UploadFile = File(...),
+    persona_id: str | None = Query(None, description="指定典型用户ID，文档将入库到该用户的专属知识库"),
+):
+    """上传培训文档（PDF/DOCX/PPTX/TXT/MD），入库到向量知识库
+
+    如果传入 persona_id（且为 typical_ 前缀），文档会存入该 persona 的专属 collection。
+    """
     allowed = ('.pdf', '.docx', '.pptx', '.txt', '.md')
     if not file.filename or not file.filename.lower().endswith(allowed):
         raise HTTPException(status_code=400, detail=f"不支持的文件格式，请上传 {allowed}")
 
+    collection_name = "training_docs"
+    if persona_id:
+        if not persona_id.startswith("typical_"):
+            raise HTTPException(status_code=400, detail="只有典型用户(typical_)支持专属知识库")
+        collection_name = f"persona_{persona_id}_docs"
+
     try:
         contents = await file.read()
-        result = ingest.ingest_document(contents, filename=file.filename)
+        result = ingest.ingest_document(contents, filename=file.filename, collection_name=collection_name)
     except Exception as e:
         logger.exception("Knowledge ingest error")
         raise HTTPException(status_code=500, detail=f"文档入库失败: {str(e)}")
@@ -575,7 +605,7 @@ async def upload_knowledge(file: UploadFile = File(...)):
 
 @app.get("/api/knowledge/sources")
 async def list_knowledge_sources():
-    """列出已入库的所有文档来源"""
+    """列出已入库的所有全局文档来源"""
     try:
         sources = knowledge_store.list_sources()
     except Exception as e:
@@ -586,11 +616,42 @@ async def list_knowledge_sources():
 
 @app.delete("/api/knowledge/source/{source_name:path}")
 async def delete_knowledge_source(source_name: str):
-    """删除某个来源的所有文档片段"""
+    """删除某个全局来源的所有文档片段"""
     try:
         deleted = knowledge_store.delete_source(source_name)
     except Exception as e:
         logger.warning(f"Delete source failed: {e}")
+        raise HTTPException(status_code=500, detail="删除失败")
+    return {"deleted_chunks": deleted}
+
+
+# ── 典型用户专属知识库 ──
+@app.get("/api/persona/{persona_id}/knowledge/sources")
+async def list_persona_knowledge_sources(persona_id: str):
+    """列出某典型用户的专属文档来源"""
+    if not persona_id.startswith("typical_"):
+        raise HTTPException(status_code=400, detail="只有典型用户(typical_)支持专属知识库")
+
+    collection_name = f"persona_{persona_id}_docs"
+    try:
+        sources = knowledge_store.list_sources(collection_name)
+    except Exception as e:
+        logger.warning(f"List persona sources failed: {e}")
+        raise HTTPException(status_code=500, detail="获取专属知识库列表失败")
+    return {"sources": sources}
+
+
+@app.delete("/api/persona/{persona_id}/knowledge/source/{source_name:path}")
+async def delete_persona_knowledge_source(persona_id: str, source_name: str):
+    """删除某典型用户专属知识库中的某个来源"""
+    if not persona_id.startswith("typical_"):
+        raise HTTPException(status_code=400, detail="只有典型用户(typical_)支持专属知识库")
+
+    collection_name = f"persona_{persona_id}_docs"
+    try:
+        deleted = knowledge_store.delete_source(source_name, collection_name)
+    except Exception as e:
+        logger.warning(f"Delete persona source failed: {e}")
         raise HTTPException(status_code=500, detail="删除失败")
     return {"deleted_chunks": deleted}
 
