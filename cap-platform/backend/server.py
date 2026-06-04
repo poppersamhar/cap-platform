@@ -19,7 +19,8 @@ from pydantic import BaseModel
 from personas.real_personas import ALL_PERSONAS, get_persona
 from personas.schema import Persona
 from engine.emotion_state import EmotionState
-from agents import avatar_agent, supervisor_agent, analyst_agent, extractor_agent
+from agents import avatar_agent, supervisor_agent, analyst_agent, extractor_agent, sales_agent
+from knowledge import ingest, store as knowledge_store, retriever
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("cap.server")
@@ -274,6 +275,17 @@ async def chat(req: ChatRequest):
     # 构建历史
     history = session["messages"].copy()
 
+    # 检索培训知识库（训练模式下生效）
+    knowledge_context = ""
+    if session["mode"] == "training":
+        try:
+            kb_results = retriever.retrieve_for_avatar(history, req.message, top_k=3)
+            if kb_results:
+                knowledge_context = retriever.format_knowledge_prompt(kb_results)
+                logger.info(f"Injected {len(kb_results)} knowledge chunks for session {req.session_id}")
+        except Exception as e:
+            logger.warning(f"Knowledge retrieval failed: {e}")
+
     # 调用分身 Agent
     emotion = session["emotion_state"]
     try:
@@ -283,6 +295,7 @@ async def chat(req: ChatRequest):
             history=history,
             user_message=req.message,
             mode=session["mode"],
+            knowledge_context=knowledge_context,
         )
     except Exception as e:
         logger.exception("Avatar agent error")
@@ -316,6 +329,109 @@ async def chat(req: ChatRequest):
         "triggered_tags": result.get("triggered_tags", []),
         "hidden_revealed": result.get("hidden_revealed", []),
         "round": round_num,
+    }
+
+
+# ── 自动评测：Sales Agent vs Avatar Agent ──
+class EvalRunRequest(BaseModel):
+    persona_id: str
+    mode: str = "training"
+    max_rounds: int = 8
+    opening_message: str = "您好，欢迎到店看车！今天主要想了解哪款车型？"
+
+
+@app.post("/api/eval/run")
+async def run_eval(req: EvalRunRequest):
+    """自动运行销售Agent与Avatar Agent的完整对话，返回对话记录"""
+    persona = get_persona(req.persona_id)
+    if not persona:
+        raise HTTPException(status_code=404, detail="Persona not found")
+
+    session_id = str(uuid.uuid4())[:8]
+    session = {
+        "id": session_id,
+        "persona_id": req.persona_id,
+        "mode": req.mode,
+        "messages": [],
+        "emotion_state": EmotionState(),
+        "special_state": None,
+        "round": 0,
+        "evaluation": None,
+        "status": "active",
+        "created_at": time.time(),
+    }
+    _sessions[session_id] = session
+
+    transcript = []
+    emotion = session["emotion_state"]
+
+    # 开场白
+    sales_msg = req.opening_message
+    transcript.append({"role": "sales", "round": 0, "content": sales_msg})
+
+    for round_num in range(1, req.max_rounds + 1):
+        session["round"] = round_num
+
+        # Avatar 回复 Sales
+        avatar_history = session["messages"].copy()
+        try:
+            avatar_result = await avatar_agent.chat(
+                persona=persona,
+                emotion=emotion,
+                history=avatar_history,
+                user_message=sales_msg,
+                mode=req.mode,
+            )
+        except Exception as e:
+            logger.exception("Avatar agent error in eval")
+            raise HTTPException(status_code=500, detail=f"Avatar error: {str(e)}")
+
+        avatar_reply = _clean_text(avatar_result["reply"])
+        emotion.update(avatar_result.get("emotion_delta", {}))
+        session["emotion_state"] = emotion
+
+        # 记录到会话
+        session["messages"].append({"role": "user", "content": sales_msg})
+        session["messages"].append({
+            "role": "assistant",
+            "content": avatar_reply,
+            "triggered_tags": avatar_result.get("triggered_tags", []),
+            "hidden_revealed": avatar_result.get("hidden_revealed", []),
+        })
+
+        transcript.append({
+            "role": "avatar",
+            "round": round_num,
+            "content": avatar_reply,
+            "emotion": emotion.to_dict(),
+            "triggered_tags": avatar_result.get("triggered_tags", []),
+            "hidden_revealed": avatar_result.get("hidden_revealed", []),
+        })
+
+        # Sales 回复 Avatar
+        sales_history = session["messages"].copy()
+        try:
+            sales_reply = await sales_agent.generate_sales_message(sales_history)
+        except Exception as e:
+            logger.exception("Sales agent error in eval")
+            raise HTTPException(status_code=500, detail=f"Sales error: {str(e)}")
+
+        sales_msg = _clean_text(sales_reply)
+        transcript.append({"role": "sales", "round": round_num, "content": sales_msg})
+
+        logger.info(f"Eval round {round_num}: sales='{sales_msg[:40]}...' avatar='{avatar_reply[:40]}...'")
+
+    # 触发督导评估
+    asyncio.create_task(_async_evaluate(session, persona))
+
+    return {
+        "session_id": session_id,
+        "persona_id": req.persona_id,
+        "persona_name": persona.profile.name,
+        "mode": req.mode,
+        "rounds": req.max_rounds,
+        "transcript": transcript,
+        "emotion_final": emotion.to_dict(),
     }
 
 
@@ -434,6 +550,49 @@ async def end_session(session_id: str):
 
     session["status"] = "ended"
     return {"status": "ended"}
+
+
+# ── 知识库管理 ──
+@app.post("/api/knowledge/upload")
+async def upload_knowledge(file: UploadFile = File(...)):
+    """上传培训文档（PDF/DOCX/PPTX/TXT/MD），入库到向量知识库"""
+    allowed = ('.pdf', '.docx', '.pptx', '.txt', '.md')
+    if not file.filename or not file.filename.lower().endswith(allowed):
+        raise HTTPException(status_code=400, detail=f"不支持的文件格式，请上传 {allowed}")
+
+    try:
+        contents = await file.read()
+        result = ingest.ingest_document(contents, filename=file.filename)
+    except Exception as e:
+        logger.exception("Knowledge ingest error")
+        raise HTTPException(status_code=500, detail=f"文档入库失败: {str(e)}")
+
+    if result["status"] == "too_short_or_empty":
+        raise HTTPException(status_code=400, detail="文档内容太短或无法提取文本")
+
+    return result
+
+
+@app.get("/api/knowledge/sources")
+async def list_knowledge_sources():
+    """列出已入库的所有文档来源"""
+    try:
+        sources = knowledge_store.list_sources()
+    except Exception as e:
+        logger.warning(f"List sources failed: {e}")
+        raise HTTPException(status_code=500, detail="获取知识库列表失败")
+    return {"sources": sources}
+
+
+@app.delete("/api/knowledge/source/{source_name:path}")
+async def delete_knowledge_source(source_name: str):
+    """删除某个来源的所有文档片段"""
+    try:
+        deleted = knowledge_store.delete_source(source_name)
+    except Exception as e:
+        logger.warning(f"Delete source failed: {e}")
+        raise HTTPException(status_code=500, detail="删除失败")
+    return {"deleted_chunks": deleted}
 
 
 # ── 启动 ──

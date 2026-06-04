@@ -38,14 +38,18 @@ export function EncounterScreen() {
       <div className="flex items-center justify-between px-6 py-3 border-b border-cap-line bg-white">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => store.setScreen('endConfirm')}
+            onClick={() => store.setScreen('brief')}
             className="text-cap-ink-2 hover:text-cap-ink font-semibold text-lg transition-colors"
+            title="返回客户画像"
           >
             ←
           </button>
           <div>
             <h3 className="font-bold text-sm text-cap-ink">{session.mode === 'training' ? '销售对练' : '用户调研'}</h3>
-            <p className="text-xs text-cap-ink-2 font-medium">第 {session.round} 轮</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-cap-ink-2 font-medium">第 {session.round} / 15 轮</p>
+              <RoundProgressBar round={session.round} />
+            </div>
           </div>
         </div>
         <button
@@ -158,6 +162,22 @@ const RESEARCH_HINTS = [
   '如果换车，您最看重哪些方面？',
   '您一般会在什么场景下用车？',
 ];
+
+function RoundProgressBar({ round }: { round: number }) {
+  const maxRounds = 15;
+  const pct = Math.min((round / maxRounds) * 100, 100);
+  const color = pct >= 80 ? 'bg-cap-rose' : pct >= 60 ? 'bg-cap-butter' : 'bg-cap-mint';
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="w-16 h-1.5 bg-cap-line-light rounded-full overflow-hidden">
+        <div className={`h-full ${color} transition-all duration-300`} style={{ width: `${pct}%` }} />
+      </div>
+      {pct >= 80 && (
+        <span className="text-[10px] font-bold text-cap-rose-deep">即将结束</span>
+      )}
+    </div>
+  );
+}
 
 function EmotionItem({ label, value, color }: { label: string; value: number; color: string }) {
   const [prevValue, setPrevValue] = useState(value);

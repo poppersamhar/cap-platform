@@ -14,7 +14,8 @@ export type Screen =
   | 'debrief'
   | 'history'
   | 'personaEditor'
-  | 'importPersona';
+  | 'importPersona'
+  | 'knowledge';
 
 // ── 情绪状态 ──
 export interface EmotionState {
@@ -227,4 +228,6 @@ export interface AppState {
   viewedHistoryId: string | null;
   history: Session[];
   previewPersona: Persona | null; // 导入过程中的预览分身
+  knowledgeSources: string[];
+  toast: { message: string; type: 'info' | 'success' | 'error' } | null;
 }

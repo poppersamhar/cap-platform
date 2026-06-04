@@ -8,8 +8,9 @@ export default {
     extend: {
       colors: {
         // ── 上汽商务风格色板 ──
-        'cap-cream': '#F8F9FA',
-        'cap-cream-2': '#F5F5F7',
+        // 背景使用 Ant Design 标准冷灰蓝，彻底避免暖色
+        'cap-cream': '#F0F2F5',
+        'cap-cream-2': '#F2F4F6',
         'cap-paper': '#FFFFFF',
 
         // 主色：上汽红系
@@ -32,10 +33,10 @@ export default {
         'cap-sky-deep': '#1D4ED8',
         'cap-sky-soft': '#EFF6FF',
 
-        // 警告：琥珀
-        'cap-rose': '#D97706',
-        'cap-rose-deep': '#B45309',
-        'cap-rose-soft': '#FFFBEB',
+        // 危险/负面：玫瑰红（修正为真正偏冷的玫瑰色，而非琥珀）
+        'cap-rose': '#D92B4B',
+        'cap-rose-deep': '#B8203D',
+        'cap-rose-soft': '#FEF2F2',
 
         // 文字层级
         'cap-ink': '#1A1A1A',

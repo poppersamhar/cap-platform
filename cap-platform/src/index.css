@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    background: #F8F9FA;
+    background: #F0F2F5;
     color: #1A1A1A;
     font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -81,7 +81,7 @@
   .btn-plush-rose   { background: #D92B4B; color: white; }
   .btn-plush-rose:hover  { background: #B8203D; }
   .btn-plush-ghost  { background: white; color: #1A1A1A; border: 1px solid #E5E5E5; }
-  .btn-plush-ghost:hover { background: #F5F5F7; border-color: #D0D0D0; }
+  .btn-plush-ghost:hover { background: #F2F4F6; border-color: #D0D0D0; }
 
   /* ── 标签：细边框、无阴影、专业 ── */
   .chip {
@@ -126,4 +126,10 @@
 
   .animate-popin  { animation: pop-in 300ms ease-out backwards; }
   .animate-fadein { animation: fade-in 300ms ease-out backwards; }
+
+  @keyframes loading {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(0%); }
+    100% { transform: translateX(100%); }
+  }
 }

@@ -1,8 +1,10 @@
+import { useState, useRef, useEffect } from 'react';
 import { store, useSession } from '../store/Store';
-import type { AppMode, RoundScore, TrainingRoundScore, ResearchRoundScore } from '../types';
+import type { AppMode, RoundScore, TrainingRoundScore, ResearchRoundScore, ChatMessage } from '../types';
 
 export function DebriefScreen() {
   const session = useSession();
+  const [showDialog, setShowDialog] = useState(false);
 
   if (!session) {
     store.setScreen('home');
@@ -11,6 +13,7 @@ export function DebriefScreen() {
 
   const evaluation = session.evaluation;
   const isTraining = session.mode === 'training';
+  const isGenerating = session.status === 'ended' && !evaluation;
 
   // 综合评分
   const overallScore = evaluation
@@ -22,21 +25,6 @@ export function DebriefScreen() {
 
   // 维度评分条目
   const scoreBars = evaluation ? getScoreBars(session.mode, evaluation.round_scores) : [];
-
-  // 提取对话摘要
-  const roundMessages: { round: number; user: string; client: string }[] = [];
-  const msgs = session.messages;
-  for (let i = 0; i < msgs.length; i += 2) {
-    const userMsg = msgs[i];
-    const clientMsg = msgs[i + 1];
-    if (userMsg && clientMsg) {
-      roundMessages.push({
-        round: Math.floor(i / 2) + 1,
-        user: userMsg.content.slice(0, 40) + (userMsg.content.length > 40 ? '...' : ''),
-        client: clientMsg.content.slice(0, 60) + (clientMsg.content.length > 60 ? '...' : ''),
-      });
-    }
-  }
 
   return (
     <div className="min-h-screen px-6 py-8 bg-cap-cream overflow-y-auto">
@@ -57,6 +45,23 @@ export function DebriefScreen() {
           </p>
         </div>
 
+        {/* 报告生成中占位 */}
+        {isGenerating && (
+          <div className="plush-lg p-8 mb-6 text-center bg-cap-butter-soft border border-cap-butter">
+            <div className="text-4xl mb-3">⏳</div>
+            <h3 className="font-bold text-cap-ink mb-2">报告生成中</h3>
+            <p className="text-cap-ink-2 text-sm font-medium mb-4">
+              AI 督导正在分析对话内容，大约需要 20-30 秒
+            </p>
+            <div className="w-48 h-2 bg-white rounded-full overflow-hidden mx-auto border border-cap-line">
+              <div className="h-full bg-cap-butter animate-[loading_1.5s_ease-in-out_infinite]" style={{ width: '60%' }} />
+            </div>
+            <p className="text-xs text-cap-ink-soft font-medium mt-4">
+              您可以先查看对话记录，或返回首页/历史记录，报告生成后会自动更新
+            </p>
+          </div>
+        )}
+
         {/* Coaching Summary */}
         {evaluation?.coaching_summary && (
           <div className="plush-lg p-5 mb-6 bg-cap-butter-soft border border-cap-butter">
@@ -68,22 +73,24 @@ export function DebriefScreen() {
         )}
 
         {/* Overall Score + Grade */}
-        <div className="plush-lg p-8 mb-6 text-center">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="w-24 h-24 rounded-full bg-cap-butter border border-cap-line flex items-center justify-center shadow-sm">
-              <span className="text-4xl font-bold text-cap-ink">{overallScore}</span>
+        {evaluation && (
+          <div className="plush-lg p-8 mb-6 text-center">
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="w-24 h-24 rounded-full bg-cap-butter border border-cap-line flex items-center justify-center shadow-sm">
+                <span className="text-4xl font-bold text-cap-ink">{overallScore}</span>
+              </div>
+              <div className={`w-16 h-16 rounded-full ${gradeColor} border border-cap-line flex items-center justify-center shadow-sm`}>
+                <span className="text-2xl font-bold text-cap-ink">{grade}</span>
+              </div>
             </div>
-            <div className={`w-16 h-16 rounded-full ${gradeColor} border border-cap-line flex items-center justify-center shadow-sm`}>
-              <span className="text-2xl font-bold text-cap-ink">{grade}</span>
-            </div>
+            <div className="text-cap-ink-2 text-sm font-bold mb-2">综合评分 · {gradeLabel(grade)}</div>
+            {evaluation && (
+              <div className="text-sm text-cap-ink-2 font-semibold">
+                人设一致性: {(evaluation.persona_consistency * 100).toFixed(0)}%
+              </div>
+            )}
           </div>
-          <div className="text-cap-ink-2 text-sm font-bold mb-2">综合评分 · {gradeLabel(grade)}</div>
-          {evaluation && (
-            <div className="text-sm text-cap-ink-2 font-semibold">
-              人设一致性: {(evaluation.persona_consistency * 100).toFixed(0)}%
-            </div>
-          )}
-        </div>
+        )}
 
         {/* Dimension Scores */}
         {scoreBars.length > 0 && (
@@ -218,31 +225,25 @@ export function DebriefScreen() {
           </div>
         )}
 
-        {/* Conversation Summary */}
-        {roundMessages.length > 0 && (
-          <div className="plush-lg p-6 mb-6">
-            <h3 className="font-bold mb-4 text-cap-ink text-lg">对话摘要</h3>
-            <div className="space-y-3">
-              {roundMessages.map((rm) => (
-                <div key={rm.round} className="p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
-                  <span className="chip chip-butter text-xs mb-2 inline-block">第{rm.round}轮</span>
-                  <p className="text-xs text-cap-ink-2 font-semibold mb-1">
-                    <span className="text-cap-peach-deep font-bold">你：</span>{rm.user}
-                  </p>
-                  <p className="text-xs text-cap-ink font-semibold">
-                    <span className="text-cap-mint-deep font-bold">客户：</span>{rm.client}
-                  </p>
-                </div>
-              ))}
-            </div>
+        {/* View Conversation Button */}
+        {session.messages.length > 0 && (
+          <div className="plush-lg p-6 mb-6 text-center">
+            <button
+              onClick={() => setShowDialog(true)}
+              className="px-8 py-3 rounded-xl bg-cap-butter-soft border border-cap-butter text-cap-ink font-bold text-base hover:bg-cap-butter transition-colors inline-flex items-center gap-2"
+            >
+              <span>💬</span> 查看对话
+            </button>
           </div>
         )}
 
-        {!evaluation && (
-          <div className="text-center py-12 text-cap-ink-2 font-bold plush-lg">
-            <div className="text-4xl mb-3 animate-bounce">⏳</div>
-            <p>评分正在生成中，请稍后再查看...</p>
-          </div>
+        {/* Conversation Dialog */}
+        {showDialog && (
+          <ConversationDialog
+            messages={session.messages}
+            onClose={() => setShowDialog(false)}
+            mode={session.mode}
+          />
         )}
 
         <div className="flex gap-4 mt-8 mb-8">
@@ -309,4 +310,97 @@ function gradeLabel(grade: string): string {
     case 'D': return '待改进';
     default: return '';
   }
+}
+
+function ConversationDialog({
+  messages,
+  onClose,
+  mode,
+}: {
+  messages: ChatMessage[];
+  onClose: () => void;
+  mode: AppMode;
+}) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="w-full max-w-lg h-[80vh] mx-4 bg-cap-cream rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-cap-line">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-cap-line bg-white shrink-0">
+          <div>
+            <h3 className="font-bold text-cap-ink text-sm">
+              {mode === 'training' ? '销售对练对话' : '调研访谈对话'}
+            </h3>
+            <p className="text-xs text-cap-ink-2 font-medium">共 {messages.length} 条消息</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-cap-ink-2 hover:text-cap-rose-deep hover:bg-cap-rose-soft transition-colors text-lg"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+          {messages.map((msg, i) => (
+            <MessageBubble key={i} message={msg} />
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MessageBubble({ message }: { message: ChatMessage }) {
+  const isUser = message.role === 'user';
+
+  return (
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+      <div className={`max-w-[80%] ${isUser ? 'order-2' : ''}`}>
+        <div
+          className={`px-4 py-3 text-sm leading-relaxed font-medium ${
+            isUser
+              ? 'bg-cap-peach text-white rounded-2xl rounded-br-md shadow-sm'
+              : 'bg-white text-cap-ink rounded-2xl rounded-bl-md border border-cap-line shadow-sm'
+          }`}
+        >
+          {message.content}
+        </div>
+        {/* Tags */}
+        {!isUser && message.triggered_tags && message.triggered_tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {message.triggered_tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-cap-butter-soft text-cap-butter-deep border border-cap-butter/20"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        {!isUser && message.hidden_revealed && message.hidden_revealed.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-1.5">
+            {message.hidden_revealed.map((h) => (
+              <span
+                key={h}
+                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-cap-mint-soft text-cap-mint-deep border border-cap-mint/20"
+              >
+                🔓 {h}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

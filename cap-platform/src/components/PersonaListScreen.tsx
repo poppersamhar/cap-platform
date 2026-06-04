@@ -74,7 +74,7 @@ export function PersonaListScreen() {
   return (
     <div className="min-h-screen px-8 py-12 bg-cap-cream">
       <button
-        onClick={() => store.setScreen('mode')}
+        onClick={() => store.setScreen('home')}
         className="text-cap-ink-2 hover:text-cap-ink text-sm font-semibold mb-8 transition-colors"
       >
         ← 返回

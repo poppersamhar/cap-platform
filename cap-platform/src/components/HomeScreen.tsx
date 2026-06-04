@@ -6,11 +6,20 @@ export function HomeScreen() {
       {/* 顶部装饰线 */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cap-peach via-cap-butter to-cap-mint" />
 
+      {/* 历史记录入口 */}
+      <button
+        onClick={() => store.setScreen('history')}
+        className="absolute top-4 right-6 z-20 flex items-center gap-1.5 text-cap-ink-2 hover:text-cap-ink text-sm font-bold px-3 py-1.5 rounded-lg hover:bg-cap-cream-2 transition-colors"
+      >
+        <span>📋</span>
+        <span>历史记录</span>
+      </button>
+
       <div className="text-center mb-16 relative z-10 animate-fadein">
         {/* 品牌标识 */}
         <div className="flex items-center justify-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-lg bg-cap-peach flex items-center justify-center">
-            <span className="text-white font-black text-lg">C</span>
+            <span className="text-white font-bold text-lg">C</span>
           </div>
           <h1 className="text-4xl font-bold text-cap-ink tracking-tight">
             客户数字分身平台
@@ -26,7 +35,7 @@ export function HomeScreen() {
         <button
           onClick={() => {
             store.setMode('training');
-            store.setScreen('mode');
+            store.setScreen('personaList');
           }}
           className="group p-7 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200"
         >
@@ -35,8 +44,7 @@ export function HomeScreen() {
               <span className="text-2xl">🎯</span>
             </div>
             <div>
-              <div className="chip chip-peach mb-1">销售对练</div>
-              <h3 className="font-bold text-cap-ink text-lg">Training Mode</h3>
+              <h3 className="font-bold text-cap-ink text-lg">销售对练</h3>
             </div>
           </div>
           <p className="text-cap-ink-2 text-sm font-medium leading-relaxed">
@@ -48,7 +56,7 @@ export function HomeScreen() {
         <button
           onClick={() => {
             store.setMode('research');
-            store.setScreen('mode');
+            store.setScreen('personaList');
           }}
           className="group p-7 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200"
         >
@@ -57,12 +65,32 @@ export function HomeScreen() {
               <span className="text-2xl">🔍</span>
             </div>
             <div>
-              <div className="chip chip-mint mb-1">用户调研</div>
-              <h3 className="font-bold text-cap-ink text-lg">Research Mode</h3>
+              <h3 className="font-bold text-cap-ink text-lg">用户调研</h3>
             </div>
           </div>
           <p className="text-cap-ink-2 text-sm font-medium leading-relaxed">
             与 AI 虚拟用户深度访谈，系统挖掘真实需求、痛点与决策动机
+          </p>
+        </button>
+
+        {/* Knowledge Base */}
+        <button
+          onClick={() => {
+            store.setScreen('knowledge');
+            store.loadKnowledgeSources();
+          }}
+          className="group p-7 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200 md:col-span-2"
+        >
+          <div className="flex items-center gap-4 mb-5">
+            <div className="w-12 h-12 rounded-xl bg-cap-butter-soft flex items-center justify-center">
+              <span className="text-2xl">📚</span>
+            </div>
+            <div>
+              <h3 className="font-bold text-cap-ink text-lg">培训知识库</h3>
+            </div>
+          </div>
+          <p className="text-cap-ink-2 text-sm font-medium leading-relaxed">
+            上传销售培训文档、话术手册、竞品资料，让 AI 客户从中学到该问什么问题
           </p>
         </button>
       </div>

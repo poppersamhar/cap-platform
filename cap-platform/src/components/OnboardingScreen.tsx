@@ -4,7 +4,7 @@ const steps = [
   {
     title: 'AI 客户分身',
     desc: '基于真实用户数据构建的数字分身，拥有完整的人设、购车需求、痛点和沟通风格。',
-    icon: '🧸',
+    icon: '👤',
     chip: 'peach',
   },
   {
@@ -32,22 +32,21 @@ export function OnboardingScreen() {
           {steps.map((_, i) => (
             <div
               key={i}
-              className={`h-3 flex-1 rounded-full border-[2.5px] border-cap-line transition-colors duration-300 ${
-                i <= step ? 'bg-cap-peach' : 'bg-white'
+              className={`h-2 flex-1 rounded-full transition-colors duration-300 ${
+                i <= step ? 'bg-cap-peach' : 'bg-cap-line-light'
               }`}
-              style={{ boxShadow: i <= step ? '0 2px 0 #2B1E16' : 'none' }}
             />
           ))}
         </div>
 
         {/* Content Card */}
         <div className="plush-lg p-8 mb-10 text-center animate-popin">
-          <div className="text-6xl mb-4">{steps[step].icon}</div>
+          <div className="text-5xl mb-4">{steps[step].icon}</div>
           <div className={`chip chip-${steps[step].chip} mx-auto mb-4`}>
             步骤 {step + 1} / {steps.length}
           </div>
-          <h2 className="text-3xl font-black mb-4 text-cap-ink">{steps[step].title}</h2>
-          <p className="text-cap-ink-2 text-lg leading-relaxed font-semibold">{steps[step].desc}</p>
+          <h2 className="text-3xl font-bold mb-4 text-cap-ink">{steps[step].title}</h2>
+          <p className="text-cap-ink-2 text-lg leading-relaxed font-medium">{steps[step].desc}</p>
         </div>
 
         {/* Buttons */}
