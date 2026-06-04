@@ -13,7 +13,9 @@ export type Screen =
   | 'endConfirm'
   | 'debrief'
   | 'history'
-  | 'personaEditor';
+  | 'personaEditor'
+  | 'importPersona'
+  | 'knowledge';
 
 // ── 情绪状态 ──
 export interface EmotionState {
@@ -109,13 +111,23 @@ export interface ChatMessage {
 }
 
 // ── 督导评分 ──
-export interface RoundScore {
-  insight: number;
-  adaptation: number;
-  matching: number;
-  objection: number;
+export interface TrainingRoundScore {
+  needs_discovery: number;
   trust_building: number;
+  objection_handling: number;
+  solution_matching: number;
+  closing_awareness: number;
 }
+
+export interface ResearchRoundScore {
+  question_quality: number;
+  information_completeness: number;
+  hidden_needs_uncovered: number;
+  emotional_insight: number;
+  bias_avoidance: number;
+}
+
+export type RoundScore = TrainingRoundScore | ResearchRoundScore;
 
 export interface Highlight {
   round: number;
@@ -126,13 +138,40 @@ export interface Failure {
   round: number;
   text: string;
   suggestion: string;
+  better_approach: string;
+}
+
+export interface MissedOpportunity {
+  item: string;
+  should_ask: string;
+}
+
+export interface HiddenInfoCheck {
+  content: string;
+  triggered: boolean;
+  round: number | null;
+  note: string;
+}
+
+export interface PainPointCheck {
+  topic: string;
+  recognized: boolean;
+  round: number | null;
+  response_quality?: string;
+  depth?: string;
+  note: string;
 }
 
 export interface Evaluation {
-  round_scores: RoundScore[];
+  mode: AppMode;
+  round_scores: RoundScore;
   highlights: Highlight[];
   failures: Failure[];
+  missed_opportunities: MissedOpportunity[];
+  hidden_info_check: HiddenInfoCheck[];
+  pain_points_check: PainPointCheck[];
   persona_consistency: number;
+  coaching_summary: string;
   updated_at: number;
 }
 
@@ -188,4 +227,7 @@ export interface AppState {
   onboardingStep: number;
   viewedHistoryId: string | null;
   history: Session[];
+  previewPersona: Persona | null; // 导入过程中的预览分身
+  knowledgeSources: string[];
+  toast: { message: string; type: 'info' | 'success' | 'error' } | null;
 }

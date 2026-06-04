@@ -32,3 +32,6 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Vector DB data
+backend/data/chroma/

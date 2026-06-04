@@ -1,14 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    background: #FFF6E6;
-    color: #3B2A1F;
-    font-family: 'Nunito', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #F0F2F5;
+    color: #1A1A1A;
+    font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -20,110 +18,118 @@
 }
 
 @layer components {
-  /* Plush card — thick border, big radius, drop shadow */
+  /* ── 商务卡片：微妙阴影、细边框、中小圆角 ── */
   .plush-lg {
-    border: 3px solid #2B1E16;
-    border-radius: 22px;
+    border: 1px solid #E5E5E5;
+    border-radius: 16px;
     background: white;
-    box-shadow: 0 6px 0 #2B1E16, 0 14px 28px rgba(43,30,22,0.18);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+    transition: box-shadow 200ms ease, transform 200ms ease;
+  }
+  .plush-lg:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 8px 24px rgba(0,0,0,0.08);
   }
 
   .plush-md {
-    border: 3px solid #2B1E16;
-    border-radius: 14px;
+    border: 1px solid #E5E5E5;
+    border-radius: 12px;
     background: white;
-    box-shadow: 0 4px 0 #2B1E16, 0 8px 16px rgba(43,30,22,0.15);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
   }
 
-  /* Plush button — pill shape, thick border, bouncy press */
+  /* ── 商务按钮：微圆角、扁平、专业 ── */
   .btn-plush {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
-    color: #3B2A1F;
-    border: 3px solid #2B1E16;
-    border-radius: 999px;
-    background: #FFD86B;
+    font-weight: 600;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    background: #C9232C;
     cursor: pointer;
-    box-shadow: 0 5px 0 #2B1E16, 0 10px 18px rgba(43,30,22,0.18);
-    transition: transform 150ms ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    transition: all 150ms ease;
     letter-spacing: 0.01em;
+    font-size: 15px;
+    padding: 12px 24px;
   }
   .btn-plush:hover {
-    transform: translateY(-2px) rotate(-0.5deg);
+    background: #A81B23;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(201,35,44,0.25);
   }
   .btn-plush:active {
-    transform: translateY(3px);
-    box-shadow: 0 2px 0 #2B1E16, 0 4px 8px rgba(43,30,22,0.2);
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
   }
   .btn-plush:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
     transform: none;
-    box-shadow: 0 5px 0 #2B1E16, 0 10px 18px rgba(43,30,22,0.18);
+    box-shadow: none;
   }
 
-  .btn-plush-peach  { background: #FFB68A; }
-  .btn-plush-mint   { background: #A8E5C8; }
-  .btn-plush-butter { background: #FFD86B; }
-  .btn-plush-sky    { background: #A6D8FF; }
-  .btn-plush-rose   { background: #FFB3C0; }
-  .btn-plush-ghost  { background: white; }
+  .btn-plush-peach  { background: #C9232C; color: white; }
+  .btn-plush-peach:hover { background: #A81B23; }
+  .btn-plush-mint   { background: #00A896; color: white; }
+  .btn-plush-mint:hover  { background: #008F7E; }
+  .btn-plush-butter { background: #FF6B00; color: white; }
+  .btn-plush-butter:hover{ background: #E55A00; }
+  .btn-plush-sky    { background: #2563EB; color: white; }
+  .btn-plush-sky:hover   { background: #1D4ED8; }
+  .btn-plush-rose   { background: #D92B4B; color: white; }
+  .btn-plush-rose:hover  { background: #B8203D; }
+  .btn-plush-ghost  { background: white; color: #1A1A1A; border: 1px solid #E5E5E5; }
+  .btn-plush-ghost:hover { background: #F2F4F6; border-color: #D0D0D0; }
 
-  /* Chip — small pill tag */
+  /* ── 标签：细边框、无阴影、专业 ── */
   .chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-weight: 800;
-    font-size: 13px;
-    border: 2.5px solid #2B1E16;
-    border-radius: 999px;
+    gap: 4px;
+    font-weight: 600;
+    font-size: 12px;
+    border: 1px solid #E5E5E5;
+    border-radius: 6px;
     background: white;
-    color: #3B2A1F;
-    padding: 6px 14px;
+    color: #666666;
+    padding: 4px 10px;
     white-space: nowrap;
-    box-shadow: 0 2px 0 #2B1E16;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+    letter-spacing: 0.01em;
   }
-  .chip-peach  { background: #FFB68A; }
-  .chip-butter { background: #FFD86B; }
-  .chip-mint   { background: #A8E5C8; }
-  .chip-sky    { background: #A6D8FF; }
-  .chip-rose   { background: #FFB3C0; }
+  .chip-peach  { background: #FDF2F2; color: #C9232C; border-color: #F5C2C2; }
+  .chip-butter { background: #FFF5EB; color: #FF6B00; border-color: #FFD4B3; }
+  .chip-mint   { background: #E6F7F5; color: #00A896; border-color: #B3E5DE; }
+  .chip-sky    { background: #EFF6FF; color: #2563EB; border-color: #BFDBFE; }
+  .chip-rose   { background: #FEF2F2; color: #D92B4B; border-color: #FECACA; }
 
-  /* Section backgrounds */
-  .bg-cream-2 { background: #FFEFD1; }
-  .bg-peach-soft { background: linear-gradient(180deg, #FFE6D1 0%, #FFD0AE 100%); }
-  .bg-mint-soft  { background: linear-gradient(180deg, #DFF7EA 0%, #B7ECD0 100%); }
-  .bg-sky-soft   { background: linear-gradient(180deg, #DFF1FF 0%, #B6DFFE 100%); }
-  .bg-butter-soft{ background: linear-gradient(180deg, #FFF1C2 0%, #FFE08A 100%); }
+  /* ── 背景色快捷类 ── */
+  .bg-cream-2 { background: #F5F5F7; }
+  .bg-peach-soft { background: #FDF2F2; }
+  .bg-mint-soft  { background: #E6F7F5; }
+  .bg-sky-soft   { background: #EFF6FF; }
+  .bg-butter-soft{ background: #FFF5EB; }
+  .bg-rose-soft  { background: #FEF2F2; }
 }
 
 @layer utilities {
-  /* Animations */
-  @keyframes wobble-soft {
-    0%, 100% { transform: rotate(-2deg); }
-    50% { transform: rotate(2deg); }
-  }
-  @keyframes float-up {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
+  /* ── 简洁动画 ── */
   @keyframes pop-in {
-    0% { transform: scale(0.85) translateY(10px); opacity: 0; }
-    60% { transform: scale(1.04) translateY(-2px); opacity: 1; }
-    100% { transform: scale(1) translateY(0); }
+    0% { transform: scale(0.95) translateY(4px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
   }
-  @keyframes breathe {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.03); }
+  @keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
   }
 
-  .animate-wobble { animation: wobble-soft 3.6s ease-in-out infinite; transform-origin: 50% 90%; }
-  .animate-floaty { animation: float-up 3s ease-in-out infinite; }
-  .animate-popin  { animation: pop-in 600ms cubic-bezier(.5,1.7,.4,1) backwards; }
-  .animate-breathe{ animation: breathe 3.5s ease-in-out infinite; }
+  .animate-popin  { animation: pop-in 300ms ease-out backwards; }
+  .animate-fadein { animation: fade-in 300ms ease-out backwards; }
+
+  @keyframes loading {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(0%); }
+    100% { transform: translateX(100%); }
+  }
 }

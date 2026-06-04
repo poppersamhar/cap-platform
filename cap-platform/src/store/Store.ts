@@ -55,6 +55,9 @@ class Store {
     onboardingStep: 0,
     viewedHistoryId: null,
     history: readHistory(),
+    previewPersona: null,
+    knowledgeSources: [],
+    toast: null,
   };
 
   private listeners = new Set<() => void>();
@@ -115,14 +118,18 @@ class Store {
   }
 
   // ── Session ──
-  async createSession(personaId: string, mode: AppMode) {
+  async createSession(personaId: string, mode: AppMode, personaOverride?: Persona) {
     this.setLoading(true);
     this.setError(null);
     try {
+      const body: any = { persona_id: personaId, mode };
+      if (personaOverride) {
+        body.persona_override = personaOverride;
+      }
       const resp = await fetch(`${API_BASE}/api/session/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ persona_id: personaId, mode }),
+        body: JSON.stringify(body),
       });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
@@ -200,20 +207,15 @@ class Store {
     if (!session) return;
 
     try {
+      // 1. 快速结束会话（标记状态）
       await fetch(`${API_BASE}/api/session/${session.id}/end`, { method: 'POST' });
-      await fetch(`${API_BASE}/api/session/${session.id}/report`, { method: 'POST' });
-
-      // 获取最终评分
-      const evalResp = await fetch(`${API_BASE}/api/session/${session.id}/evaluation`);
-      const evalData = await evalResp.json();
 
       const endedSession: Session = {
         ...session,
         status: 'ended',
-        evaluation: evalData.evaluation,
       };
 
-      // 保存到历史记录
+      // 2. 立即保存到历史并跳转 debrief（报告尚未生成）
       const newHistory = [endedSession, ...this.state.history].slice(0, 50);
       writeHistory(newHistory);
 
@@ -222,15 +224,91 @@ class Store {
         history: newHistory,
         screen: 'debrief',
       });
+
+      // 3. 后台异步生成报告和评分
+      this._generateReportAsync(session.id, endedSession);
     } catch (e) {
       this.setError(e instanceof Error ? e.message : 'Failed to end session');
       this.set({ screen: 'debrief' });
     }
   }
 
+  private async _generateReportAsync(sessionId: string, baseSession: Session) {
+    try {
+      // 1. 生成报告（可能耗时 20-30s）
+      await fetch(`${API_BASE}/api/session/${sessionId}/report`, { method: 'POST' });
+
+      // 2. 轮询获取评分（督导评估是异步的，可能需要等待）
+      let evaluation = null;
+      for (let attempt = 0; attempt < 30; attempt++) {
+        const evalResp = await fetch(`${API_BASE}/api/session/${sessionId}/evaluation`);
+        const evalData = await evalResp.json();
+        if (evalData.evaluation) {
+          evaluation = evalData.evaluation;
+          break;
+        }
+        // 等待 2 秒后重试
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+
+      if (evaluation) {
+        const updatedSession: Session = {
+          ...baseSession,
+          evaluation,
+        };
+
+        // 更新 history 中的对应记录
+        const newHistory = this.state.history.map((s) =>
+          s.id === sessionId ? updatedSession : s
+        );
+        writeHistory(newHistory);
+
+        // 如果当前正在看这条记录的 debrief，更新 currentSession
+        const shouldUpdateCurrent = this.state.currentSession?.id === sessionId;
+
+        this.set({
+          ...(shouldUpdateCurrent ? { currentSession: updatedSession } : {}),
+          history: newHistory,
+          toast: { message: '报告已生成', type: 'success' },
+        });
+
+        // 3 秒后自动清除 toast
+        setTimeout(() => {
+          if (this.state.toast?.message === '报告已生成') {
+            this.set({ toast: null });
+          }
+        }, 3000);
+      } else {
+        console.warn('Evaluation not ready after polling');
+        this.set({
+          toast: { message: '评分生成较慢，请稍后刷新查看', type: 'info' },
+        });
+        setTimeout(() => this.set({ toast: null }), 4000);
+      }
+    } catch (e) {
+      console.error('Report generation failed:', e);
+      this.set({
+        toast: { message: '报告生成失败，请刷新重试', type: 'error' },
+      });
+      setTimeout(() => this.set({ toast: null }), 4000);
+    }
+  }
+
+  // ── Toast ──
+  showToast = (message: string, type: 'info' | 'success' | 'error' = 'info') => {
+    this.set({ toast: { message, type } });
+    setTimeout(() => this.set({ toast: null }), 3000);
+  };
+
+  dismissToast = () => this.set({ toast: null });
+
   // ── History ──
-  viewHistory = (historyId: string) =>
-    this.set({ viewedHistoryId: historyId, screen: 'history' });
+  viewHistory = (historyId: string) => {
+    const session = this.state.history.find((s) => s.id === historyId);
+    if (session) {
+      this.set({ currentSession: session, screen: 'debrief' });
+    }
+  };
 
   clearViewedHistory = () => this.set({ viewedHistoryId: null });
 
@@ -238,6 +316,111 @@ class Store {
     writeHistory([]);
     this.set({ history: [] });
   };
+
+  deleteHistoryItem = (sessionId: string) => {
+    const newHistory = this.state.history.filter((s) => s.id !== sessionId);
+    writeHistory(newHistory);
+    this.set({ history: newHistory });
+  };
+
+  // ── Knowledge Base ──
+  async loadKnowledgeSources() {
+    try {
+      const resp = await fetch(`${API_BASE}/api/knowledge/sources`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      this.set({ knowledgeSources: data.sources || [] });
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : 'Failed to load knowledge sources');
+    }
+  }
+
+  async uploadKnowledge(file: File) {
+    this.setLoading(true);
+    this.setError(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const resp = await fetch(`${API_BASE}/api/knowledge/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${resp.status}`);
+      }
+      await this.loadKnowledgeSources();
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '上传失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  async deleteKnowledgeSource(sourceName: string) {
+    this.setLoading(true);
+    try {
+      const resp = await fetch(`${API_BASE}/api/knowledge/source/${encodeURIComponent(sourceName)}`, {
+        method: 'DELETE',
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      await this.loadKnowledgeSources();
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '删除失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  // ── Persona Import ──
+  setPreviewPersona = (persona: Persona | null) =>
+    this.set({ previewPersona: persona });
+
+  async extractPersona(dialogue: string) {
+    this.setLoading(true);
+    this.setError(null);
+    try {
+      const resp = await fetch(`${API_BASE}/api/extract`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dialogue }),
+      });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      this.set({ previewPersona: data.persona as Persona, screen: 'importPersona' });
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '提取失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  async extractPersonaFromExcel(file: File) {
+    this.setLoading(true);
+    this.setError(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const resp = await fetch(`${API_BASE}/api/extract/excel`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      this.set({ previewPersona: data.persona as Persona, screen: 'importPersona' });
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '提取失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
 }
 
 export const store = new Store();
@@ -273,4 +456,16 @@ export function useAppState(): AppState {
 
 export function useHistory() {
   return useStore((s) => s.history);
+}
+
+export function usePreviewPersona() {
+  return useStore((s) => s.previewPersona);
+}
+
+export function useKnowledgeSources() {
+  return useStore((s) => s.knowledgeSources);
+}
+
+export function useToast() {
+  return useStore((s) => s.toast);
 }

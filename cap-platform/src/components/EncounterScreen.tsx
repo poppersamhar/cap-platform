@@ -35,43 +35,46 @@ export function EncounterScreen() {
   return (
     <div className="flex flex-col h-screen bg-cap-cream">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-3 border-b-[3px] border-cap-line bg-cap-paper shadow-[0_2px_0_#2B1E16]">
+      <div className="flex items-center justify-between px-6 py-3 border-b border-cap-line bg-white">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => store.setScreen('endConfirm')}
-            className="text-cap-ink-2 hover:text-cap-ink font-bold text-lg transition-colors"
+            onClick={() => store.setScreen('brief')}
+            className="text-cap-ink-2 hover:text-cap-ink font-semibold text-lg transition-colors"
+            title="返回客户画像"
           >
             ←
           </button>
           <div>
-            <h3 className="font-black text-sm text-cap-ink">{session.mode === 'training' ? '销售对练' : '用户调研'}</h3>
-            <p className="text-xs text-cap-ink-2 font-bold">第 {session.round} 轮</p>
+            <h3 className="font-bold text-sm text-cap-ink">{session.mode === 'training' ? '销售对练' : '用户调研'}</h3>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-cap-ink-2 font-medium">第 {session.round} / 15 轮</p>
+              <RoundProgressBar round={session.round} />
+            </div>
           </div>
         </div>
         <button
           onClick={() => store.setScreen('endConfirm')}
-          className="btn-plush btn-plush-rose px-4 py-1.5 text-sm"
+          className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-white border border-cap-line text-cap-ink-2 hover:bg-cap-cream-2 hover:border-cap-ink-soft transition-all"
         >
           结束对话
         </button>
       </div>
 
-      {/* Emotion Bar */}
-      <div className="px-6 py-3 border-b-[3px] border-cap-line bg-cap-cream-2">
-        <div className="grid grid-cols-5 gap-3">
+      {/* Emotion Bar — 商务仪表盘风格 */}
+      <div className="px-6 py-3 border-b border-cap-line bg-cap-cream-2">
+        <div className="grid grid-cols-5 gap-4">
           <EmotionItem label="信任度" value={emotion.trust} color="bg-cap-mint" />
           <EmotionItem label="购买意愿" value={emotion.intent} color="bg-cap-peach" />
           <EmotionItem label="好感度" value={emotion.rapport} color="bg-cap-sky" />
-          <EmotionItem label="抵触" value={emotion.resistance} color="bg-cap-rose-deep" />
-          <EmotionItem label="焦虑" value={emotion.anxiety} color="bg-cap-butter-deep" />
+          <EmotionItem label="抵触" value={emotion.resistance} color="bg-cap-rose" />
+          <EmotionItem label="焦虑" value={emotion.anxiety} color="bg-cap-butter" />
         </div>
         {session.special_state && (
-          <div className={`mt-2 text-xs px-3 py-1.5 rounded-full inline-block font-bold border-[2px] border-cap-line ${
-            session.special_state === 'customer_leaving' ? 'bg-cap-rose text-cap-ink' :
-            session.special_state === 'decision_phase' ? 'bg-cap-mint text-cap-ink' :
-            'bg-cap-butter text-cap-ink'
-          }`}
-          style={{ boxShadow: '0 2px 0 #2B1E16' }}>
+          <div className={`mt-2 text-xs px-3 py-1.5 rounded-md inline-block font-semibold ${
+            session.special_state === 'customer_leaving' ? 'bg-cap-rose-soft text-cap-rose-deep border border-cap-rose/20' :
+            session.special_state === 'decision_phase' ? 'bg-cap-mint-soft text-cap-mint-deep border border-cap-mint/20' :
+            'bg-cap-butter-soft text-cap-butter-deep border border-cap-butter/20'
+          }`}>
             {session.special_state === 'customer_leaving' && '⚠️ 客户准备离店'}
             {session.special_state === 'decision_phase' && '✅ 进入决策阶段'}
             {session.special_state === 'confrontation' && '⚠️ 进入对抗模式'}
@@ -82,10 +85,12 @@ export function EncounterScreen() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
         {session.messages.length === 0 && (
-          <div className="text-center text-cap-ink-2 py-8 animate-popin">
-            <p className="text-4xl mb-3">👋</p>
-            <p className="text-lg font-bold mb-1">对话开始</p>
-            <p className="text-sm font-semibold mb-6">向客户打个招呼，开始你的{session.mode === 'training' ? '销售对练' : '调研访谈'}</p>
+          <div className="text-center text-cap-ink-2 py-8 animate-fadein">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-cap-cream-2 flex items-center justify-center text-3xl">
+              👋
+            </div>
+            <p className="text-lg font-bold mb-1 text-cap-ink">对话开始</p>
+            <p className="text-sm font-medium mb-6">向客户打个招呼，开始你的{session.mode === 'training' ? '销售对练' : '调研访谈'}</p>
             <div className="flex flex-wrap justify-center gap-2 max-w-md mx-auto">
               {(session.mode === 'training' ? TRAINING_HINTS : RESEARCH_HINTS).map((hint) => (
                 <button
@@ -95,8 +100,7 @@ export function EncounterScreen() {
                     const ta = document.querySelector('textarea');
                     if (ta) ta.focus();
                   }}
-                  className="px-3 py-2 rounded-full text-xs font-bold bg-white border-[2px] border-cap-line text-cap-ink hover:bg-cap-cream-2 transition-colors"
-                  style={{ boxShadow: '0 2px 0 #2B1E16' }}
+                  className="px-3 py-2 rounded-lg text-xs font-medium bg-white border border-cap-line text-cap-ink-2 hover:bg-cap-cream-2 hover:border-cap-ink-soft transition-all"
                 >
                   💡 {hint}
                 </button>
@@ -108,10 +112,12 @@ export function EncounterScreen() {
           <MessageBubble key={i} message={msg} />
         ))}
         {isLoading && (
-          <div className="flex items-center gap-2 text-cap-ink-2 text-sm font-bold ml-2">
-            <div className="w-3 h-3 rounded-full bg-cap-peach animate-bounce" />
-            <div className="w-3 h-3 rounded-full bg-cap-butter animate-bounce [animation-delay:0.1s]" />
-            <div className="w-3 h-3 rounded-full bg-cap-mint animate-bounce [animation-delay:0.2s]" />
+          <div className="flex items-center gap-2 text-cap-ink-2 text-sm font-medium ml-2">
+            <div className="flex gap-1">
+              <div className="w-2 h-2 rounded-full bg-cap-ink-soft animate-bounce" />
+              <div className="w-2 h-2 rounded-full bg-cap-ink-soft animate-bounce [animation-delay:0.15s]" />
+              <div className="w-2 h-2 rounded-full bg-cap-ink-soft animate-bounce [animation-delay:0.3s]" />
+            </div>
             <span className="ml-1">客户思考中...</span>
           </div>
         )}
@@ -119,14 +125,14 @@ export function EncounterScreen() {
       </div>
 
       {/* Input */}
-      <div className="px-6 py-4 border-t-[3px] border-cap-line bg-cap-paper shadow-[0_-2px_0_#2B1E16]">
+      <div className="px-6 py-4 border-t border-cap-line bg-white">
         <div className="flex gap-3">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={session.mode === 'training' ? '输入你的销售话术...' : '输入你的调研问题...'}
-            className="flex-1 px-4 py-3 rounded-2xl bg-white border-[3px] border-cap-line resize-none focus:outline-none focus:border-cap-peach text-sm min-h-[48px] max-h-[120px] font-semibold text-cap-ink shadow-[0_3px_0_#2B1E16]"
+            className="flex-1 px-4 py-3 rounded-xl bg-cap-cream border border-cap-line resize-none focus:outline-none focus:border-cap-peach focus:ring-2 focus:ring-cap-peach/10 text-sm min-h-[48px] max-h-[120px] font-medium text-cap-ink"
             rows={1}
             disabled={isLoading}
           />
@@ -157,6 +163,22 @@ const RESEARCH_HINTS = [
   '您一般会在什么场景下用车？',
 ];
 
+function RoundProgressBar({ round }: { round: number }) {
+  const maxRounds = 15;
+  const pct = Math.min((round / maxRounds) * 100, 100);
+  const color = pct >= 80 ? 'bg-cap-rose' : pct >= 60 ? 'bg-cap-butter' : 'bg-cap-mint';
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="w-16 h-1.5 bg-cap-line-light rounded-full overflow-hidden">
+        <div className={`h-full ${color} transition-all duration-300`} style={{ width: `${pct}%` }} />
+      </div>
+      {pct >= 80 && (
+        <span className="text-[10px] font-bold text-cap-rose-deep">即将结束</span>
+      )}
+    </div>
+  );
+}
+
 function EmotionItem({ label, value, color }: { label: string; value: number; color: string }) {
   const [prevValue, setPrevValue] = useState(value);
   const [flash, setFlash] = useState(false);
@@ -175,15 +197,15 @@ function EmotionItem({ label, value, color }: { label: string; value: number; co
 
   return (
     <div>
-      <div className="flex justify-between text-xs mb-1">
-        <span className="text-cap-ink-2 font-bold">{label}</span>
-        <span className={`font-black transition-all duration-300 ${flash ? 'scale-125' : ''} ${deltaColor}`}
-          style={{ display: 'inline-block', transform: flash ? 'scale(1.3)' : 'scale(1)' }}
+      <div className="flex justify-between text-xs mb-1.5">
+        <span className="text-cap-ink-2 font-medium">{label}</span>
+        <span className={`font-bold transition-all duration-300 ${flash ? 'scale-110' : ''} ${deltaColor}`}
+          style={{ display: 'inline-block', transform: flash ? 'scale(1.2)' : 'scale(1)' }}
         >
           {value}
         </span>
       </div>
-      <div className="h-2.5 bg-white rounded-full overflow-hidden border-[2px] border-cap-line shadow-[0_1px_0_#2B1E16]">
+      <div className="h-1.5 bg-cap-line-light rounded-full overflow-hidden">
         <div
           className={`h-full ${color} transition-all duration-500 ${flash ? 'animate-pulse' : ''}`}
           style={{ width: `${value}%` }}
@@ -200,10 +222,10 @@ function MessageBubble({ message }: { message: ChatMessage }) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div className={`max-w-[75%] ${isUser ? 'order-2' : ''}`}>
         <div
-          className={`px-4 py-3 text-sm leading-relaxed font-semibold border-[3px] border-cap-line ${
+          className={`px-4 py-3 text-sm leading-relaxed font-medium ${
             isUser
-              ? 'bg-cap-peach text-cap-ink rounded-2xl rounded-br-md shadow-[0_4px_0_#2B1E16]'
-              : 'bg-white text-cap-ink rounded-2xl rounded-bl-md shadow-[0_4px_0_#2B1E16]'
+              ? 'bg-cap-peach text-white rounded-2xl rounded-br-md shadow-sm'
+              : 'bg-white text-cap-ink rounded-2xl rounded-bl-md border border-cap-line shadow-sm'
           }`}
         >
           {message.content}
@@ -214,8 +236,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             {message.triggered_tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2.5 py-1 rounded-full text-xs font-bold bg-cap-butter border-[2px] border-cap-line text-cap-ink"
-                style={{ boxShadow: '0 1px 0 #2B1E16' }}
+                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-cap-butter-soft text-cap-butter-deep border border-cap-butter/20"
               >
                 {tag}
               </span>
@@ -227,8 +248,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             {message.hidden_revealed.map((h) => (
               <span
                 key={h}
-                className="px-2.5 py-1 rounded-full text-xs font-bold bg-cap-mint border-[2px] border-cap-line text-cap-ink"
-                style={{ boxShadow: '0 1px 0 #2B1E16' }}
+                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-cap-mint-soft text-cap-mint-deep border border-cap-mint/20"
               >
                 🔓 {h}
               </span>

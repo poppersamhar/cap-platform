@@ -22,13 +22,20 @@ def _build_training_prompt(history: list[dict], evaluation: dict | None) -> str:
 
     eval_text = ""
     if evaluation:
+        rs = evaluation.get('round_scores', {})
+        # 兼容新旧维度名
+        needs = rs.get('needs_discovery') or rs.get('insight', 'N/A')
+        trust = rs.get('trust_building') or rs.get('trust_building', 'N/A')
+        objection = rs.get('objection_handling') or rs.get('objection', 'N/A')
+        matching = rs.get('solution_matching') or rs.get('matching', 'N/A')
+        closing = rs.get('closing_awareness') or rs.get('trust_building', 'N/A')
         eval_text = f"""
 督导评分：
-- 客户洞察：{evaluation.get('round_scores', [{}])[0].get('insight', 'N/A')}
-- 需求适配：{evaluation.get('round_scores', [{}])[0].get('adaptation', 'N/A')}
-- 方案匹配：{evaluation.get('round_scores', [{}])[0].get('matching', 'N/A')}
-- 异议处理：{evaluation.get('round_scores', [{}])[0].get('objection', 'N/A')}
-- 信任建立：{evaluation.get('round_scores', [{}])[0].get('trust_building', 'N/A')}
+- 需求挖掘：{needs}
+- 信任建立：{trust}
+- 异议处理：{objection}
+- 方案匹配：{matching}
+- 成交意识：{closing}
 - 人设一致性：{evaluation.get('persona_consistency', 'N/A')}
 """
 
