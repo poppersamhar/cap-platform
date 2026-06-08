@@ -31,27 +31,6 @@ export function HomeScreen() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-2xl w-full relative z-10">
-        {/* Training */}
-        <button
-          onClick={() => {
-            store.setMode('training');
-            store.setScreen('personaList');
-          }}
-          className="group p-7 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <div className="flex items-center gap-4 mb-5">
-            <div className="w-12 h-12 rounded-xl bg-cap-peach-soft flex items-center justify-center">
-              <span className="text-2xl">🎯</span>
-            </div>
-            <div>
-              <h3 className="font-bold text-cap-ink text-lg">销售对练</h3>
-            </div>
-          </div>
-          <p className="text-cap-ink-2 text-sm font-medium leading-relaxed">
-            与 AI 客户分身进行沉浸式销售对话演练，在真实场景中提升实战能力
-          </p>
-        </button>
-
         {/* Research */}
         <button
           onClick={() => {
@@ -70,6 +49,27 @@ export function HomeScreen() {
           </div>
           <p className="text-cap-ink-2 text-sm font-medium leading-relaxed">
             与 AI 虚拟用户深度访谈，系统挖掘真实需求、痛点与决策动机
+          </p>
+        </button>
+
+        {/* Training */}
+        <button
+          onClick={() => {
+            store.setMode('training');
+            store.setScreen('personaList');
+          }}
+          className="group p-7 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200"
+        >
+          <div className="flex items-center gap-4 mb-5">
+            <div className="w-12 h-12 rounded-xl bg-cap-peach-soft flex items-center justify-center">
+              <span className="text-2xl">🎯</span>
+            </div>
+            <div>
+              <h3 className="font-bold text-cap-ink text-lg">销售对练</h3>
+            </div>
+          </div>
+          <p className="text-cap-ink-2 text-sm font-medium leading-relaxed">
+            与 AI 客户分身进行沉浸式销售对话演练，在真实场景中提升实战能力
           </p>
         </button>
 

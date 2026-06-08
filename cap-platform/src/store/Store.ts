@@ -598,6 +598,11 @@ export function useKnowledgeSources() {
   return useStore((s) => s.knowledgeSources);
 }
 
+// 开发/测试用：将 store 暴露到全局
+if (typeof window !== 'undefined') {
+  (window as any).store = store;
+}
+
 export function useToast() {
   return useStore((s) => s.toast);
 }
