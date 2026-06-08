@@ -220,7 +220,7 @@ def build_prompt(cluster_key: str, title: str, summary: dict) -> tuple[str, str]
     {"content": "该聚类典型隐藏诉求", "trigger_condition": "触发场景"}
   ],
   "objections": [
-    {"content": "该聚类典型异议（口语化）", "trigger_topic": "触发话题", "resistance": 0.4-0.85}
+    {"content": "精炼异议短语（8字以内，如'优惠不够''担心续航'）", "trigger_topic": "触发话题", "resistance": 0.4-0.85}
   ],
   "competitor_awareness": "该聚类典型竞品认知（30-80字）",
   "behavior": {
@@ -230,14 +230,14 @@ def build_prompt(cluster_key: str, title: str, summary: dict) -> tuple[str, str]
   "communication": {
     "style": "典型沟通风格",
     "description": "30-60字描述",
-    "speech_patterns": ["3-5条该聚类客户高频出现的口头禅，必须从真实话语片段里挑"]
+    "speech_patterns": ["3-5条短小口头禅（2-6字，如'说实话''那个''还行吧'），必须是真实话语片段中反复出现的习惯性表达，不能是完整长句"]
   },
   "tags": ["4-5个标签，体现该聚类的核心特征"]
 }
 
 【关键纪律】
-1. speech_patterns 必须从下面提供的【真实客户话语片段】里挑出该聚类客户真实说过的句子
-2. 痛点、异议、隐藏信息必须基于聚类的统计数据，反映共性而非某个体特殊性
+1. speech_patterns 必须从下面提供的【真实客户话语片段】里挑出该聚类客户真实说过的短小口头禅（2-6字），不能是完整句子
+2. 痛点、异议、隐藏信息必须基于聚类的统计数据，反映共性而非某个体特殊性，objections 必须控制在8字以内，不能直接复制对话原文
 3. behavior 五项要反映该聚类的整体性格倾向
 4. 所有字段必须输出，JSON 必须有效
 """

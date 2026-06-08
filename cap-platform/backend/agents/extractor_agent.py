@@ -64,9 +64,11 @@ _EXTRACTOR_SYSTEM_PROMPT = """你是一位资深的用户画像分析师，专�
 提取 1-3 个。
 
 ### 5. objections（常见异议）
-识别客户对销售话术的抵触反应：
-- content: 异议内容（客户原话或总结，15字以内）
-- trigger_topic: 触发话题
+识别客户对销售话术的抵触反应——即客户明确表达的不满、顾虑或反对意见：
+- content: 异议内容（用精炼短语总结客户的反对意见，8字以内，不要复制对话原文）
+  ✅ 正确示例："优惠不够"、"担心续航"、"品牌没听过"、"配置太低"
+  ❌ 错误示例："那个现金优惠能再多给点吗？人家不是都有优惠吗？"（这是对话原文，不是精炼异议）
+- trigger_topic: 触发话题（是什么销售行为引发了这个异议）
 - resistance: 抵触强度 0.0-1.0
 提取 2-5 个。
 
@@ -84,7 +86,11 @@ _EXTRACTOR_SYSTEM_PROMPT = """你是一位资深的用户画像分析师，专�
 ### 8. communication（沟通风格）
 - style: 风格标签（如"直接干脆""犹豫谨慎""随和健谈"）
 - description: 风格描述（20-50字）
-- speech_patterns: 口头禅列表（3-8 句客户在对话中高频使用的原话）
+- speech_patterns: 口头禅列表（3-8 条）
+  口头禅定义：客户在对话中反复出现的**短小习惯性表达**，通常是2-6个字的词语或短语，能体现个人语言特色。
+  ✅ 正确示例："说实话"、"那个"、"您懂的"、"我先看看"、"有点贵"、"还行吧"
+  ❌ 错误示例："你好，斑马，打开座椅通风"、"这斑马不理人，没事的话我先走了"（这是完整句子，不是口头禅）
+  注意：口头禅必须是客户真实说过的，但不能是完整的长句。
 
 ### 9. tags（标签）
 3-6 个关键词标签，概括客户类型。
@@ -186,8 +192,60 @@ async def extract_persona(data_text: str) -> dict[str, Any]:
         if key not in persona_data:
             persona_data[key] = {} if key in ("profile", "purchase", "behavior", "communication") else []
 
+    # 后处理：过滤质量不合格的口头禅和异议
+    _post_process_persona(persona_data)
+
     import uuid
     persona_data["id"] = f"indiv_{uuid.uuid4().hex[:8]}"
 
     logger.info(f"Extractor success: id={persona_data['id']}, name={persona_data.get('profile', {}).get('name', 'unknown')}")
     return persona_data
+
+
+def _post_process_persona(persona_data: dict[str, Any]) -> None:
+    """后处理：过滤模型误提取的口头禅和异议"""
+    import re
+
+    # 1. 过滤口头禅——太长或像完整句子的去掉
+    comm = persona_data.get("communication", {})
+    patterns = comm.get("speech_patterns", [])
+    filtered_patterns = []
+    for p in patterns:
+        p = p.strip()
+        # 去掉书名号包裹
+        if p.startswith("「") and p.endswith("」"):
+            p = p[1:-1]
+        if p.startswith("'") and p.endswith("'"):
+            p = p[1:-1]
+        if p.startswith('"') and p.endswith('"'):
+            p = p[1:-1]
+        # 过滤条件：超过10个字、包含逗号/句号/问号/感叹号、或明显是完整句子
+        if len(p) > 10:
+            continue
+        if re.search(r'[，。！？；]', p):
+            continue
+        if len(p) >= 2:
+            filtered_patterns.append(p)
+    comm["speech_patterns"] = filtered_patterns[:8]
+
+    # 2. 过滤异议——太长或明显是原文复制的去掉
+    objections = persona_data.get("objections", [])
+    filtered_objections = []
+    for obj in objections:
+        content = obj.get("content", "")
+        # 去掉书名号包裹
+        if content.startswith("「") and content.endswith("」"):
+            content = content[1:-1]
+        if content.startswith("'") and content.endswith("'"):
+            content = content[1:-1]
+        if content.startswith('"') and content.endswith('"'):
+            content = content[1:-1]
+        # 过滤条件：超过15个字、包含多个标点符号（像完整句子）
+        if len(content) > 15:
+            continue
+        if content.count("，") + content.count("。") + content.count("？") + content.count("！") >= 2:
+            continue
+        if len(content) >= 2:
+            obj["content"] = content
+            filtered_objections.append(obj)
+    persona_data["objections"] = filtered_objections[:5]

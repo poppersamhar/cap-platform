@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { store, useSession } from '../store/Store';
-import type { AppMode, RoundScore, TrainingRoundScore, ResearchRoundScore, ChatMessage } from '../types';
+import type { AppMode, RoundScore, TrainingRoundScore, ResearchRoundScore, ChatMessage, ResearchReport } from '../types';
 
 export function DebriefScreen() {
   const session = useSession();
@@ -13,7 +13,8 @@ export function DebriefScreen() {
 
   const evaluation = session.evaluation;
   const isTraining = session.mode === 'training';
-  const isGenerating = session.status === 'ended' && !evaluation;
+  const report = session.report as ResearchReport | undefined;
+  const isGenerating = session.status === 'ended' && (isTraining ? !evaluation : !report);
 
   // 综合评分
   const overallScore = evaluation
@@ -51,7 +52,7 @@ export function DebriefScreen() {
             <div className="text-4xl mb-3">⏳</div>
             <h3 className="font-bold text-cap-ink mb-2">报告生成中</h3>
             <p className="text-cap-ink-2 text-sm font-medium mb-4">
-              AI 督导正在分析对话内容，大约需要 20-30 秒
+              {isTraining ? 'AI 督导正在分析对话内容，大约需要 20-30 秒' : 'AI 正在合成访谈洞察，大约需要 20-30 秒'}
             </p>
             <div className="w-48 h-2 bg-white rounded-full overflow-hidden mx-auto border border-cap-line">
               <div className="h-full bg-cap-butter animate-[loading_1.5s_ease-in-out_infinite]" style={{ width: '60%' }} />
@@ -66,14 +67,14 @@ export function DebriefScreen() {
         {evaluation?.coaching_summary && (
           <div className="plush-lg p-5 mb-6 bg-cap-butter-soft border border-cap-butter">
             <h3 className="font-bold text-cap-ink mb-2 flex items-center gap-2 text-sm">
-              <span>🎯</span> 督导点评
+              <span>🎯</span> {isTraining ? '督导点评' : '访谈摘要'}
             </h3>
             <p className="text-cap-ink font-bold text-sm leading-relaxed">{evaluation.coaching_summary}</p>
           </div>
         )}
 
-        {/* Overall Score + Grade */}
-        {evaluation && (
+        {/* Overall Score + Grade — 仅对练模式 */}
+        {isTraining && evaluation && (
           <div className="plush-lg p-8 mb-6 text-center">
             <div className="flex items-center justify-center gap-4 mb-4">
               <div className="w-24 h-24 rounded-full bg-cap-butter border border-cap-line flex items-center justify-center shadow-sm">
@@ -92,8 +93,8 @@ export function DebriefScreen() {
           </div>
         )}
 
-        {/* Dimension Scores */}
-        {scoreBars.length > 0 && (
+        {/* Dimension Scores — 仅对练模式 */}
+        {isTraining && scoreBars.length > 0 && (
           <div className="plush-lg p-6 mb-6">
             <h3 className="font-bold mb-4 text-cap-ink text-lg">维度评分</h3>
             <div className="space-y-4">
@@ -104,8 +105,8 @@ export function DebriefScreen() {
           </div>
         )}
 
-        {/* Hidden Info Check */}
-        {evaluation?.hidden_info_check && evaluation.hidden_info_check.length > 0 && (
+        {/* Hidden Info Check — 仅对练模式 */}
+        {isTraining && evaluation?.hidden_info_check && evaluation.hidden_info_check.length > 0 && (
           <div className="plush-lg p-6 mb-6">
             <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
               <span>🔓</span> 隐藏信息挖掘
@@ -129,8 +130,8 @@ export function DebriefScreen() {
           </div>
         )}
 
-        {/* Pain Points Check */}
-        {evaluation?.pain_points_check && evaluation.pain_points_check.length > 0 && (
+        {/* Pain Points Check — 仅对练模式 */}
+        {isTraining && evaluation?.pain_points_check && evaluation.pain_points_check.length > 0 && (
           <div className="plush-lg p-6 mb-6">
             <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
               <span>⚡</span> 核心痛点识别
@@ -168,14 +169,14 @@ export function DebriefScreen() {
         {evaluation?.missed_opportunities && evaluation.missed_opportunities.length > 0 && (
           <div className="plush-lg p-6 mb-6 bg-cap-butter-soft border border-cap-butter">
             <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
-              <span>💡</span> 遗漏机会
+              <span>💡</span> {isTraining ? '遗漏机会' : '未探索话题'}
             </h3>
             <div className="space-y-3">
               {evaluation.missed_opportunities.map((mo, i) => (
                 <div key={i} className="p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
                   <p className="text-sm font-bold text-cap-ink mb-1.5">{mo.item}</p>
                   <p className="text-xs text-cap-ink-2 font-semibold">
-                    <span className="text-cap-mint-deep font-bold">应问：</span>{mo.should_ask}
+                    <span className="text-cap-mint-deep font-bold">{isTraining ? '应问' : '可追问'}：</span>{mo.should_ask}
                   </p>
                 </div>
               ))}
@@ -187,7 +188,7 @@ export function DebriefScreen() {
         {evaluation?.highlights && evaluation.highlights.length > 0 && (
           <div className="plush-lg p-6 mb-6 bg-cap-mint/10">
             <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
-              <span>✨</span> 亮点
+              <span>✨</span> {isTraining ? '亮点' : '有效提问'}
             </h3>
             <div className="space-y-3">
               {evaluation.highlights.map((h, i) => (
@@ -200,8 +201,8 @@ export function DebriefScreen() {
           </div>
         )}
 
-        {/* Failures */}
-        {evaluation?.failures && evaluation.failures.length > 0 && (
+        {/* Failures — 仅对练模式 */}
+        {isTraining && evaluation?.failures && evaluation.failures.length > 0 && (
           <div className="plush-lg p-6 mb-6 bg-cap-rose-soft border border-cap-rose-deep">
             <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
               <span>🛠️</span> 改进点
@@ -222,6 +223,132 @@ export function DebriefScreen() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Research Report — 仅调研模式 */}
+        {!isTraining && report && (
+          <div className="space-y-6 mb-6">
+            {/* 需求排序 */}
+            {report.needs_ranking && report.needs_ranking.length > 0 && (
+              <div className="plush-lg p-6">
+                <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
+                  <span>📊</span> 需求优先级
+                </h3>
+                <div className="space-y-3">
+                  {report.needs_ranking.map((n, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="w-6 h-6 rounded-full bg-cap-mint text-white text-xs font-bold flex items-center justify-center">{i + 1}</span>
+                      <span className="text-sm font-medium text-cap-ink flex-1">{n.need}</span>
+                      <div className="w-24 h-2 bg-cap-line-light rounded-full overflow-hidden">
+                        <div className="h-full bg-cap-mint" style={{ width: `${n.importance * 10}%` }} />
+                      </div>
+                      <span className="text-xs font-bold text-cap-ink-2 w-6 text-right">{n.importance}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 痛点分析 */}
+            {report.pain_points_analysis && (
+              <div className="plush-lg p-6">
+                <h3 className="font-bold mb-3 text-cap-ink text-lg flex items-center gap-2">
+                  <span>⚡</span> 痛点分析
+                </h3>
+                <p className="text-sm text-cap-ink-2 font-medium leading-relaxed">{report.pain_points_analysis}</p>
+              </div>
+            )}
+
+            {/* 配置接受度 + 定价敏感度 + 竞品偏好 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {report.config_acceptance && (
+                <div className="plush-lg p-5">
+                  <h4 className="font-bold text-cap-ink mb-2 flex items-center gap-2 text-sm">
+                    <span>🔧</span> 配置接受度
+                  </h4>
+                  <p className="text-xs text-cap-ink-2 font-medium leading-relaxed">{report.config_acceptance}</p>
+                </div>
+              )}
+              {report.price_sensitivity && (
+                <div className="plush-lg p-5">
+                  <h4 className="font-bold text-cap-ink mb-2 flex items-center gap-2 text-sm">
+                    <span>💰</span> 定价敏感度
+                  </h4>
+                  <p className="text-xs text-cap-ink-2 font-medium leading-relaxed">{report.price_sensitivity}</p>
+                </div>
+              )}
+              {report.competitor_preference && (
+                <div className="plush-lg p-5">
+                  <h4 className="font-bold text-cap-ink mb-2 flex items-center gap-2 text-sm">
+                    <span>🏁</span> 竞品偏好
+                  </h4>
+                  <p className="text-xs text-cap-ink-2 font-medium leading-relaxed">{report.competitor_preference}</p>
+                </div>
+              )}
+            </div>
+
+            {/* 核心结论 */}
+            {report.conclusions && (
+              <div className="plush-lg p-6 bg-cap-mint-soft border border-cap-mint/20">
+                <h3 className="font-bold mb-3 text-cap-ink text-lg flex items-center gap-2">
+                  <span>📝</span> 核心结论
+                </h3>
+                <p className="text-sm text-cap-ink font-medium leading-relaxed">{report.conclusions}</p>
+              </div>
+            )}
+
+            {/* 决策建议 */}
+            {report.recommendations && report.recommendations.length > 0 && (
+              <div className="plush-lg p-6">
+                <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
+                  <span>💡</span> 决策建议
+                </h3>
+                <div className="space-y-3">
+                  {report.recommendations.map((rec, i) => (
+                    <div key={i} className="flex gap-3 text-sm">
+                      <span className="w-6 h-6 rounded-full bg-cap-butter text-cap-ink text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                      <span className="text-cap-ink-2 font-medium">{rec}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 代表性引述 */}
+            {report.key_quotes && report.key_quotes.length > 0 && (
+              <div className="plush-lg p-6 bg-cap-butter-soft border border-cap-butter">
+                <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
+                  <span>💬</span> 代表性引述
+                </h3>
+                <div className="space-y-3">
+                  {report.key_quotes.map((quote, i) => (
+                    <div key={i} className="p-3 rounded-xl bg-white border border-cap-line">
+                      <p className="text-sm text-cap-ink font-medium italic leading-relaxed">「{quote}」</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 高频主题 */}
+            {report.topic_tags && report.topic_tags.length > 0 && (
+              <div className="plush-lg p-6">
+                <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
+                  <span>🏷️</span> 高频主题
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {report.topic_tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-cap-sky-soft text-cap-sky-deep border border-cap-sky/20"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

@@ -136,6 +136,8 @@ class CreateSessionRequest(BaseModel):
     persona_id: str
     mode: str  # "training" | "research"
     persona_override: dict | None = None  # 可选：传入完整 persona 数据（用于临时导入）
+    research_topic: str = ""  # 调研主题（仅调研模式）
+    research_goals: str = ""  # 调研目标（仅调研模式）
 
 
 class ChatRequest(BaseModel):
@@ -235,6 +237,8 @@ async def create_session(req: CreateSessionRequest):
         "evaluation": None,
         "status": "active",
         "created_at": time.time(),
+        "research_topic": req.research_topic,
+        "research_goals": req.research_goals,
     }
     _sessions[session_id] = session
     logger.info(f"Session created: {session_id} persona={req.persona_id} mode={req.mode}")
@@ -337,8 +341,9 @@ async def chat(req: ChatRequest):
         "hidden_revealed": result.get("hidden_revealed", []),
     })
 
-    # 异步触发督导评估（不等待）
-    asyncio.create_task(_async_evaluate(session, persona))
+    # 异步触发督导评估（仅对练模式）
+    if session.get("mode") == "training":
+        asyncio.create_task(_async_evaluate(session, persona))
 
     return {
         "reply": reply_clean,
@@ -500,6 +505,8 @@ async def generate_report(session_id: str):
             history=session["messages"],
             evaluation=session.get("evaluation"),
             persona=persona.model_dump() if persona else None,
+            research_topic=session.get("research_topic", ""),
+            research_goals=session.get("research_goals", ""),
         )
     except Exception as e:
         logger.warning(f"Analyst agent failed: {e}, using fallback")
@@ -514,6 +521,109 @@ async def generate_report(session_id: str):
     session["status"] = "ended"
 
     return {"report": report}
+
+
+# ── 获取报告 ──
+@app.get("/api/session/{session_id}/report")
+async def get_report(session_id: str):
+    """获取已生成的报告"""
+    session = _sessions.get(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    report = session.get("report")
+    if not report:
+        return {"status": "pending", "report": None}
+
+    return {"status": "ready", "report": report}
+
+
+# ── 追问建议（仅调研模式）──
+@app.post("/api/session/{session_id}/suggestions")
+async def get_follow_up_suggestions(session_id: str):
+    """基于最近对话生成追问建议"""
+    session = _sessions.get(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    if session.get("mode") != "research":
+        return {"suggestions": []}
+
+    messages = session.get("messages", [])
+    if len(messages) < 2:
+        return {"suggestions": []}
+
+    # 取最近 3 轮对话（6 条消息）
+    recent = messages[-6:]
+    dialog = "\n".join(
+        f"{'研究员' if m['role'] == 'user' else '受访者'}：{m['content']}"
+        for m in recent
+    )
+
+    prompt = f"""你是一位资深用户研究专家。基于以下访谈对话的最新进展，为研究员生成 2-3 条高质量的追问建议。
+
+要求：
+1. 建议必须是具体的问题，不是泛泛的"继续深入"
+2. 问题要能帮助挖掘受访者没说出口的真实想法
+3. 避免引导性提问，保持开放和中立
+4. 问题要简短自然，像日常聊天
+
+对话记录：
+{dialog}
+
+请输出 JSON 格式：
+{{"suggestions": ["建议1", "建议2", "建议3"]}}
+
+只输出 JSON，不要其他文字。"""
+
+    import os
+    import httpx
+    import json
+
+    api_key = os.getenv("MINIMAX_API_KEY", "")
+    api_url = os.getenv("MINIMAX_API_URL", "https://api.minimax.chat/v1/text/chatcompletion_v2")
+    model = os.getenv("MINIMAX_MODEL", "MiniMax-Text-01")
+
+    if not api_key:
+        return {"suggestions": []}
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(
+                api_url,
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": prompt},
+                        {"role": "user", "content": "生成追问建议"},
+                    ],
+                    "temperature": 0.7,
+                    "max_tokens": 256,
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            content = data["choices"][0]["message"]["content"].strip()
+
+            # 解析 JSON
+            if content.startswith("```"):
+                lines = content.split("\n")
+                if lines[0].startswith("```"):
+                    lines = lines[1:]
+                if lines and lines[-1].strip() == "```":
+                    lines = lines[:-1]
+                content = "\n".join(lines).strip()
+
+            parsed = json.loads(content)
+            suggestions = parsed.get("suggestions", [])
+            return {"suggestions": suggestions[:3]}
+    except Exception as e:
+        logger.warning(f"Suggestions generation failed: {e}")
+        return {"suggestions": []}
 
 
 # ── 从对话提取分身（保留，兼容纯文本） ──

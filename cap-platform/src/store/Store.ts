@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type {
-  AppState, Screen, AppMode, Session, EmotionState,
+  AppState, Screen, AppMode, Session, EmotionState, Persona,
 } from '../types';
 
 const ONBOARDED_KEY = 'cap:onboarded';
@@ -118,13 +118,23 @@ class Store {
   }
 
   // ── Session ──
-  async createSession(personaId: string, mode: AppMode, personaOverride?: Persona) {
+  async createSession(
+    personaId: string,
+    mode: AppMode,
+    opts?: { personaOverride?: Persona; researchTopic?: string; researchGoals?: string }
+  ) {
     this.setLoading(true);
     this.setError(null);
     try {
       const body: any = { persona_id: personaId, mode };
-      if (personaOverride) {
-        body.persona_override = personaOverride;
+      if (opts?.personaOverride) {
+        body.persona_override = opts.personaOverride;
+      }
+      if (opts?.researchTopic) {
+        body.research_topic = opts.researchTopic;
+      }
+      if (opts?.researchGoals) {
+        body.research_goals = opts.researchGoals;
       }
       const resp = await fetch(`${API_BASE}/api/session/create`, {
         method: 'POST',
@@ -145,6 +155,8 @@ class Store {
         round: 0,
         status: 'active',
         created_at: Date.now(),
+        research_topic: opts?.researchTopic,
+        research_goals: opts?.researchGoals,
       };
 
       this.set({ currentSession: session, screen: 'brief' });
@@ -234,64 +246,94 @@ class Store {
   }
 
   private async _generateReportAsync(sessionId: string, baseSession: Session) {
+    const isTraining = baseSession.mode === 'training';
     try {
       // 1. 生成报告（可能耗时 20-30s）
-      await fetch(`${API_BASE}/api/session/${sessionId}/report`, { method: 'POST' });
+      const reportResp = await fetch(`${API_BASE}/api/session/${sessionId}/report`, { method: 'POST' });
+      const reportData = await reportResp.json().catch(() => ({}));
 
-      // 2. 轮询获取评分（督导评估是异步的，可能需要等待）
-      let evaluation = null;
-      for (let attempt = 0; attempt < 30; attempt++) {
-        const evalResp = await fetch(`${API_BASE}/api/session/${sessionId}/evaluation`);
-        const evalData = await evalResp.json();
-        if (evalData.evaluation) {
-          evaluation = evalData.evaluation;
-          break;
-        }
-        // 等待 2 秒后重试
-        await new Promise((r) => setTimeout(r, 2000));
-      }
-
-      if (evaluation) {
-        const updatedSession: Session = {
-          ...baseSession,
-          evaluation,
-        };
-
-        // 更新 history 中的对应记录
-        const newHistory = this.state.history.map((s) =>
-          s.id === sessionId ? updatedSession : s
-        );
-        writeHistory(newHistory);
-
-        // 如果当前正在看这条记录的 debrief，更新 currentSession
-        const shouldUpdateCurrent = this.state.currentSession?.id === sessionId;
-
-        this.set({
-          ...(shouldUpdateCurrent ? { currentSession: updatedSession } : {}),
-          history: newHistory,
-          toast: { message: '报告已生成', type: 'success' },
-        });
-
-        // 3 秒后自动清除 toast
-        setTimeout(() => {
-          if (this.state.toast?.message === '报告已生成') {
-            this.set({ toast: null });
+      if (isTraining) {
+        // 对练模式：轮询获取督导评分
+        let evaluation = null;
+        for (let attempt = 0; attempt < 30; attempt++) {
+          const evalResp = await fetch(`${API_BASE}/api/session/${sessionId}/evaluation`);
+          const evalData = await evalResp.json();
+          if (evalData.evaluation) {
+            evaluation = evalData.evaluation;
+            break;
           }
-        }, 3000);
+          await new Promise((r) => setTimeout(r, 2000));
+        }
+
+        if (evaluation) {
+          const updatedSession: Session = {
+            ...baseSession,
+            evaluation,
+            report: reportData.report || undefined,
+          };
+          this._updateSessionAndToast(sessionId, updatedSession, '报告已生成');
+        } else {
+          console.warn('Evaluation not ready after polling');
+          this.set({
+            toast: { message: '评分生成较慢，请稍后刷新查看', type: 'info' },
+          });
+          setTimeout(() => this.set({ toast: null }), 4000);
+        }
       } else {
-        console.warn('Evaluation not ready after polling');
-        this.set({
-          toast: { message: '评分生成较慢，请稍后刷新查看', type: 'info' },
-        });
-        setTimeout(() => this.set({ toast: null }), 4000);
+        // 调研模式：直接获取洞察报告（督导已下线，不评分）
+        let report = reportData.report || null;
+        // 如果 POST 未返回报告，轮询 GET
+        if (!report) {
+          for (let attempt = 0; attempt < 30; attempt++) {
+            const r = await fetch(`${API_BASE}/api/session/${sessionId}/report`);
+            const d = await r.json();
+            if (d.report) {
+              report = d.report;
+              break;
+            }
+            await new Promise((res) => setTimeout(res, 2000));
+          }
+        }
+
+        if (report) {
+          const updatedSession: Session = {
+            ...baseSession,
+            report,
+          };
+          this._updateSessionAndToast(sessionId, updatedSession, '洞察摘要已生成');
+        } else {
+          console.warn('Report not ready after polling');
+          this.set({
+            toast: { message: '洞察生成较慢，请稍后刷新查看', type: 'info' },
+          });
+          setTimeout(() => this.set({ toast: null }), 4000);
+        }
       }
     } catch (e) {
       console.error('Report generation failed:', e);
       this.set({
-        toast: { message: '报告生成失败，请刷新重试', type: 'error' },
+        toast: { message: isTraining ? '报告生成失败，请刷新重试' : '洞察生成失败，请刷新重试', type: 'error' },
       });
       setTimeout(() => this.set({ toast: null }), 4000);
     }
+  }
+
+  private _updateSessionAndToast(sessionId: string, updatedSession: Session, toastMessage: string) {
+    const newHistory = this.state.history.map((s) =>
+      s.id === sessionId ? updatedSession : s
+    );
+    writeHistory(newHistory);
+    const shouldUpdateCurrent = this.state.currentSession?.id === sessionId;
+    this.set({
+      ...(shouldUpdateCurrent ? { currentSession: updatedSession } : {}),
+      history: newHistory,
+      toast: { message: toastMessage, type: 'success' },
+    });
+    setTimeout(() => {
+      if (this.state.toast?.message === toastMessage) {
+        this.set({ toast: null });
+      }
+    }, 3000);
   }
 
   // ── Toast ──
@@ -493,6 +535,22 @@ class Store {
       this.setError(e instanceof Error ? e.message : '提取失败');
     } finally {
       this.setLoading(false);
+    }
+  }
+
+  // ── Smart Follow-up Suggestions (research mode) ──
+  async fetchSuggestions(sessionId: string): Promise<string[]> {
+    try {
+      const resp = await fetch(`${API_BASE}/api/session/${sessionId}/suggestions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      return data.suggestions || [];
+    } catch (e) {
+      console.error('Failed to fetch suggestions:', e);
+      return [];
     }
   }
 }

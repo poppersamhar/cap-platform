@@ -188,7 +188,7 @@ function PreviewStep({
     store.setMode('training');
     const tempId = `temp_${p.id}`;
     const tempPersona = { ...p, id: tempId };
-    store.createSession(tempId, 'training', tempPersona as Persona);
+    store.createSession(tempId, 'training', { personaOverride: tempPersona as Persona });
   };
 
   return (

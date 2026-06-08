@@ -5,6 +5,7 @@ import { OnboardingScreen } from './components/OnboardingScreen';
 import { HomeScreen } from './components/HomeScreen';
 import { ModeSelectScreen } from './components/ModeSelectScreen';
 import { PersonaListScreen } from './components/PersonaListScreen';
+import { ResearchSetupScreen } from './components/ResearchSetupScreen';
 import { BriefScreen } from './components/BriefScreen';
 import { EncounterScreen } from './components/EncounterScreen';
 import { EndConfirmScreen } from './components/EndConfirmScreen';
@@ -53,6 +54,7 @@ export default function App() {
       {screen === 'onboarding' && <OnboardingScreen />}
       {screen === 'home' && <HomeScreen />}
       {screen === 'mode' && <ModeSelectScreen />}
+      {screen === 'researchSetup' && <ResearchSetupScreen />}
       {screen === 'personaList' && <PersonaListScreen />}
       {screen === 'brief' && <BriefScreen />}
       {screen === 'encounter' && <EncounterScreen />}

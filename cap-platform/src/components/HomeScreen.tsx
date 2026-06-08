@@ -56,7 +56,7 @@ export function HomeScreen() {
         <button
           onClick={() => {
             store.setMode('research');
-            store.setScreen('personaList');
+            store.setScreen('researchSetup');
           }}
           className="group p-7 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200"
         >
