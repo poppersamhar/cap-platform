@@ -246,7 +246,7 @@ def build_prompt(records: list[dict]) -> tuple[str, str]:
     {"content": "客户不会主动透露的真实想法", "trigger_condition": "什么场景下会暴露"}
   ],
   "objections": [
-    {"content": "客户会提出的具体异议（口语化）", "trigger_topic": "什么话题会触发", "resistance": 0.4-0.85}
+    {"content": "精炼异议短语（8字以内，如'优惠不够''担心续航'）", "trigger_topic": "什么话题会触发", "resistance": 0.4-0.85}
   ],
   "competitor_awareness": "对竞品的认知和态度（30-80字）",
   "behavior": {
@@ -256,14 +256,14 @@ def build_prompt(records: list[dict]) -> tuple[str, str]:
   "communication": {
     "style": "沟通风格（如：理性务实型/急躁直接型/温和谨慎型）",
     "description": "30-60字沟通风格描述",
-    "speech_patterns": ["3-5条该客户在真实对话里高频出现的口头禅，必须从对话语料里挑出来"]
+    "speech_patterns": ["3-5条短小口头禅（2-6字，如'说实话''那个''还行吧'），必须是真实对话中反复出现的习惯性表达，不能是完整长句"]
   },
   "tags": ["4-5个标签"]
 }
 
 【关键纪律】
-1. speech_patterns 必须是该客户在【真实对话语料】里真实说过的短句/口头禅，不能编造
-2. pain_points 和 objections 的 detail/content 要从对话里找依据，不能凭空生成
+1. speech_patterns 必须是该客户在【真实对话语料】里真实说过的短句/口头禅（2-6字），不能编造，不能是完整句子
+2. pain_points 和 objections 的 detail/content 要从对话里找依据并精炼总结，objections 必须控制在8字以内，不能直接复制对话原文
 3. hidden_info 是从对话推断的"言外之意"（比如客户嘴上说预算 15 万但提到经济压力 → 真实预算可能更紧）
 4. 数值字段必须在指定区间，behavior 五项加起来应反映客户的整体性格
 5. 必须输出有效 JSON，所有字符串用双引号，不能有尾随逗号

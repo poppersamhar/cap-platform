@@ -78,14 +78,20 @@ def _build_training_prompt(history: list[dict], evaluation: dict | None) -> str:
 只输出 JSON，不要任何其他文字。"""
 
 
-def _build_research_prompt(history: list[dict], persona: dict) -> str:
+def _build_research_prompt(history: list[dict], persona: dict, research_topic: str = "", research_goals: str = "") -> str:
     """构建调研访谈分析 Prompt"""
     dialog = "\n".join(
         f"{'研究员' if m['role'] == 'user' else '受访者'}：{m['content']}"
         for m in history
     )
 
-    return f"""你是一位用户研究专家。请根据以下用户调研访谈记录，生成一份结构化的洞察报告。
+    context = ""
+    if research_topic:
+        context += f"\n研究主题：{research_topic}"
+    if research_goals:
+        context += f"\n研究目标：{research_goals}"
+
+    return f"""你是一位资深用户研究专家，擅长从深度访谈中提炼可指导产品决策的洞察。请根据以下访谈记录生成结构化洞察报告。
 
 受访者画像：
 - 姓名：{persona.get('profile', {}).get('name', '未知')}
@@ -95,6 +101,7 @@ def _build_research_prompt(history: list[dict], persona: dict) -> str:
 - 购车需求：{persona.get('purchase', {}).get('car_type', '未知')}
 - 预算：{persona.get('purchase', {}).get('budget_stated', '未知')}
 - 购车阶段：{persona.get('purchase', {}).get('stage', '未知')}
+{context}
 
 对话记录：
 {dialog}
@@ -102,23 +109,27 @@ def _build_research_prompt(history: list[dict], persona: dict) -> str:
 请输出 JSON 格式的报告，包含以下字段：
 {{
   "needs_ranking": [
-    {{"need": "需求描述", "importance": 1-10}}
+    {{"need": "需求描述（用第一人称提炼，如'需要一台能装下婴儿车的SUV'）", "importance": 1-10}}
   ],
-  "pain_points_analysis": "痛点分析总结",
-  "config_acceptance": "对车型配置的接受度分析",
-  "price_sensitivity": "价格敏感度分析",
-  "competitor_preference": "竞品偏好分析",
-  "conclusions": "核心结论",
-  "recommendations": ["建议1", "建议2", "建议3"]
+  "pain_points_analysis": "痛点分析总结（200字以内，聚焦最深层的2-3个痛点，说明'为什么痛'）",
+  "config_acceptance": "对车型配置的接受度分析（受访者对具体配置/功能的反应，哪些是must-have，哪些是nice-to-have）",
+  "price_sensitivity": "价格敏感度分析（预算弹性、对优惠/补贴的态度、心理价位锚点）",
+  "competitor_preference": "竞品偏好分析（对比了哪些竞品、对竞品的具体评价、选择优先级）",
+  "conclusions": "核心结论（3-5条，每条一个可验证的洞察，避免泛泛而谈）",
+  "recommendations": ["针对产品经理/用研人员的产品决策建议，具体可落地"],
+  "key_quotes": ["从对话中抽取的3-5条最具代表性的受访者原话，用于汇报引用"],
+  "topic_tags": ["访谈中高频出现的主题标签，如'续航焦虑'、'家庭空间'、'品牌信任'等"]
 }}
 
-分析维度：
-1. 用户的真实需求优先级排序
-2. 核心痛点和阻碍因素
-3. 对产品/方案的接受度
-4. 价格敏感度和预算弹性
-5. 竞品认知和偏好
-6. 购车决策的关键影响因素
+分析要求：
+1. 需求排序要体现优先级差异，不要所有都写8-9分
+2. 痛点分析要挖到"为什么"，不要只罗列表面现象
+3. 配置接受度要结合具体用车场景来说
+4. 价格敏感度要区分"对外预算"和"真实心理价位"
+5. 竞品偏好要具体说出竞品名称和评价维度
+6. 核心结论必须是"可指导决策"的，不要说"用户很关注价格"这种废话
+7. 代表性引述必须是受访者原话或接近原话的表达，不要改写成书面语
+8. 建议必须具体可落地，不要说"加强用户调研"这种空话
 
 只输出 JSON，不要任何其他文字。"""
 
@@ -145,6 +156,8 @@ async def generate_report(
     history: list[dict],
     evaluation: dict | None,
     persona: dict | None,
+    research_topic: str = "",
+    research_goals: str = "",
 ) -> dict:
     """调用 MiniMax API 生成分析报告"""
     if not MINIMAX_API_KEY:
@@ -154,7 +167,7 @@ async def generate_report(
     if mode == "training":
         system_prompt = _build_training_prompt(history, evaluation)
     else:
-        system_prompt = _build_research_prompt(history, persona or {})
+        system_prompt = _build_research_prompt(history, persona or {}, research_topic, research_goals)
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -217,4 +230,6 @@ def _fallback_report(mode: str, history: list[dict], evaluation: dict | None) ->
             "competitor_preference": "待分析",
             "conclusions": "调研完成",
             "recommendations": ["查看详细对话记录"],
+            "key_quotes": [],
+            "topic_tags": [],
         }

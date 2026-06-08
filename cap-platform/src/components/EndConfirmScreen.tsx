@@ -14,7 +14,7 @@ export function EndConfirmScreen() {
         <div className="text-5xl mb-4">🤔</div>
         <h2 className="text-2xl font-bold mb-2 text-cap-ink">确认结束对话？</h2>
         <p className="text-cap-ink-2 text-sm font-medium mb-8">
-          结束后将生成{session.mode === 'training' ? '销售能力评分报告' : '调研洞察报告'}
+          结束后将生成{session.mode === 'training' ? '销售能力评分报告' : '访谈洞察摘要'}
         </p>
 
         <div className="space-y-3">
@@ -22,7 +22,7 @@ export function EndConfirmScreen() {
             onClick={() => store.endSession()}
             className="w-full btn-plush btn-plush-peach py-3 text-base"
           >
-            📋 结束并查看报告
+            📋 {session.mode === 'training' ? '结束并查看报告' : '结束并查看摘要'}
           </button>
           <button
             onClick={() => store.setScreen('encounter')}

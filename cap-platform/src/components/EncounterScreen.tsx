@@ -6,11 +6,29 @@ export function EncounterScreen() {
   const session = useSession();
   const isLoading = useLoading();
   const [input, setInput] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevLoadingRef = useRef(isLoading);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [session?.messages]);
+
+  // 智能追问建议：avatar 回复完成后，research 模式下获取建议
+  useEffect(() => {
+    if (!session) return;
+    const wasLoading = prevLoadingRef.current;
+    prevLoadingRef.current = isLoading;
+
+    if (wasLoading && !isLoading && session.mode === 'research') {
+      const lastMsg = session.messages[session.messages.length - 1];
+      if (lastMsg && lastMsg.role === 'client') {
+        store.fetchSuggestions(session.id).then((sugs) => {
+          if (sugs.length > 0) setSuggestions(sugs);
+        });
+      }
+    }
+  }, [isLoading, session]);
 
   if (!session) {
     store.setScreen('home');
@@ -19,6 +37,7 @@ export function EncounterScreen() {
 
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
+    setSuggestions([]);
     store.sendMessage(input.trim());
     setInput('');
   };
@@ -53,10 +72,12 @@ export function EncounterScreen() {
           </button>
           <div>
             <h3 className="font-bold text-sm text-cap-ink">{isTraining ? '销售对练' : '用户调研'}</h3>
-            <div className="flex items-center gap-2">
-              <p className="text-xs text-cap-ink-2 font-medium">第 {session.round} / {maxRounds} 轮</p>
-              <RoundProgressBar round={session.round} maxRounds={maxRounds} />
-            </div>
+            {isTraining && (
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-cap-ink-2 font-medium">第 {session.round} / {maxRounds} 轮</p>
+                <RoundProgressBar round={session.round} maxRounds={maxRounds} />
+              </div>
+            )}
           </div>
         </div>
         <button
@@ -67,37 +88,29 @@ export function EncounterScreen() {
         </button>
       </div>
 
-      {/* Emotion Bar — 商务仪表盘风格 */}
-      <div className="px-6 py-3 border-b border-cap-line bg-cap-cream-2">
-        <div className="grid grid-cols-5 gap-4">
-          <EmotionItem label={emotionLabels[0]} value={emotion.trust} color="bg-cap-mint" />
-          <EmotionItem label={emotionLabels[1]} value={emotion.intent} color="bg-cap-peach" />
-          <EmotionItem label={emotionLabels[2]} value={emotion.rapport} color="bg-cap-sky" />
-          <EmotionItem label={emotionLabels[3]} value={emotion.resistance} color="bg-cap-rose" />
-          <EmotionItem label={emotionLabels[4]} value={emotion.anxiety} color="bg-cap-butter" />
-        </div>
-        {session.special_state && (
-          <div className={`mt-2 text-xs px-3 py-1.5 rounded-md inline-block font-semibold ${
-            session.special_state === 'customer_leaving' ? 'bg-cap-rose-soft text-cap-rose-deep border border-cap-rose/20' :
-            session.special_state === 'decision_phase' ? 'bg-cap-mint-soft text-cap-mint-deep border border-cap-mint/20' :
-            'bg-cap-butter-soft text-cap-butter-deep border border-cap-butter/20'
-          }`}>
-            {isTraining ? (
-              <>
-                {session.special_state === 'customer_leaving' && '⚠️ 客户准备离店'}
-                {session.special_state === 'decision_phase' && '✅ 进入决策阶段'}
-                {session.special_state === 'confrontation' && '⚠️ 进入对抗模式'}
-              </>
-            ) : (
-              <>
-                {session.special_state === 'customer_leaving' && '⚠️ 访谈意愿降低'}
-                {session.special_state === 'decision_phase' && '✅ 进入深度分享'}
-                {session.special_state === 'confrontation' && '⚠️ 话题回避'}
-              </>
-            )}
+      {/* Emotion Bar — 仅对练模式显示 */}
+      {isTraining && (
+        <div className="px-6 py-3 border-b border-cap-line bg-cap-cream-2">
+          <div className="grid grid-cols-5 gap-4">
+            <EmotionItem label={emotionLabels[0]} value={emotion.trust} color="bg-cap-mint" />
+            <EmotionItem label={emotionLabels[1]} value={emotion.intent} color="bg-cap-peach" />
+            <EmotionItem label={emotionLabels[2]} value={emotion.rapport} color="bg-cap-sky" />
+            <EmotionItem label={emotionLabels[3]} value={emotion.resistance} color="bg-cap-rose" />
+            <EmotionItem label={emotionLabels[4]} value={emotion.anxiety} color="bg-cap-butter" />
           </div>
-        )}
-      </div>
+          {session.special_state && (
+            <div className={`mt-2 text-xs px-3 py-1.5 rounded-md inline-block font-semibold ${
+              session.special_state === 'customer_leaving' ? 'bg-cap-rose-soft text-cap-rose-deep border border-cap-rose/20' :
+              session.special_state === 'decision_phase' ? 'bg-cap-mint-soft text-cap-mint-deep border border-cap-mint/20' :
+              'bg-cap-butter-soft text-cap-butter-deep border border-cap-butter/20'
+            }`}>
+              {session.special_state === 'customer_leaving' && '⚠️ 客户准备离店'}
+              {session.special_state === 'decision_phase' && '✅ 进入决策阶段'}
+              {session.special_state === 'confrontation' && '⚠️ 进入对抗模式'}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
@@ -145,6 +158,27 @@ export function EncounterScreen() {
 
       {/* Input */}
       <div className="px-6 py-4 border-t border-cap-line bg-white">
+        {/* 追问建议 — 仅调研模式 */}
+        {!isTraining && suggestions.length > 0 && !isLoading && (
+          <div className="mb-3">
+            <p className="text-[11px] font-semibold text-cap-ink-2 mb-2">💡 追问建议</p>
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((sug, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setInput(sug);
+                    const ta = document.querySelector('textarea');
+                    if (ta) ta.focus();
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-cap-sky-soft border border-cap-sky/20 text-cap-sky-deep hover:bg-cap-sky/20 transition-colors"
+                >
+                  {sug}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="flex gap-3">
           <textarea
             value={input}

@@ -7,6 +7,7 @@ export type Screen =
   | 'onboarding'
   | 'home'
   | 'mode'
+  | 'researchSetup'
   | 'personaList'
   | 'brief'
   | 'encounter'
@@ -195,6 +196,8 @@ export interface ResearchReport {
   competitor_preference: string;
   conclusions: string;
   recommendations: string[];
+  key_quotes?: string[];
+  topic_tags?: string[];
 }
 
 export type Report = TrainingReport | ResearchReport;
@@ -211,6 +214,8 @@ export interface Session {
   round: number;
   evaluation?: Evaluation;
   report?: Report;
+  research_topic?: string;
+  research_goals?: string;
   status: 'active' | 'ended';
   created_at: number;
 }

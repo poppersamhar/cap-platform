@@ -48,6 +48,26 @@ export function BriefScreen() {
           </div>
         </div>
 
+        {/* ── 目标提醒 ── */}
+        <div className="plush-lg p-5 mb-5 bg-cap-mint-soft border border-cap-mint/20">
+          <h3 className="font-bold text-cap-ink mb-2 flex items-center gap-2">
+            <span className="text-lg">🎯</span> {isTraining ? '对练目标' : '访谈目标'}
+          </h3>
+          <p className="text-sm text-cap-ink font-medium leading-relaxed">
+            {isTraining
+              ? '通过对话了解客户需求，建立信任，处理异议，最终达成成交或获取明确的下一步行动。注意：不要过早报价，先挖需求。'
+              : '通过深度访谈了解客户的真实需求、痛点、偏好和决策因素，输出结构化洞察。保持开放，不要引导。'}
+          </p>
+        </div>
+
+        {/* ── 开始按钮 ── */}
+        <button
+          onClick={() => store.setScreen('encounter')}
+          className="w-full btn-plush btn-plush-peach py-4 text-lg mb-8"
+        >
+          🚀 开始{isTraining ? '对练' : '访谈'}
+        </button>
+
         {/* ── 隐藏信息 ── */}
         {p.hidden_info.length > 0 && (
           <div className="plush-lg p-5 mb-5 border border-cap-rose/20">
@@ -70,10 +90,10 @@ export function BriefScreen() {
           </div>
         )}
 
-        {/* ── 核心痛点 ── */}
+        {/* ── 核心痛点 / 关注重点 ── */}
         <div className="plush-lg p-5 mb-5">
           <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
-            <span className="text-lg">⚡</span> 核心痛点
+            <span className="text-lg">⚡</span> {isTraining ? '核心痛点' : '关注重点'}
           </h3>
           <div className="space-y-3">
             {p.pain_points.map((pp) => (
@@ -132,19 +152,21 @@ export function BriefScreen() {
           </div>
         </div>
 
-        {/* ── 行为倾向 ── */}
-        <div className="plush-lg p-5 mb-5">
-          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
-            <span className="text-lg">📊</span> 行为倾向
-          </h3>
-          <div className="space-y-3">
-            <BehaviorBar label="反引导意识" value={p.behavior.anti_guide} desc="抗拒被销售话术引导的程度" />
-            <BehaviorBar label="价格敏感度" value={p.behavior.price_sensitivity} desc="对价格和优惠的关注程度" />
-            <BehaviorBar label="表达欲" value={p.behavior.expressiveness} desc="主动表达需求和想法的倾向" />
-            <BehaviorBar label="决策果断度" value={p.behavior.decisiveness} desc="做购买决策的速度和果断程度" />
-            <BehaviorBar label="技术理解力" value={p.behavior.tech_literacy} desc="对车辆技术参数的理解能力" />
+        {/* ── 行为倾向（仅对练模式显示）── */}
+        {isTraining && (
+          <div className="plush-lg p-5 mb-5">
+            <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
+              <span className="text-lg">📊</span> 行为倾向
+            </h3>
+            <div className="space-y-3">
+              <BehaviorBar label="反引导意识" value={p.behavior.anti_guide} desc="抗拒被销售话术引导的程度" />
+              <BehaviorBar label="价格敏感度" value={p.behavior.price_sensitivity} desc="对价格和优惠的关注程度" />
+              <BehaviorBar label="表达欲" value={p.behavior.expressiveness} desc="主动表达需求和想法的倾向" />
+              <BehaviorBar label="决策果断度" value={p.behavior.decisiveness} desc="做购买决策的速度和果断程度" />
+              <BehaviorBar label="技术理解力" value={p.behavior.tech_literacy} desc="对车辆技术参数的理解能力" />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ── 购车画像 ── */}
         <div className="plush-lg p-5 mb-5">
@@ -188,25 +210,6 @@ export function BriefScreen() {
             <InfoRow label="现有车辆" value={p.profile.current_car} />
           </div>
         </div>
-
-        {/* ── 目标提醒 ── */}
-        <div className="plush-lg p-5 mb-6 bg-cap-mint-soft border border-cap-mint/20">
-          <h3 className="font-bold text-cap-ink mb-2 flex items-center gap-2">
-            <span className="text-lg">🎯</span> {isTraining ? '对练目标' : '访谈目标'}
-          </h3>
-          <p className="text-sm text-cap-ink font-medium leading-relaxed">
-            {isTraining
-              ? '通过对话了解客户需求，建立信任，处理异议，最终达成成交或获取明确的下一步行动。注意：不要过早报价，先挖需求。'
-              : '通过深度访谈了解客户的真实需求、痛点、偏好和决策因素，输出结构化洞察。保持开放，不要引导。'}
-          </p>
-        </div>
-
-        <button
-          onClick={() => store.setScreen('encounter')}
-          className="w-full btn-plush btn-plush-peach py-4 text-lg mb-8"
-        >
-          🚀 开始{isTraining ? '对练' : '访谈'}
-        </button>
       </div>
     </div>
   );

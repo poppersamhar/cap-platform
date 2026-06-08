@@ -77,7 +77,19 @@ export function PersonaListScreen() {
   }, []);
 
   const handleSelect = (persona: Persona) => {
-    store.createSession(persona.id, mode!);
+    const isResearch = mode === 'research';
+    let topic = '';
+    let goals = '';
+    if (isResearch) {
+      try {
+        topic = localStorage.getItem('cap:research_topic') || '';
+        goals = localStorage.getItem('cap:research_goals') || '';
+      } catch { /* ignore */ }
+    }
+    store.createSession(persona.id, mode!, {
+      researchTopic: topic || undefined,
+      researchGoals: goals || undefined,
+    });
   };
 
   const { typical, individual } = useMemo(() => {
@@ -101,9 +113,11 @@ export function PersonaListScreen() {
       </button>
 
       <div className="mb-10">
-        <h2 className="text-3xl font-bold mb-2 text-cap-ink">选择客户分身</h2>
+        <h2 className="text-3xl font-bold mb-2 text-cap-ink">
+          {mode === 'training' ? '选择客户分身' : '选择目标客群'}
+        </h2>
         <p className="text-cap-ink-2 font-medium">
-          {mode === 'training' ? '选择一位客户进行销售对练' : '选择一位用户进行调研访谈'}
+          {mode === 'training' ? '选择一位客户进行销售对练' : '选择一位代表性用户进行调研访谈'}
         </p>
       </div>
 
@@ -118,9 +132,13 @@ export function PersonaListScreen() {
       {typical.length > 0 && (
         <section className="mb-12">
           <div className="mb-5">
-            <h3 className="text-lg font-bold text-cap-ink">典型用户</h3>
+            <h3 className="text-lg font-bold text-cap-ink">
+              {mode === 'research' ? '推荐：典型客群' : '典型用户'}
+            </h3>
             <p className="text-xs text-cap-ink-2 font-medium">
-              由同类客户数据聚类合成的代表性分身，可编辑配置和专属知识库
+              {mode === 'research'
+                ? '由同类客户数据聚类合成的代表性分身，适合作为调研样本'
+                : '由同类客户数据聚类合成的代表性分身，可编辑配置和专属知识库'}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -132,7 +150,7 @@ export function PersonaListScreen() {
       )}
 
       {/* ── 个体用户 ── */}
-      {individual.length > 0 && (
+      {individual.length > 0 && mode === 'training' && (
         <section>
           <div className="mb-5 flex items-center justify-between">
             <div>
