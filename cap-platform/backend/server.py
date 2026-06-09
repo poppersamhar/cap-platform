@@ -560,13 +560,24 @@ async def get_follow_up_suggestions(session_id: str):
         for m in recent
     )
 
-    prompt = f"""你是一位资深用户研究专家。基于以下访谈对话的最新进展，为研究员生成 2-3 条高质量的追问建议。
+    prompt = f"""你是一位资深汽车行业用户研究专家。基于以下购车用户访谈对话的最新进展，为研究员生成 2-3 条高质量的追问建议。
 
-要求：
-1. 建议必须是具体的问题，不是泛泛的"继续深入"
-2. 问题要能帮助挖掘受访者没说出口的真实想法
-3. 避免引导性提问，保持开放和中立
-4. 问题要简短自然，像日常聊天
+【核心纪律】
+1. 所有建议问题必须与"汽车、购车、用车、选车决策"直接相关
+2. 严禁追问公交、地铁、电动车、自行车、步行等与汽车无关的出行方式
+3. 如果受访者提到了非汽车出行方式，应追问"这是否影响了他对汽车的需求/选择"
+4. 建议必须是具体的问题，不是泛泛的"继续深入"
+5. 问题要能帮助挖掘受访者没说出口的真实想法
+6. 避免引导性提问，保持开放和中立
+7. 问题要简短自然，像日常聊天
+
+【追问方向参考】
+- 用车场景的具体细节（如通勤距离、路况、停车条件）
+- 对现有车辆的不满或满意之处
+- 换车/购车的真实触发因素
+- 对具体配置/功能的偏好及原因
+- 预算弹性及决策影响因素
+- 竞品对比的真实考虑
 
 对话记录：
 {dialog}
@@ -620,7 +631,14 @@ async def get_follow_up_suggestions(session_id: str):
 
             parsed = json.loads(content)
             suggestions = parsed.get("suggestions", [])
-            return {"suggestions": suggestions[:3]}
+
+            # 过滤与汽车无关的建议
+            _off_topic_keywords = ("公交", "地铁", "电动车", "电瓶车", "自行车", "步行", "走路")
+            filtered = [
+                s for s in suggestions
+                if not any(kw in s for kw in _off_topic_keywords)
+            ]
+            return {"suggestions": filtered[:3]}
     except Exception as e:
         logger.warning(f"Suggestions generation failed: {e}")
         return {"suggestions": []}
