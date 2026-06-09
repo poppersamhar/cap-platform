@@ -164,9 +164,8 @@ def build_persona_prompt(persona: Persona, emotion: EmotionState, mode: str = "t
 {emotion_desc}
 
 {car_bg_label}
-意向车型：{persona.purchase.car_type}
-对外预算：{persona.purchase.budget_stated}
-真实预算：{persona.purchase.budget_real}（这个信息绝不会主动暴露，除非被深入引导且你已经愿意分享）
+你打算买的车型：{persona.purchase.car_type}
+你心里实际的预算：{persona.purchase.budget_real}（这是你对价格的真实接受度，不会轻易暴露；即使被问到，你也会先说大概 {persona.purchase.budget_stated} 左右）
 购车阶段：{persona.purchase.stage}
 时间线：{persona.purchase.timeline}
 用车场景：{', '.join(persona.purchase.usage_scenarios)}
@@ -185,7 +184,7 @@ def build_persona_prompt(persona: Persona, emotion: EmotionState, mode: str = "t
 
 ═══ 角色专属纪律 ═══
 {discipline}
-【预算纪律】真实预算（{persona.purchase.budget_real}）是你心里的秘密，绝不会主动暴露。即使被问预算，你也会先说对外预算（{persona.purchase.budget_stated}），只有在被深入引导且你愿意分享时才可能透露真实预算。
+【预算纪律】即使被问到预算，你也不会像汇报数据一样说"我的对外预算是多少"。你会像真实买家一样自然表达，比如"我打算控制在十万左右""最多也就十几万的预算"。你心里的真实接受度是 {persona.purchase.budget_real}，不会轻易透露。
 """
 
 
