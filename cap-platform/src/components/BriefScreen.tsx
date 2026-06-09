@@ -141,18 +141,6 @@ export function BriefScreen() {
               <p className="text-cap-ink font-medium text-sm">{p.communication.style}</p>
               <p className="text-cap-ink-2 text-xs font-medium mt-1">{p.communication.description}</p>
             </div>
-            {isTraining && (
-              <div className="p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
-                <span className="text-xs font-semibold text-cap-ink-2 uppercase block mb-2">口头禅</span>
-                <div className="flex flex-wrap gap-2">
-                  {p.communication.speech_patterns.map((sp) => (
-                    <span key={sp} className="px-2.5 py-1 rounded-md text-xs font-medium bg-cap-sky-soft border border-cap-sky/20 text-cap-sky-deep">
-                      「{sp}」
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
