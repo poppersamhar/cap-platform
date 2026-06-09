@@ -9,6 +9,7 @@ export function EncounterScreen() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const prevLoadingRef = useRef(isLoading);
+  const fetchedForMsgCountRef = useRef(0);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -16,19 +17,24 @@ export function EncounterScreen() {
 
   // 智能追问建议：avatar 回复完成后，research 模式下获取建议
   useEffect(() => {
-    if (!session) return;
-    const wasLoading = prevLoadingRef.current;
-    prevLoadingRef.current = isLoading;
+    if (!session || session.mode !== 'research') return;
 
-    if (wasLoading && !isLoading && session.mode === 'research') {
-      const lastMsg = session.messages[session.messages.length - 1];
-      if (lastMsg && lastMsg.role === 'client') {
-        store.fetchSuggestions(session.id).then((sugs) => {
-          if (sugs.length > 0) setSuggestions(sugs);
-        });
-      }
+    const msgCount = session.messages.length;
+    const lastMsg = msgCount > 0 ? session.messages[msgCount - 1] : null;
+
+    // 当消息增加且最后一条是 avatar 回复，且未为此消息获取过建议时触发
+    if (
+      msgCount > fetchedForMsgCountRef.current &&
+      lastMsg &&
+      lastMsg.role === 'client' &&
+      !isLoading
+    ) {
+      fetchedForMsgCountRef.current = msgCount;
+      store.fetchSuggestions(session.id).then((sugs) => {
+        if (sugs.length > 0) setSuggestions(sugs);
+      });
     }
-  }, [isLoading, session]);
+  }, [session?.messages, isLoading, session]);
 
   if (!session) {
     store.setScreen('home');

@@ -588,7 +588,7 @@ async def get_follow_up_suggestions(session_id: str):
         return {"suggestions": []}
 
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
                 api_url,
                 headers={
