@@ -37,30 +37,61 @@ if not (API_KEY and API_URL and MODEL):
     sys.exit("缺少 MINIMAX_API_KEY / MINIMAX_API_URL / MINIMAX_MODEL 环境变量")
 
 
-# ── 聚类规则 ──
+# ── 辅助：解析购车需求标签中的增换购 ──
+def _parse_zgh_label(raw) -> str | None:
+    if not raw or raw == "None":
+        return None
+    try:
+        data = json.loads(raw) if isinstance(raw, str) else raw
+        for item in data:
+            if item.get("label") == "增换购":
+                items = item.get("items", [])
+                if items and items[0].get("value"):
+                    return items[0]["value"]
+    except Exception:
+        pass
+    return None
+
+
+# ── 聚类规则（生命周期 + 核心诉求 混合分群）──
 CLUSTERS = {
-    "typical_01_young_single": {
-        "title": "年轻单身通勤客户",
+    "typical_01_starter": {
+        "title": "人生首购型",
         "filter": lambda r: (
-            r.get("年龄") is not None
-            and r["年龄"] <= 30
-            and r.get("婚姻") == "未婚"
+            r.get("婚姻") == "未婚"
+            and r.get("年龄") is not None
+            and r["年龄"] < 35
         ),
     },
-    "typical_02_family_with_kids": {
-        "title": "家庭已婚有孩客户",
+    "typical_02_family": {
+        "title": "家庭主力型",
         "filter": lambda r: (
-            r.get("年龄") is not None
-            and 30 <= r["年龄"] <= 50
-            and r.get("婚姻") == "已婚有孩"
+            r.get("婚姻") in ("已婚有孩", "已婚无孩")
+            and r.get("年龄") is not None
+            and r["年龄"] < 50
+            and _parse_zgh_label(r.get("购车需求标签")) not in ("换购", "增购")
         ),
     },
-    "typical_03_mature_replacement": {
-        "title": "增换购成熟客户",
+    "typical_03_upgrader": {
+        "title": "经验换购型",
         "filter": lambda r: (
-            r.get("年龄") is not None
-            and r["年龄"] >= 40
-            and r.get("增换购属性") in ("增加购买", "旧车置换")
+            (
+                r.get("年龄") is not None
+                and r["年龄"] >= 50
+            )
+            or (
+                r.get("婚姻") == "未婚"
+                and r.get("年龄") is not None
+                and r["年龄"] >= 35
+            )
+            or (
+                _parse_zgh_label(r.get("购车需求标签")) in ("换购", "增购")
+            )
+            or (
+                r.get("婚姻") == "已婚无孩"
+                and r.get("年龄") is not None
+                and r["年龄"] >= 40
+            )
         ),
     },
 }
