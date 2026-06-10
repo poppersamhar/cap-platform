@@ -252,7 +252,14 @@ async def evaluate(persona: Persona, history: list[dict], mode: str = "training"
         data = resp.json()
 
     content = data["choices"][0]["message"]["content"]
-    return _parse_evaluation(content, mode)
+    usage = data.get("usage", {})
+    result = _parse_evaluation(content, mode)
+    result["_usage"] = {
+        "prompt_tokens": usage.get("prompt_tokens", 0),
+        "completion_tokens": usage.get("completion_tokens", 0),
+        "total_tokens": usage.get("total_tokens", 0),
+    }
+    return result
 
 
 def _parse_evaluation(content: str, mode: str) -> dict[str, Any]:

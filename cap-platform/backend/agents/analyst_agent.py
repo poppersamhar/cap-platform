@@ -194,12 +194,18 @@ async def generate_report(
         data = resp.json()
 
     reply = data["choices"][0]["message"]["content"].strip()
+    usage = data.get("usage", {})
     report = _parse_json(reply)
 
     if not report:
         logger.warning("Analyst agent returned empty report, using fallback")
         report = _fallback_report(mode, history, evaluation)
 
+    report["_usage"] = {
+        "prompt_tokens": usage.get("prompt_tokens", 0),
+        "completion_tokens": usage.get("completion_tokens", 0),
+        "total_tokens": usage.get("total_tokens", 0),
+    }
     return report
 
 
