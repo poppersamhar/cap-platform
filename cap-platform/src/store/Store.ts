@@ -1,10 +1,11 @@
 import { useSyncExternalStore } from 'react';
 import type {
-  AppState, Screen, AppMode, Session, EmotionState, Persona,
+  AppState, Screen, AppMode, Session, EmotionState, Persona, SurveyTask, SurveyHistoryItem,
 } from '../types';
 
 const ONBOARDED_KEY = 'cap:onboarded';
 const HISTORY_KEY = 'cap:history';
+const SURVEY_HISTORY_KEY = 'cap:survey_history';
 
 function readOnboarded(): boolean {
   try {
@@ -41,6 +42,25 @@ function writeHistory(sessions: Session[]) {
   }
 }
 
+function readSurveyHistory(): SurveyHistoryItem[] {
+  try {
+    if (typeof window === 'undefined') return [];
+    const raw = window.localStorage.getItem(SURVEY_HISTORY_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function writeSurveyHistory(items: SurveyHistoryItem[]) {
+  try {
+    window.localStorage.setItem(SURVEY_HISTORY_KEY, JSON.stringify(items));
+  } catch {
+    // private mode — non-fatal
+  }
+}
+
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787';
 
 class Store {
@@ -58,6 +78,9 @@ class Store {
     previewPersona: null,
     knowledgeSources: [],
     toast: null,
+    personaGroupNames: {},
+    currentSurvey: null,
+    surveyHistory: readSurveyHistory(),
   };
 
   private listeners = new Set<() => void>();
@@ -74,7 +97,7 @@ class Store {
     for (const l of this.listeners) l();
   }
 
-  private setLoading(v: boolean) {
+  setLoading(v: boolean) {
     this.set({ isLoading: v });
   }
 
@@ -101,17 +124,63 @@ class Store {
   // ── Mode selection ──
   setMode = (mode: AppMode) => this.set({ mode });
 
+  // ── Survey ──
+  setCurrentSurvey = (survey: SurveyTask | null) => this.set({ currentSurvey: survey });
+
   // ── Personas ──
   async loadPersonas() {
     this.setLoading(true);
     this.setError(null);
     try {
-      const resp = await fetch(`${API_BASE}/api/personas`);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const data = await resp.json();
-      this.set({ personas: data.personas });
+      const [personasResp, groupsResp] = await Promise.all([
+        fetch(`${API_BASE}/api/personas`),
+        fetch(`${API_BASE}/api/persona-groups`),
+      ]);
+      if (!personasResp.ok) throw new Error(`HTTP ${personasResp.status}`);
+      const personasData = await personasResp.json();
+      const groupsData = groupsResp.ok ? await groupsResp.json() : { groups: {} };
+      this.set({
+        personas: personasData.personas,
+        personaGroupNames: groupsData.groups || {},
+      });
     } catch (e) {
       this.setError(e instanceof Error ? e.message : 'Failed to load personas');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  async loadPersonaGroups() {
+    try {
+      const resp = await fetch(`${API_BASE}/api/persona-groups`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      this.set({ personaGroupNames: data.groups || {} });
+    } catch (e) {
+      console.error('Failed to load persona groups:', e);
+    }
+  }
+
+  async updatePersonaGroupName(source: string, name: string) {
+    this.setLoading(true);
+    this.setError(null);
+    try {
+      const resp = await fetch(`${API_BASE}/api/persona-groups/${encodeURIComponent(source)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      this.set({
+        personaGroupNames: { ...this.state.personaGroupNames, [source]: data.name },
+      });
+      this.showToast('分组名称已更新', 'success');
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '更新失败');
     } finally {
       this.setLoading(false);
     }
@@ -196,6 +265,7 @@ class Store {
         timestamp: Date.now(),
         triggered_tags: data.triggered_tags || [],
         hidden_revealed: data.hidden_revealed || [],
+        source_quotes: data.source_quotes || [],
       };
 
       this.set({
@@ -365,6 +435,58 @@ class Store {
     this.set({ history: newHistory });
   };
 
+  // ── Survey History ──
+  addSurveyToHistory = (task: SurveyTask) => {
+    const item: SurveyHistoryItem = {
+      id: task.id,
+      template_name: task.template.name,
+      persona_count: task.persona_ids.length,
+      status: task.status === 'failed' ? 'failed' : 'completed',
+      reports: task.reports,
+      created_at: task.created_at,
+      completed_at: Date.now(),
+    };
+    const newHistory = [item, ...this.state.surveyHistory].slice(0, 50);
+    writeSurveyHistory(newHistory);
+    this.set({ surveyHistory: newHistory });
+  };
+
+  deleteSurveyHistoryItem = (surveyId: string) => {
+    const newHistory = this.state.surveyHistory.filter((s) => s.id !== surveyId);
+    writeSurveyHistory(newHistory);
+    this.set({ surveyHistory: newHistory });
+  };
+
+  clearAllSurveyHistory = () => {
+    writeSurveyHistory([]);
+    this.set({ surveyHistory: [] });
+  };
+
+  viewSurveyResult = (surveyId: string) => {
+    const item = this.state.surveyHistory.find((s) => s.id === surveyId);
+    if (!item) return;
+    // Reconstruct a SurveyTask from history item for the result screen
+    const task: SurveyTask = {
+      id: item.id,
+      template: {
+        id: item.id,
+        name: item.template_name,
+        description: '',
+        questions: [],
+      },
+      persona_ids: item.reports.map((r) => r.persona_id),
+      status: item.status,
+      progress: item.reports.map((r) => ({
+        persona_id: r.persona_id,
+        persona_name: r.persona_name,
+        status: 'completed' as const,
+      })),
+      reports: item.reports,
+      created_at: item.created_at,
+    };
+    this.set({ currentSurvey: task, screen: 'surveyResult' });
+  };
+
   // ── Knowledge Base ──
   async loadKnowledgeSources() {
     try {
@@ -414,6 +536,21 @@ class Store {
     }
   }
 
+  // ── Source Dialogues ──
+  async loadSourceDialogues(personaId: string) {
+    try {
+      const resp = await fetch(`${API_BASE}/api/persona/${encodeURIComponent(personaId)}/source-dialogues`);
+      if (!resp.ok) {
+        if (resp.status === 404) return null;
+        throw new Error(`HTTP ${resp.status}`);
+      }
+      return await resp.json();
+    } catch (e) {
+      console.error('Load source dialogues failed:', e);
+      return null;
+    }
+  }
+
   // ── Persona Edit ──
   async updatePersona(personaId: string, data: Persona) {
     this.setLoading(true);
@@ -434,6 +571,61 @@ class Store {
       this.setError(e instanceof Error ? e.message : '更新失败');
     } finally {
       this.setLoading(false);
+    }
+  }
+
+  // ── Factory Persona CRUD ──
+  async updateFactoryPersona(personaId: string, data: Persona) {
+    this.setLoading(true);
+    this.setError(null);
+    try {
+      const resp = await fetch(`${API_BASE}/api/factory/persona/${encodeURIComponent(personaId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ persona: data }),
+      });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${resp.status}`);
+      }
+      await this.loadPersonas();
+      this.showToast('工厂分身已更新', 'success');
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '更新失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  async deleteFactoryPersona(personaId: string) {
+    this.setLoading(true);
+    this.setError(null);
+    try {
+      const resp = await fetch(`${API_BASE}/api/factory/persona/${encodeURIComponent(personaId)}`, {
+        method: 'DELETE',
+      });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${resp.status}`);
+      }
+      await this.loadPersonas();
+      this.showToast('工厂分身已删除', 'success');
+    } catch (e) {
+      this.setError(e instanceof Error ? e.message : '删除失败');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  async loadFactoryPersonas(): Promise<Persona[]> {
+    try {
+      const resp = await fetch(`${API_BASE}/api/factory/personas`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      return data.personas || [];
+    } catch (e) {
+      console.error('Failed to load factory personas:', e);
+      return [];
     }
   }
 
@@ -588,6 +780,10 @@ export function useAppState(): AppState {
 
 export function useHistory() {
   return useStore((s) => s.history);
+}
+
+export function useSurveyHistory() {
+  return useStore((s) => s.surveyHistory);
 }
 
 export function usePreviewPersona() {

@@ -5,7 +5,11 @@ import { OnboardingScreen } from './components/OnboardingScreen';
 import { HomeScreen } from './components/HomeScreen';
 import { ModeSelectScreen } from './components/ModeSelectScreen';
 import { PersonaListScreen } from './components/PersonaListScreen';
+import { ResearchSelectScreen } from './components/ResearchSelectScreen';
 import { ResearchSetupScreen } from './components/ResearchSetupScreen';
+import { SurveySetupScreen } from './components/SurveySetupScreen';
+import { SurveyRunningScreen } from './components/SurveyRunningScreen';
+import { SurveyResultScreen } from './components/SurveyResultScreen';
 import { BriefScreen } from './components/BriefScreen';
 import { EncounterScreen } from './components/EncounterScreen';
 import { EndConfirmScreen } from './components/EndConfirmScreen';
@@ -13,6 +17,7 @@ import { DebriefScreen } from './components/DebriefScreen';
 import { HistoryScreen } from './components/HistoryScreen';
 import { ImportPersonaScreen } from './components/ImportPersonaScreen';
 import { KnowledgeScreen } from './components/KnowledgeScreen';
+import { FactoryScreen } from './components/FactoryScreen';
 
 function Toast() {
   const toast = useToast();
@@ -54,7 +59,11 @@ export default function App() {
       {screen === 'onboarding' && <OnboardingScreen />}
       {screen === 'home' && <HomeScreen />}
       {screen === 'mode' && <ModeSelectScreen />}
+      {screen === 'researchSelect' && <ResearchSelectScreen />}
       {screen === 'researchSetup' && <ResearchSetupScreen />}
+      {screen === 'surveySetup' && <SurveySetupScreen />}
+      {screen === 'surveyRunning' && <SurveyRunningScreen />}
+      {screen === 'surveyResult' && <SurveyResultScreen />}
       {screen === 'personaList' && <PersonaListScreen />}
       {screen === 'brief' && <BriefScreen />}
       {screen === 'encounter' && <EncounterScreen />}
@@ -63,6 +72,7 @@ export default function App() {
       {screen === 'history' && <HistoryScreen />}
       {screen === 'importPersona' && <ImportPersonaScreen />}
       {screen === 'knowledge' && <KnowledgeScreen />}
+      {screen === 'factory' && <FactoryScreen />}
     </div>
   );
 }
