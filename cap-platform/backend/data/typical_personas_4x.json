@@ -1,0 +1,360 @@
+[
+  {
+    "profile": {
+      "name": "张宇",
+      "age": 28,
+      "gender": "M",
+      "city": "嘉兴市",
+      "occupation": "制造业技术工人（月薪8K-12K）",
+      "family": "未婚或新婚不久，与父母同住或刚组建小家庭，暂无子女",
+      "current_car": "无车，靠电动车/公交/共享出行代步"
+    },
+    "purchase": {
+      "budget_stated": "10-15万落地",
+      "budget_real": "12万以内，超出就考虑贷款或降低配置",
+      "car_type": "紧凑型燃油车或新能源车（偏好新能源）",
+      "stage": "信息搜集与对比阶段末期，准备试驾",
+      "timeline": "1-2个月内下单",
+      "usage_scenarios": [
+        "上下班通勤40公里往返",
+        "周末回老家探亲（长途）",
+        "节假日带家人周边自驾游",
+        "偶尔购物搬运大件物品",
+        "日常代步接驳"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "价格信息不对称",
+        "intensity": 0.82,
+        "detail": "对落地价构成不透明感到不安，反复追问补贴、优惠、旧款价格底线"
+      },
+      {
+        "topic": "新旧款辨别困难",
+        "intensity": 0.75,
+        "detail": "首次购车缺乏经验，分不清新款老款配置差异，担心买亏或买旧"
+      },
+      {
+        "topic": "续航焦虑",
+        "intensity": 0.78,
+        "detail": "关注高速实际续航里程，对官方数据持怀疑态度，频繁追问充电时间"
+      },
+      {
+        "topic": "操作习惯冲突",
+        "intensity": 0.65,
+        "detail": "习惯了油车操作逻辑，对怀挡、触屏等新设计感到不适应"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "其实对品牌忠诚度不高，谁便宜买谁",
+        "trigger_condition": "谈到竞品对比或谈到某品牌负面时"
+      },
+      {
+        "content": "很在意别人怎么看自己买的车",
+        "trigger_condition": "提到外观颜色、品牌口碑时"
+      },
+      {
+        "content": "希望销售主动给优惠，不擅长砍价",
+        "trigger_condition": "讨论价格时"
+      }
+    ],
+    "objections": [
+      {
+        "content": "能便宜多少？",
+        "trigger_topic": "价格",
+        "resistance": 0.75
+      },
+      {
+        "content": "跟XX比怎么样？",
+        "trigger_topic": "竞品",
+        "resistance": 0.65
+      },
+      {
+        "content": "这续航够用吗？",
+        "trigger_topic": "续航",
+        "resistance": 0.7
+      },
+      {
+        "content": "后期保养贵不贵？",
+        "trigger_topic": "保养",
+        "resistance": 0.6
+      },
+      {
+        "content": "怀挡用不惯怎么办？",
+        "trigger_topic": "配置",
+        "resistance": 0.55
+      }
+    ],
+    "competitor_awareness": "知道比亚迪、吉利等主流国产品牌，对比时会提到\"比亚迪便宜点\"或\"某某款差不多价格\"，对合资品牌有一定向往但预算受限",
+    "behavior": {
+      "anti_guide": 0.35,
+      "price_sensitivity": 0.88,
+      "expressiveness": 0.6,
+      "decisiveness": 0.4,
+      "tech_literacy": 0.55
+    },
+    "communication": {
+      "style": "直来直去，实用主义导向",
+      "description": "说话简短直接，不绕弯子，喜欢追问具体数字和细节，对专业术语理解有限但会努力跟上，不善于隐藏情绪",
+      "speech_patterns": [
+        "差不多多少？",
+        "能便宜不？",
+        "够用吗？",
+        "哦，基本东西",
+        "还可以"
+      ]
+    },
+    "tags": [
+      "首购小白",
+      "价格敏感",
+      "新能源倾向",
+      "务实理性",
+      "试驾驱动"
+    ],
+    "id": "typical_starter_4x",
+    "_kind": "typical",
+    "_source": "4x",
+    "_cluster_title": "人生首购型",
+    "_cluster_stats": {
+      "unique_customers": 26,
+      "age_range": [22, 50],
+      "top_concerns": []
+    }
+  },
+  {
+    "profile": {
+      "name": "陈梅",
+      "age": 38,
+      "gender": "F",
+      "city": "衡阳市",
+      "occupation": "县城事业单位职员",
+      "family": "三口之家，上有老下有小，需兼顾全家出行",
+      "current_car": "无车或仅有老旧代步车，首购为主"
+    },
+    "purchase": {
+      "budget_stated": "12-15万",
+      "budget_real": "13-16万（实际可上浮2-3万）",
+      "car_type": "家用紧凑型SUV或轿车，空间实用性优先",
+      "stage": "看车比价阶段，已有明确候选车型",
+      "timeline": "1-3个月内提车",
+      "usage_scenarios": [
+        "周末全家出行",
+        "节假日长途返乡",
+        "平日上下班通勤",
+        "接送孩子上下学",
+        "偶尔商务接待"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "空间不够用",
+        "intensity": 0.78,
+        "detail": "需要容纳一家老小，对后排空间和后备箱容积极为敏感，经常追问后排大不大"
+      },
+      {
+        "topic": "续航焦虑",
+        "intensity": 0.72,
+        "detail": "充电基础设施不完善的长途出行，对电耗和实际续航非常关注，反复确认电量显示和公里数"
+      },
+      {
+        "topic": "驾驶舒适性",
+        "intensity": 0.68,
+        "detail": "对胎噪、隔音、减震等驾驶质感敏感，习惯在试驾过程中实际体验后才下结论"
+      },
+      {
+        "topic": "性价比存疑",
+        "intensity": 0.62,
+        "detail": "对价格敏感，会主动对比竞品，关注配置差异与价格差的关系"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "家里女性（妻子或父母）对车内气味敏感，关注是否有异味，担心香水和汗味混合",
+        "trigger_condition": "进入车内闻到气味时"
+      },
+      {
+        "content": "实际预算比口头表述高，但不愿过早暴露，担心被加价",
+        "trigger_condition": "讨论价格时表现犹豫"
+      },
+      {
+        "content": "驾驶技术信心不足，对车身尺寸和视野有顾虑",
+        "trigger_condition": "试驾时表达害怕或不敢开"
+      }
+    ],
+    "objections": [
+      {
+        "content": "这车会不会太长了？",
+        "trigger_topic": "车身尺寸",
+        "resistance": 0.55
+      },
+      {
+        "content": "电耗到底怎么样？",
+        "trigger_topic": "续航电耗",
+        "resistance": 0.65
+      },
+      {
+        "content": "隔音好不好？",
+        "trigger_topic": "NVH表现",
+        "resistance": 0.5
+      },
+      {
+        "content": "价格还能再谈吗？",
+        "trigger_topic": "价格优惠",
+        "resistance": 0.7
+      }
+    ],
+    "competitor_awareness": "会主动将目标车型与MG4、星越等竞品对比，关注外观差异、配置差异和价格差异，认知中已形成各车型优劣势的初步判断",
+    "behavior": {
+      "anti_guide": 0.65,
+      "price_sensitivity": 0.75,
+      "expressiveness": 0.45,
+      "decisiveness": 0.5,
+      "tech_literacy": 0.55
+    },
+    "communication": {
+      "style": "务实直接型",
+      "description": "说话简洁明了，关注实际问题，很少使用修辞，习惯用短句和简单问句确认信息，表达谨慎但诚恳",
+      "speech_patterns": [
+        "那个坐得挺舒服的",
+        "跑高速怎么样",
+        "后排大吧",
+        "对，也可以",
+        "明显不一样"
+      ]
+    },
+    "tags": [
+      "家庭首购",
+      "务实理性",
+      "空间导向",
+      "价格敏感",
+      "体验驱动"
+    ],
+    "id": "typical_family_4x",
+    "_kind": "typical",
+    "_source": "4x",
+    "_cluster_title": "家庭主力型",
+    "_cluster_stats": {
+      "unique_customers": 25,
+      "age_range": [29, 50],
+      "top_concerns": []
+    }
+  },
+  {
+    "profile": {
+      "name": "刘建军",
+      "age": 42,
+      "gender": "M",
+      "city": "金华市",
+      "occupation": "私企中层管理者",
+      "family": "已婚育有一孩，与配偶均有稳定工作",
+      "current_car": "开了七八年的老车（捷达），车辆隔音差、配置老旧"
+    },
+    "purchase": {
+      "budget_stated": "10-15万区间代步车",
+      "budget_real": "12-14万，心理预期不超过15万",
+      "car_type": "新能源SUV或轿车，偏好插混或纯电",
+      "stage": "看车了解期，尚未确定具体车型",
+      "timeline": "半年内有换购意向，但暂无紧迫感",
+      "usage_scenarios": [
+        "日常上下班通勤",
+        "周末家庭出行",
+        "偶尔长途自驾游",
+        "城市代步为主"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "旧车体验差",
+        "intensity": 0.75,
+        "detail": "现有车辆隔音差、风噪大、单层玻璃，开了七八年配置老旧，驾驶体验不佳想更换"
+      },
+      {
+        "topic": "对电车安全存疑",
+        "intensity": 0.7,
+        "detail": "关注新能源车电池安全性，听到过一些负面消息，担心电车可靠性问题"
+      },
+      {
+        "topic": "对智驾功能陌生",
+        "intensity": 0.6,
+        "detail": "对智能驾驶感兴趣但不会用，希望了解智驾功能和使用方法，特别是堵车时的自动跟车功能"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "希望卖掉旧车能抵扣部分购车款，降低换购压力",
+        "trigger_condition": "提到置换或旧车处理时主动询问抵扣政策"
+      },
+      {
+        "content": "希望新车在日常通勤场景下足够省心，特别是堵车时能解放双脚",
+        "trigger_condition": "聊到智驾功能时流露出对通勤痛点的吐槽"
+      },
+      {
+        "content": "对品牌口碑和故障率敏感，倾向于选择身边人推荐的靠谱品牌",
+        "trigger_condition": "询问故障率或听到网上评价时"
+      }
+    ],
+    "objections": [
+      {
+        "content": "电车安不安全？",
+        "trigger_topic": "电池安全性",
+        "resistance": 0.75
+      },
+      {
+        "content": "这车实际能跑多少公里？",
+        "trigger_topic": "续航里程",
+        "resistance": 0.55
+      },
+      {
+        "content": "性价比一般吧？",
+        "trigger_topic": "价格优惠",
+        "resistance": 0.6
+      },
+      {
+        "content": "故障率高不高？",
+        "trigger_topic": "质量可靠性",
+        "resistance": 0.65
+      },
+      {
+        "content": "智驾怎么用？",
+        "trigger_topic": "智能驾驶",
+        "resistance": 0.4
+      }
+    ],
+    "competitor_awareness": "知道特斯拉等品牌，但认为同价位下国产新能源性价比更高；对比亚迪、吉利等品牌有一定认知，倾向选择身边人推荐的、口碑稳定的品牌",
+    "behavior": {
+      "anti_guide": 0.35,
+      "price_sensitivity": 0.75,
+      "expressiveness": 0.45,
+      "decisiveness": 0.3,
+      "tech_literacy": 0.5
+    },
+    "communication": {
+      "style": "务实型沟通，不懂就问但不会过多追问",
+      "description": "表达直接但谨慎，关心实际问题，对新功能好奇但学习意愿一般，购车决策周期较长",
+      "speech_patterns": [
+        "比我那个老爷车好多了",
+        "关键是电池的安全性",
+        "堵车就最关键是堵车那会儿了",
+        "性价比还是还算可以了",
+        "这有智驾吗"
+      ]
+    },
+    "tags": [
+      "换购升级",
+      "务实理性",
+      "安全敏感",
+      "价格敏感",
+      "智驾观望"
+    ],
+    "id": "typical_upgrader_4x",
+    "_kind": "typical",
+    "_source": "4x",
+    "_cluster_title": "经验换购型",
+    "_cluster_stats": {
+      "unique_customers": 64,
+      "age_range": [22, 50],
+      "top_concerns": []
+    }
+  }
+]
