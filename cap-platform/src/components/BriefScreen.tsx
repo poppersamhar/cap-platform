@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { store, useSession } from '../store/Store';
+import { SourceDialogueModal } from './SourceDialogueModal';
 
 export function BriefScreen() {
   const session = useSession();
+  const [showSourceDialogues, setShowSourceDialogues] = useState(false);
 
   if (!session) {
     store.setScreen('personaList');
@@ -63,10 +66,21 @@ export function BriefScreen() {
         {/* ── 开始按钮 ── */}
         <button
           onClick={() => store.setScreen('encounter')}
-          className="w-full btn-plush btn-plush-peach py-4 text-lg mb-8"
+          className="w-full btn-plush btn-plush-peach py-4 text-lg mb-4"
         >
           🚀 开始{isTraining ? '对练' : '访谈'}
         </button>
+
+        {/* ── 查看原始对话（仅有个体溯源数据时显示）── */}
+        {p._has_source_dialogues && (
+          <button
+            onClick={() => setShowSourceDialogues(true)}
+            className="w-full py-3 mb-8 rounded-xl bg-cap-sky-soft border border-cap-sky/30 text-cap-sky-deep text-sm font-bold hover:bg-cap-sky/20 transition-colors flex items-center justify-center gap-2"
+          >
+            <span>📋</span>
+            查看原始对话溯源
+          </button>
+        )}
 
         {/* ── 隐藏信息（仅对练模式显示）── */}
         {isTraining && p.hidden_info.length > 0 && (
@@ -202,6 +216,15 @@ export function BriefScreen() {
             <InfoRow label="现有车辆" value={p.profile.current_car} />
           </div>
         </div>
+
+        {/* ── 原始对话溯源弹窗 ── */}
+        {showSourceDialogues && (
+          <SourceDialogueModal
+            personaId={p.id}
+            personaName={p.profile.name}
+            onClose={() => setShowSourceDialogues(false)}
+          />
+        )}
       </div>
     </div>
   );

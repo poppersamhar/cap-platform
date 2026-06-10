@@ -13,23 +13,40 @@ function PersonaCard({
   onEdit?: (p: Persona) => void;
 }) {
   const isTypical = p.id.startsWith('typical_');
+  const isNew4X = p._source === '4x';
+  const is4XIndividual = p._source === '4x_individual';
   return (
-    <div className="group p-5 plush-lg hover:-translate-y-0.5 transition-all duration-200 relative text-left">
+    <div className={`group p-5 plush-lg hover:-translate-y-0.5 transition-all duration-200 relative text-left ${isNew4X || is4XIndividual ? 'ring-2 ring-cap-mint/30' : ''}`}>
       {/* 类型角标 + 编辑按钮 */}
       {isTypical && (
         <div className="absolute top-3 right-3 flex items-center gap-1.5">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit?.(p);
-            }}
-            className="w-7 h-7 rounded-md bg-cap-butter-soft border border-cap-line flex items-center justify-center text-cap-ink-2 hover:text-cap-ink hover:bg-cap-butter transition-colors"
-            title="编辑分身"
-          >
-            ⚙️
-          </button>
+          {!isNew4X && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.(p);
+              }}
+              className="w-7 h-7 rounded-md bg-cap-butter-soft border border-cap-line flex items-center justify-center text-cap-ink-2 hover:text-cap-ink hover:bg-cap-butter transition-colors"
+              title="编辑分身"
+            >
+              ⚙️
+            </button>
+          )}
+          {isNew4X && (
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-cap-mint text-white tracking-wider animate-pulse">
+              新
+            </span>
+          )}
           <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-cap-peach text-white tracking-wider">
             典型
+          </span>
+        </div>
+      )}
+      {/* 4X 个体用户角标 */}
+      {is4XIndividual && (
+        <div className="absolute top-3 right-3">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-cap-mint text-white tracking-wider">
+            4X
           </span>
         </div>
       )}
@@ -64,6 +81,88 @@ function PersonaCard({
   );
 }
 
+/* ── 可编辑的分组标题 ── */
+function EditableGroupTitle({
+  source,
+  badge,
+  badgeClass,
+  defaultTitle,
+}: {
+  source: string;
+  badge: string;
+  badgeClass: string;
+  defaultTitle: string;
+}) {
+  const groupNames = useStore((s) => s.personaGroupNames);
+  const isLoading = useStore((s) => s.isLoading);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+
+  const displayName = groupNames[source] || defaultTitle;
+
+  const startEdit = () => {
+    setDraft(displayName);
+    setEditing(true);
+  };
+
+  const save = async () => {
+    if (draft.trim() && draft.trim() !== displayName) {
+      await store.updatePersonaGroupName(source, draft.trim());
+    }
+    setEditing(false);
+  };
+
+  const cancel = () => {
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-2 mb-4">
+        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${badgeClass}`}>{badge}</span>
+        <input
+          autoFocus
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') save();
+            if (e.key === 'Escape') cancel();
+          }}
+          onBlur={save}
+          className="text-sm font-bold text-cap-ink px-2 py-1 rounded border border-cap-sky bg-white focus:outline-none focus:ring-2 focus:ring-cap-sky/40"
+          disabled={isLoading}
+        />
+        <button
+          onClick={save}
+          className="px-2 py-1 rounded text-[10px] font-bold bg-cap-mint text-white hover:bg-cap-mint/90"
+        >
+          保存
+        </button>
+        <button
+          onClick={cancel}
+          className="px-2 py-1 rounded text-[10px] font-bold bg-white border border-cap-line text-cap-ink-2 hover:bg-cap-cream-2"
+        >
+          取消
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 mb-4 group/title">
+      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${badgeClass}`}>{badge}</span>
+      <h4 className="text-sm font-bold text-cap-ink">{displayName}</h4>
+      <button
+        onClick={startEdit}
+        className="opacity-0 group-hover/title:opacity-100 transition-opacity px-1.5 py-0.5 rounded text-[10px] font-bold bg-cap-sky-soft text-cap-sky-deep border border-cap-sky/20 hover:bg-cap-sky/20"
+        title="修改分组名称"
+      >
+        ✏️
+      </button>
+    </div>
+  );
+}
+
 export function PersonaListScreen() {
   const personas = useStore((s) => s.personas);
   const isLoading = useStore((s) => s.isLoading);
@@ -92,15 +191,22 @@ export function PersonaListScreen() {
     });
   };
 
-  const { typical, individual } = useMemo(() => {
+  const { typical, typical4x, typicalFactory, typicalOriginal, individual } = useMemo(() => {
     const t: Persona[] = [];
+    const t4x: Persona[] = [];
+    const tFactory: Persona[] = [];
+    const tOrig: Persona[] = [];
     const i: Persona[] = [];
     for (const p of personas) {
-      if (p.id.startsWith('typical_')) t.push(p);
-      else if (p.id.startsWith('indiv_')) i.push(p);
+      if (p.id.startsWith('typical_')) {
+        t.push(p);
+        if (p._source === '4x') t4x.push(p);
+        else if (p._source === 'factory') tFactory.push(p);
+        else tOrig.push(p);
+      } else if (p.id.startsWith('indiv_')) i.push(p);
       else i.push(p); // fallback
     }
-    return { typical: t, individual: i };
+    return { typical: t, typical4x: t4x, typicalFactory: tFactory, typicalOriginal: tOrig, individual: i };
   }, [personas]);
 
   return (
@@ -141,11 +247,57 @@ export function PersonaListScreen() {
                 : '由同类客户数据聚类合成的代表性分身，可编辑配置和专属知识库'}
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {typical.map((p) => (
-              <PersonaCard key={p.id} p={p} onSelect={handleSelect} onEdit={setEditingPersona} />
-            ))}
-          </div>
+
+          {/* MG 4X 新客群 */}
+          {typical4x.length > 0 && (
+            <div className="mb-8">
+              <EditableGroupTitle
+                source="4x"
+                badge="新"
+                badgeClass="bg-cap-mint text-white"
+                defaultTitle="MG 4X 车型典型客群"
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {typical4x.map((p) => (
+                  <PersonaCard key={p.id} p={p} onSelect={handleSelect} onEdit={setEditingPersona} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 工厂生成客群 */}
+          {typicalFactory.length > 0 && (
+            <div className="mb-8">
+              <EditableGroupTitle
+                source="factory"
+                badge="工厂"
+                badgeClass="bg-cap-sky text-white tracking-wider"
+                defaultTitle="数据工厂生成客群"
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {typicalFactory.map((p) => (
+                  <PersonaCard key={p.id} p={p} onSelect={handleSelect} onEdit={setEditingPersona} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* MG4 原有典型客群 */}
+          {typicalOriginal.length > 0 && (
+            <div>
+              <EditableGroupTitle
+                source="mg4"
+                badge="MG4"
+                badgeClass="bg-cap-butter text-cap-ink tracking-wider"
+                defaultTitle="MG4 车型典型客群"
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {typicalOriginal.map((p) => (
+                  <PersonaCard key={p.id} p={p} onSelect={handleSelect} onEdit={setEditingPersona} />
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       )}
 
