@@ -55,6 +55,8 @@ class CommunicationStyle(BaseModel):
 
 
 class Persona(BaseModel):
+    model_config = {"extra": "allow"}
+
     id: str
     profile: PersonaProfile
     purchase: PurchaseProfile
