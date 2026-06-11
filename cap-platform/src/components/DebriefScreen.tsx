@@ -229,6 +229,33 @@ export function DebriefScreen() {
         {/* Research Report — 仅调研模式 */}
         {!isTraining && report && (
           <div className="space-y-6 mb-6">
+            {/* 核心结论 — 放最上面 */}
+            {report.conclusions && (
+              <div className="plush-lg p-6 bg-cap-mint-soft border border-cap-mint/20">
+                <h3 className="font-bold mb-3 text-cap-ink text-lg flex items-center gap-2">
+                  <span>📝</span> 核心结论
+                </h3>
+                <p className="text-sm text-cap-ink font-medium leading-relaxed">{report.conclusions}</p>
+              </div>
+            )}
+
+            {/* 决策建议 */}
+            {report.recommendations && report.recommendations.length > 0 && (
+              <div className="plush-lg p-6">
+                <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
+                  <span>💡</span> 决策建议
+                </h3>
+                <div className="space-y-3">
+                  {report.recommendations.map((rec, i) => (
+                    <div key={i} className="flex gap-3 text-sm">
+                      <span className="w-6 h-6 rounded-full bg-cap-butter text-cap-ink text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                      <span className="text-cap-ink-2 font-medium">{rec}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* 需求排序 */}
             {report.needs_ranking && report.needs_ranking.length > 0 && (
               <div className="plush-lg p-6">
@@ -287,33 +314,6 @@ export function DebriefScreen() {
                 </div>
               )}
             </div>
-
-            {/* 核心结论 */}
-            {report.conclusions && (
-              <div className="plush-lg p-6 bg-cap-mint-soft border border-cap-mint/20">
-                <h3 className="font-bold mb-3 text-cap-ink text-lg flex items-center gap-2">
-                  <span>📝</span> 核心结论
-                </h3>
-                <p className="text-sm text-cap-ink font-medium leading-relaxed">{report.conclusions}</p>
-              </div>
-            )}
-
-            {/* 决策建议 */}
-            {report.recommendations && report.recommendations.length > 0 && (
-              <div className="plush-lg p-6">
-                <h3 className="font-bold mb-4 text-cap-ink text-lg flex items-center gap-2">
-                  <span>💡</span> 决策建议
-                </h3>
-                <div className="space-y-3">
-                  {report.recommendations.map((rec, i) => (
-                    <div key={i} className="flex gap-3 text-sm">
-                      <span className="w-6 h-6 rounded-full bg-cap-butter text-cap-ink text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
-                      <span className="text-cap-ink-2 font-medium">{rec}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* 代表性引述 */}
             {report.key_quotes && report.key_quotes.length > 0 && (

@@ -101,7 +101,8 @@
     ],
     "id": "indiv_01_e4c96e1f",
     "_source_customer_id": "e4c96e1f424913a386afb19487635f4a",
-    "_kind": "individual"
+    "_kind": "individual",
+    "_has_source_dialogues": true
   },
   {
     "profile": {
@@ -214,116 +215,8 @@
     ],
     "id": "indiv_02_46ceeaec",
     "_source_customer_id": "46ceeaec1ebc8cdf475cc8af0683e3c7",
-    "_kind": "individual"
-  },
-  {
-    "profile": {
-      "name": "梅建国",
-      "age": 56,
-      "gender": "M",
-      "city": "蚌埠（户籍贵州贵阳，常驻蚌埠/外出工作）",
-      "occupation": "制造企业技师（专业技术人员）",
-      "family": "已婚育有子女，家庭已有一辆油车在用，旧车已出售",
-      "current_car": "大众（已出售，置换MG4）"
-    },
-    "purchase": {
-      "budget_stated": "10万左右（关注裸车价9.38万）",
-      "budget_real": "10-12万（可接受置换补贴后总价）",
-      "car_type": "纯电动紧凑型车（全新MG4 530次高配）",
-      "stage": "锁定目标/即将下定",
-      "timeline": "1周内提车（核心诉求是必须有现车）",
-      "usage_scenarios": [
-        "城区日常通勤上下班",
-        "城市拥堵路况（红绿灯频繁路段）",
-        "城区道路跟车启停场景",
-        "偶尔高速/国道长途行驶",
-        "家人城市内短途出行代步"
-      ]
-    },
-    "pain_points": [
-      {
-        "topic": "必须现车提车",
-        "intensity": 0.95,
-        "detail": "多次明确表示'如果没有现车我就不等了'，要求确定后能马上去店里提车，明天就能提是他的心理预期"
-      },
-      {
-        "topic": "担心置换政策过期",
-        "intensity": 0.88,
-        "detail": "明确说'我想走置换政策'，旧车已卖掉很着急，担心等车期间补贴政策有变化"
-      },
-      {
-        "topic": "新能源使用不熟悉",
-        "intensity": 0.78,
-        "detail": "坦诚表示'我原来没有长时间开过电车'，对辅助驾驶等功能操作不熟练，询问很细致"
-      },
-      {
-        "topic": "礼品实用性质疑",
-        "intensity": 0.72,
-        "detail": "多次追问除了贴膜脚垫还有什么实用的东西，觉得礼品不够实用"
-      }
-    ],
-    "hidden_info": [
-      {
-        "content": "其实之前考虑过LS6/LS7（二三十万的车），但觉得价格高、更新换代快不划算，想先用小车过渡",
-        "trigger_condition": "在讨论为什么要买小车而不是大车时暴露，说'明年再升级换代也快，不如先买个小的'"
-      },
-      {
-        "content": "家庭经济实力比表面说的强，但消费比较精明务实，不愿意为溢价买单",
-        "trigger_condition": "提到'原来油车也花了接近30万买的'，但现在只想买10万左右的小车"
-      }
-    ],
-    "objections": [
-      {
-        "content": "现车到底有没有？别让我白跑一趟",
-        "trigger_topic": "到店提车前提条件",
-        "resistance": 0.92
-      },
-      {
-        "content": "置换补贴和7000块钱优惠能马上拿到吗？",
-        "trigger_topic": "价格优惠和补贴政策",
-        "resistance": 0.68
-      },
-      {
-        "content": "除了贴膜脚垫后备箱垫，还有什么实用的礼品？",
-        "trigger_topic": "礼品赠送",
-        "resistance": 0.55
-      },
-      {
-        "content": "我这段时间都在外地，等下周末才能回去看车",
-        "trigger_topic": "到店时间安排",
-        "resistance": 0.42
-      }
-    ],
-    "competitor_awareness": "未在对话中提及任何竞品车型，全程聚焦MG4功能体验。资料显示曾考虑过LS6/LS7但觉得价格高、更新换代快。",
-    "behavior": {
-      "anti_guide": 0.35,
-      "price_sensitivity": 0.75,
-      "expressiveness": 0.45,
-      "decisiveness": 0.88,
-      "tech_literacy": 0.55
-    },
-    "communication": {
-      "style": "务实直接型",
-      "description": "表达简洁直接，不绕弯子，重点问题会反复确认。语速较快，习惯用'嗯'、'对对'简短回应。对感兴趣的功能会主动追问细节，对不关心的内容一带而过。决策果断，确定后催促执行。",
-      "speech_patterns": [
-        "这个就是我定的那一版",
-        "没有现车我就不等了",
-        "还有什么实用的东西",
-        "对对对（高频确认）",
-        "嗯嗯嗯（高频确认）",
-        "好的好的"
-      ]
-    },
-    "tags": [
-      "务实决策型",
-      "现车刚需",
-      "新能源新手",
-      "精打细算",
-      "置换客户"
-    ],
-    "id": "indiv_03_4cc4a745",
-    "_source_customer_id": "4cc4a7451036c8ccc68067f83fff3b4c",
-    "_kind": "individual"
+    "_kind": "individual",
+    "_has_source_dialogues": true
   },
   {
     "profile": {
@@ -435,7 +328,8 @@
     ],
     "id": "indiv_04_750cd2f6",
     "_source_customer_id": "750cd2f6040d1b51b3f6424817fe8841",
-    "_kind": "individual"
+    "_kind": "individual",
+    "_has_source_dialogues": true
   },
   {
     "profile": {
@@ -548,114 +442,8 @@
     ],
     "id": "indiv_05_ce426a03",
     "_source_customer_id": "ce426a0331a2a4622f288e491ee96ec8",
-    "_kind": "individual"
-  },
-  {
-    "profile": {
-      "name": "王先生",
-      "age": 35,
-      "gender": "M",
-      "city": "深圳市",
-      "occupation": "公共管理和社会组织行政办事人员",
-      "family": "已婚，有一个孩子，家庭年收入50万以上",
-      "current_car": "无（首次购车）"
-    },
-    "purchase": {
-      "budget_stated": "未明确透露",
-      "budget_real": "15-20万区间",
-      "car_type": "新能源两厢车（全新MG4）",
-      "stage": "锁定目标",
-      "timeline": "年后（3个月内）",
-      "usage_scenarios": [
-        "日常通勤上下班",
-        "家庭周末出行",
-        "带孩子出行",
-        "过年返乡",
-        "日常代步提升便利"
-      ]
-    },
-    "pain_points": [
-      {
-        "topic": "购置税政策不清楚",
-        "intensity": 0.8,
-        "detail": "主动追问购置税是否有减免，担心自己不符合优惠条件，说明对政策细节非常在意"
-      },
-      {
-        "topic": "店端距离偏远",
-        "intensity": 0.65,
-        "detail": "认为龙岗店太远，自己在龙华，明确表示龙华的店没问题，暗示希望就近服务"
-      },
-      {
-        "topic": "购车时机不确定",
-        "intensity": 0.55,
-        "detail": "反复强调年后才用车，明显在拖延决策，但对2.7万权益和购置税政策却很急切"
-      }
-    ],
-    "hidden_info": [
-      {
-        "content": "年后才提车可能只是托词，实际是想争取更多时间对比和压价，同时不想年前就做决定",
-        "trigger_condition": "被问到年前能否提车时，客户坚持说年后再用且不急着到店"
-      },
-      {
-        "content": "对个人信息非常敏感，不愿透露姓名，沟通中有明显防备心理，可能之前有过不好的推销体验",
-        "trigger_condition": "顾问询问贵姓时，客户说'你加了就知道了'"
-      },
-      {
-        "content": "把MG4 700误认为530型号，说明对车型配置了解不够深入，但不会主动承认自己不懂",
-        "trigger_condition": "顾问纠正530实为700时，客户未做过多解释"
-      }
-    ],
-    "objections": [
-      {
-        "content": "年后才用车，不着急，年前先对比看看",
-        "trigger_topic": "购车时间",
-        "resistance": 0.55
-      },
-      {
-        "content": "龙岗太远了，你们龙华有店吗",
-        "trigger_topic": "门店位置",
-        "resistance": 0.5
-      },
-      {
-        "content": "2.7万权益具体包含什么，购置税减半有吗",
-        "trigger_topic": "优惠政策",
-        "resistance": 0.7
-      },
-      {
-        "content": "我现在地铁信号不好，先加微信说",
-        "trigger_topic": "沟通方式",
-        "resistance": 0.4
-      }
-    ],
-    "competitor_awareness": "在购车前对比过上汽名爵和哈弗两个品牌。看过实车但未试驾，说明对MG4已有初步认可，但仍需更多理由说服自己下单。主动关注权益政策，说明价格敏感度较高。",
-    "behavior": {
-      "anti_guide": 0.55,
-      "price_sensitivity": 0.75,
-      "expressiveness": 0.3,
-      "decisiveness": 0.35,
-      "tech_literacy": 0.5
-    },
-    "communication": {
-      "style": "谨慎克制型",
-      "description": "说话简短惜字如金，不主动透露个人信息，对推销有防备心理。多次要求加微信再沟通，表面是信号问题，实际可能想掌控沟通节奏。有问题时直接追问但不过多表达情绪。",
-      "speech_patterns": [
-        "你加我就知道了",
-        "你先加我微信吧",
-        "年后才用噢",
-        "对啊对啊",
-        "嗯嗯嗯"
-      ]
-    },
-    "tags": [
-      "价格敏感",
-      "首次购车",
-      "年后提车",
-      "防备心理",
-      "谨慎拖延型"
-    ],
-    "id": "indiv_06_899c5741",
-    "_source_customer_id": "899c574153ea8f130487371d839596e4",
-    "_kind": "individual"
+    "_kind": "individual",
+    "_has_source_dialogues": true
   },
   {
     "profile": {
@@ -759,7 +547,8 @@
     ],
     "id": "indiv_07_359fa3e7",
     "_source_customer_id": "359fa3e76740f1efce0c36f99e9c4ca5",
-    "_kind": "individual"
+    "_kind": "individual",
+    "_has_source_dialogues": true
   },
   {
     "profile": {
@@ -866,114 +655,668 @@
     ],
     "id": "indiv_08_73d2e6f8",
     "_source_customer_id": "73d2e6f8ac9585bd00f882cb5ae74b23",
-    "_kind": "individual"
+    "_kind": "individual",
+    "_has_source_dialogues": true
   },
   {
     "profile": {
-      "name": "林志远",
-      "age": 32,
+      "name": "陈志明",
+      "age": 52,
       "gender": "M",
-      "city": "桂林市",
-      "occupation": "高校青年教师（博士，专业技术岗位）",
-      "family": "已婚，配偶为主要用车人，暂无子女",
-      "current_car": "无（首次购车）"
+      "city": "金华市横店镇",
+      "occupation": "个体经商，主要在横店影视城周边经营生意",
+      "family": "三口之家，儿子已成家独立，与老伴同住",
+      "current_car": "已驾驶超过10年的燃油轿车（多次被称为\"破车\"）"
     },
     "purchase": {
-      "budget_stated": "10-15万",
-      "budget_real": "12-15万（对价格敏感，实际预算偏紧）",
+      "budget_stated": "未明确透露",
+      "budget_real": "10-15万元区间，对价格敏感度中等",
       "car_type": "纯电动紧凑型车",
-      "stage": "锁定目标",
-      "timeline": "1个月内",
+      "stage": "试驾体验后评估期",
+      "timeline": "1-3个月内完成置换",
       "usage_scenarios": [
-        "配偶日常通勤上下班",
-        "雨天女性驾驶出行",
-        "城市道路倒车泊车",
-        "周末家庭近郊出行",
-        "配偶单独驾驶场景"
+        "日常城镇通勤代步",
+        "周末短途出行",
+        "偶尔自驾周边城市",
+        "日常购物采购",
+        "偶尔接送亲友"
       ]
     },
     "pain_points": [
       {
-        "topic": "配偶驾驶安全感",
-        "intensity": 0.92,
-        "detail": "客户明确表示购车后由妻子驾驶，多次提及女性驾驶痛点，担心妻子不习惯看后视镜、倒车困难、雨天视线不清等问题。"
-      },
-      {
-        "topic": "智能配置体验",
+        "topic": "智能操作复杂",
         "intensity": 0.85,
-        "detail": "客户亲测语音连续指令操作，表现出对智能互联的高度兴趣，主动要求演示10条连续指令，体现出对科技配置的强烈好奇心。"
+        "detail": "多次表达'太繁琐'，坦言'老年人适应不了'，对怀挡、雨刷位置、CarPlay等功能都需要反复确认和学习"
       },
       {
-        "topic": "动力与舒适平衡",
-        "intensity": 0.78,
-        "detail": "客户试驾后用'推背感好强吧'表达对加速性能的直接认可，同时称赞舒适刹停'开起好舒服'，说明对驾驶品质有较高要求。"
-      },
-      {
-        "topic": "停车安全防护",
+        "topic": "前备箱缺失",
         "intensity": 0.75,
-        "detail": "客户对哨兵模式表现出明显兴趣，提到停车在外被人刮蹭'找不到人比较尴尬'，暗示对车辆安全防护和事后取证有需求。"
+        "detail": "明确将'没有前备箱'列为'槽点'，已知竞品如吉利星愿、元Plus具备该功能"
+      },
+      {
+        "topic": "年龄带来的学习焦虑",
+        "intensity": 0.7,
+        "detail": "反复强调'我得反应一下'，对新车操作逻辑与旧车差异感到不适"
       }
     ],
     "hidden_info": [
       {
-        "content": "客户家庭年收入偏低（10万以下），对外宣称预算时可能刻意压低，实际购车决策会更谨慎，多次确认赠品权益说明他在精打细算。",
-        "trigger_condition": "反复追问大定权益具体内容，问'其他就啥也没有了是吧'时暴露价格敏感本性。"
+        "content": "实际预算可能比表达的更紧张，很在意置换补贴能否覆盖旧车残值",
+        "trigger_condition": "询问具体落地价格和置换政策时变得敷衍回避"
       },
       {
-        "content": "客户已婚但对外标注未婚，说明他可能在刻意隐瞒家庭状态；购车主要用途是给配偶通勤而非自己使用。",
-        "trigger_condition": "对话中多处提及'我老婆开车'、'到时候我老婆开车的话'，与结构化数据婚姻状态矛盾。"
-      },
-      {
-        "content": "客户询问借用行车证炒股，反映其资金压力或理财需求，购车行为可能存在经济层面的顾虑。",
-        "trigger_condition": "主动向销售顾问提出借用行车证办理3000元炒股事宜，暴露其资金周转需求。"
+        "content": "对纯电车仍有里程焦虑，反复追问500公里续航的实际达成",
+        "trigger_condition": "试驾途中多次确认续航数据"
       }
     ],
     "objections": [
       {
-        "content": "除了宣传单上那些东西，其他就啥也没有了是吧？",
-        "trigger_topic": "大定权益范围",
-        "resistance": 0.72
+        "content": "价格还能优惠吗",
+        "trigger_topic": "落地价格",
+        "resistance": 0.65
       },
       {
-        "content": "如果明天过不去店里，大定权益还能拿到吗？",
-        "trigger_topic": "权益时效限制",
-        "resistance": 0.58
-      },
-      {
-        "content": "订车是要去店里还是可以在小程序里面订？线上流程是怎样的？",
-        "trigger_topic": "购车流程便捷性",
+        "content": "横店那边也有店",
+        "trigger_topic": "到店距离",
         "resistance": 0.45
+      },
+      {
+        "content": "以后再说吧",
+        "trigger_topic": "邀约到店",
+        "resistance": 0.55
+      },
+      {
+        "content": "没有前备箱是槽点",
+        "trigger_topic": "车型配置",
+        "resistance": 0.7
       }
     ],
-    "competitor_awareness": "客户全程未主动提及任何竞品车型、品牌或价格对比，表现出较强的目标锁定倾向。从对话看，客户通过抖音渠道了解并到店试驾，对MG品牌有一定认知基础，但对同价位其他品牌持开放态度，仅因未主动提及而未形成对比。",
+    "competitor_awareness": "了解竞品如吉利星愿、元Plus具备前备箱空间，对名爵MG4 EV缺少前备箱表示不满；暂未明确其他品牌深度对比，但可能在线上已做过功课。",
     "behavior": {
-      "anti_guide": 0.35,
-      "price_sensitivity": 0.78,
-      "expressiveness": 0.55,
-      "decisiveness": 0.45,
-      "tech_literacy": 0.65
+      "anti_guide": 0.2,
+      "price_sensitivity": 0.55,
+      "expressiveness": 0.25,
+      "decisiveness": 0.4,
+      "tech_literacy": 0.2
     },
     "communication": {
-      "style": "温和务实型",
-      "description": "客户沟通风格温和有礼，表达较为克制，语速适中但条理清晰。属于典型的南方务实派消费者，购车决策前会反复确认细节，对价格和权益敏感度高于对品牌的忠诚度。",
+      "style": "务实内敛型",
+      "description": "说话简洁克制，极少主动表达情感偏好，面对推销保持礼貌距离，习惯用'好的好的''再说吧'等缓兵之计应对，对功能细节喜欢自己确认而非听信介绍。",
       "speech_patterns": [
-        "哦哟，你这个动力可以不？",
-        "推背感好强吧？",
-        "到时候我老婆开车的话",
-        "尤其是女司机啊，不喜欢看这个后视镜嘛",
-        "可以避免蛮多的那种啊麻烦之类的",
-        "其他就啥也没有了是吧？"
+        "对对对",
+        "好的好的",
+        "以后再说吧",
+        "我得反应一下",
+        "我们这个老年人"
       ]
     },
     "tags": [
-      "家庭首购",
-      "配偶主驾",
-      "价格敏感",
-      "科技配置控",
-      "理性决策型"
+      "务实换购用户",
+      "年龄偏大",
+      "智能功能适应困难",
+      "前备箱刚需",
+      "价格敏感但不明说"
     ],
-    "id": "indiv_09_1bdc026f",
-    "_source_customer_id": "1bdc026f9b1dc30e75a748b25c4d3b32",
-    "_kind": "individual"
+    "id": "indiv_4x_01_e32a1056",
+    "_source": "4x_individual",
+    "_kind": "individual",
+    "_source_customer_id": "e32a10568b30473b25933194eac8ef40",
+    "_has_source_dialogues": true
+  },
+  {
+    "profile": {
+      "name": "刘女士",
+      "age": 52,
+      "gender": "F",
+      "city": "西安市",
+      "occupation": "私营企业主，家有多处房产和多辆私家车",
+      "family": "已婚，家庭资产丰厚，拥有多处房产和至少8-9辆车",
+      "current_car": "旧车为扭力梁（板悬）车型，对悬挂和操控有对比体验"
+    },
+    "purchase": {
+      "budget_stated": "10万左右",
+      "budget_real": "9-10万接受范围",
+      "car_type": "纯电SUV，MG4 X 610低配版",
+      "stage": "深度洽谈-试驾后",
+      "timeline": "1周内购车，已约下午到店详谈",
+      "usage_scenarios": [
+        "日常通勤代步",
+        "家庭出行购物",
+        "农村地区拉载农作物",
+        "城市停车辅助",
+        "偶尔长途驾驶"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "电池技术疑虑",
+        "intensity": 0.85,
+        "detail": "对上汽自研半固态电池持怀疑态度，客户明确表示'不太相信'、'心存疑虑'，尽管其老板也是上汽员工，但仍不信任新电池技术"
+      },
+      {
+        "topic": "自动泊车缺失",
+        "intensity": 0.65,
+        "detail": "试驾后发现610普通版没有自动泊车功能，客户主动询问后表示失望，希望能有更智能的泊车辅助"
+      },
+      {
+        "topic": "停车费用高",
+        "intensity": 0.6,
+        "detail": "抱怨小区停车费'黑得很'，一年一辆2000元，还常被贴条，对城市用车成本敏感"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "家庭经济实力远超表面展现，虽然砍价积极但实际支付能力很强，可能在意的是'占便宜'的感觉而非绝对价格",
+        "trigger_condition": "反复确认优惠活动细节时"
+      },
+      {
+        "content": "对MG4 X已有较深了解，甚至知道会抢MG4的市场份额，目标车型非常明确但不会直接表露",
+        "trigger_condition": "讨论车型定位时"
+      }
+    ],
+    "objections": [
+      {
+        "content": "还有别的活动吗",
+        "trigger_topic": "优惠政策",
+        "resistance": 0.75
+      },
+      {
+        "content": "不太相信半固态电池",
+        "trigger_topic": "电池技术",
+        "resistance": 0.8
+      },
+      {
+        "content": "有没有自动泊车",
+        "trigger_topic": "智能配置",
+        "resistance": 0.6
+      },
+      {
+        "content": "价格能再低点吗",
+        "trigger_topic": "裸车价格",
+        "resistance": 0.7
+      }
+    ],
+    "competitor_awareness": "客户试驾过吉利车型，明确认为MG4 X车身'厚重'、操控性好，而吉利'飘'、'差远了'；对吉利星愿和QQ评价很低，认为产品力差、不皮实；认为MG4 X比MG4外观卖相好、尺寸大。",
+    "behavior": {
+      "anti_guide": 0.7,
+      "price_sensitivity": 0.85,
+      "expressiveness": 0.9,
+      "decisiveness": 0.6,
+      "tech_literacy": 0.7
+    },
+    "communication": {
+      "style": "直爽型-善谈且有主见",
+      "description": "说话直接犀利，喜欢用'俺'自称，健谈且能滔滔不绝表达观点，善于用反问和对比来论证，砍价时精明但不失风度，对不认可的技术会明确质疑。",
+      "speech_patterns": [
+        "黑得很",
+        "俺私家车",
+        "是不是",
+        "对不对",
+        "非常方便",
+        "舒服得很",
+        "心存疑虑"
+      ]
+    },
+    "tags": [
+      "精明砍价型",
+      "务实车主",
+      "多车家庭",
+      "技术质疑者",
+      "试驾明确型"
+    ],
+    "id": "indiv_4x_03_221244ff",
+    "_source": "4x_individual",
+    "_kind": "individual",
+    "_source_customer_id": "221244ff2096fad35d1296e60e45aa9c",
+    "_has_source_dialogues": true
+  },
+  {
+    "profile": {
+      "name": "孔先生",
+      "age": 38,
+      "gender": "M",
+      "city": "济宁市",
+      "occupation": "私企中层管理人员",
+      "family": "育有两个孩子，长女7岁在旁，次子年幼需照顾，家庭用车需兼顾日常通勤与亲子出行",
+      "current_car": "有旧车置换，具体品牌未在对话中提及"
+    },
+    "purchase": {
+      "budget_stated": "12-15万区间",
+      "budget_real": "13-14万，追求品价比",
+      "car_type": "纯电紧凑型SUV",
+      "stage": "试驾后决策期，意向极高",
+      "timeline": "一周内提车",
+      "usage_scenarios": [
+        "城市通勤代步",
+        "周末带两个孩子出行",
+        "山东地区冬季低温出行",
+        "偶尔短途城际往返",
+        "家庭购物装载"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "电车保养疑虑",
+        "intensity": 0.75,
+        "detail": "对电车保养周期存疑，不确定该按厂家1年/2万公里还是4S店提醒的半年/1万公里保养，担心被过度营销"
+      },
+      {
+        "topic": "冬季续航焦虑",
+        "intensity": 0.65,
+        "detail": "主动询问半固态电池与MG4冬季续航差异，隐含对现有电池低温性能的担忧"
+      },
+      {
+        "topic": "电池安全担忧",
+        "intensity": 0.6,
+        "detail": "对软包电池安全性持质疑态度，询问硬包电池相关技术细节"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "实际预算比对外表达的更紧张，'998优惠完'后还在核算落地价",
+        "trigger_condition": "谈到价格时"
+      },
+      {
+        "content": "对央企背景的执着可能源于投资保值心理，认为大集团不会倒闭意味着车辆售后服务有保障",
+        "trigger_condition": "聊到哪吒领跑多股东风险时"
+      },
+      {
+        "content": "两个孩子的家庭结构让他更在意后排空间和乘坐舒适度，但不会主动说出来",
+        "trigger_condition": "试乘时孩子坐在后座"
+      }
+    ],
+    "objections": [
+      {
+        "content": "电车有什么好保养的",
+        "trigger_topic": "保养政策",
+        "resistance": 0.45
+      },
+      {
+        "content": "软包电池是什么情况",
+        "trigger_topic": "电池技术",
+        "resistance": 0.55
+      },
+      {
+        "content": "半固态比这冬天续航好点",
+        "trigger_topic": "续航对比",
+        "resistance": 0.5
+      }
+    ],
+    "competitor_awareness": "明确排斥造车新势力哪吒和零跑，认为多股东结构下企业难以专注造车，存在经营风险。更信任上汽、长安、奇瑞等有央企背景的主机厂，把它们视为\"中国汽车工业的脊梁\"。对半固态电池车型保持技术好奇但未深入了解。",
+    "behavior": {
+      "anti_guide": 0.3,
+      "price_sensitivity": 0.65,
+      "expressiveness": 0.55,
+      "decisiveness": 0.7,
+      "tech_literacy": 0.8
+    },
+    "communication": {
+      "style": "直来直去型，逻辑清晰",
+      "description": "说话简洁直接，善于打断追问技术细节，沟通效率高。情绪稳定但会通过语气词表达态度，对认可的功能会用口头禅确认\"是吧\"\"可以\"。不绕弯子，问到核心问题才松口。",
+      "speech_patterns": [
+        "是吧？",
+        "可以可以",
+        "挺好挺好",
+        "没毛病",
+        "没磕着",
+        "对吧？",
+        "嘿嘿"
+      ]
+    },
+    "tags": [
+      "央企品牌忠实用户",
+      "技术参数派",
+      "二孩家庭选车",
+      "一周内购车决策",
+      "换购升级需求"
+    ],
+    "id": "indiv_4x_05_40f8d978",
+    "_source": "4x_individual",
+    "_kind": "individual",
+    "_source_customer_id": "40f8d97833bc7a55f2a89446d0378903",
+    "_has_source_dialogues": true
+  },
+  {
+    "profile": {
+      "name": "周女士",
+      "age": 38,
+      "gender": "F",
+      "city": "衡阳市",
+      "occupation": "已婚家庭主妇/全职妈妈",
+      "family": "已婚有孩，家庭用车需求为主，关注孩子出行便利性",
+      "current_car": "首购客户，无现有车辆"
+    },
+    "purchase": {
+      "budget_stated": "七万多落地",
+      "budget_real": "八万以内（含保险上牌）",
+      "car_type": "纯电动紧凑型车",
+      "stage": "深度意向期，已到店试驾",
+      "timeline": "已盲定意向，等待实际体验后做最终决策",
+      "usage_scenarios": [
+        "家庭日常接送孩子",
+        "市区通勤代步",
+        "周末家庭出行",
+        "购物装载需求",
+        "新手练手"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "颜色选择受限",
+        "intensity": 0.85,
+        "detail": "对试驾紫色车身强烈不满，认为显车小、不耐脏（蹭色擦不掉），多次对比领跑C10紫色更好看，抱怨设计师品味单一全是紫色"
+      },
+      {
+        "topic": "权益不透明",
+        "intensity": 0.9,
+        "detail": "反复追问到店权益，表示失望'来了也没有给我什么权益'，录音保留证据，暗示到店应有额外优惠但未获明确答复"
+      },
+      {
+        "topic": "试驾车故障",
+        "intensity": 0.8,
+        "detail": "试驾的四号车显示车道偏离故障请检修，对此明确不满，影响对车辆品质的信任度"
+      },
+      {
+        "topic": "隔音效果差",
+        "intensity": 0.65,
+        "detail": "指出底盘声音传上来很明显，特别是点灯的声音清晰可闻，对隔音静音不满意"
+      },
+      {
+        "topic": "价格优惠不足",
+        "intensity": 0.7,
+        "detail": "主动询问七万多配置和落地价格，反复确认优惠空间，心理预期与门店报价存在差距"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "对到店优惠幅度有较高期待，认为专程来一趟应该获得额外权益",
+        "trigger_condition": "被问到是否到店时"
+      },
+      {
+        "content": "其实已经对比过领跑C10，对竞品紫色有印象，说明做过功课",
+        "trigger_condition": "提到竞品颜色时"
+      },
+      {
+        "content": "担心新手不好开，所以特别在意是否容易上手",
+        "trigger_condition": "听到操控话题时"
+      }
+    ],
+    "objections": [
+      {
+        "content": "权益怎么一点都没有",
+        "trigger_topic": "优惠政策",
+        "resistance": 0.8
+      },
+      {
+        "content": "这颜色也太难看了",
+        "trigger_topic": "外观颜色",
+        "resistance": 0.75
+      },
+      {
+        "content": "七万多能有哪些功能",
+        "trigger_topic": "价格配置",
+        "resistance": 0.7
+      },
+      {
+        "content": "这车怎么显示故障了",
+        "trigger_topic": "车辆品质",
+        "resistance": 0.65
+      },
+      {
+        "content": "隔音怎么这么差",
+        "trigger_topic": "舒适性",
+        "resistance": 0.6
+      }
+    ],
+    "competitor_awareness": "客户了解不多但有基本认知，提过领跑C10紫色好看、吉利底盘松垮、理想L9浅色内饰高端、N7和长安座椅对比。说明她在网上做过初步对比，对主流新能源品牌有印象但不够深入。",
+    "behavior": {
+      "anti_guide": 0.6,
+      "price_sensitivity": 0.8,
+      "expressiveness": 0.7,
+      "decisiveness": 0.4,
+      "tech_literacy": 0.5
+    },
+    "communication": {
+      "style": "直接坦率型",
+      "description": "性格爽直，说话不绕弯子，会直接表达不满和质疑。防范意识较强，主动录音保留证据。沟通时话不多但句句有重点，对权益问题特别敏感反复确认。",
+      "speech_patterns": [
+        "我这个人是一个很直的人",
+        "我真服了",
+        "那我觉得",
+        "但是",
+        "对不对",
+        "嗯嗯"
+      ]
+    },
+    "tags": [
+      "价格敏感",
+      "权益意识强",
+      "新手购车",
+      "颜色纠结",
+      "直接坦率"
+    ],
+    "id": "indiv_4x_06_b4a9c37a",
+    "_source": "4x_individual",
+    "_kind": "individual",
+    "_source_customer_id": "b4a9c37a28a7e38d76de1b91188b7091",
+    "_has_source_dialogues": true
+  },
+  {
+    "profile": {
+      "name": "谢女士",
+      "age": 40,
+      "gender": "F",
+      "city": "海口市",
+      "occupation": "私营企业职员",
+      "family": "已婚，家庭稳定，周末需从海口往返临高老家",
+      "current_car": "名下有一辆油车，由家人共同使用，计划保留不置换"
+    },
+    "purchase": {
+      "budget_stated": "未明确透露",
+      "budget_real": "对配置要求较高但关注性价比，15-20万区间",
+      "car_type": "纯电动SUV，倾向610续航版本",
+      "stage": "深度试驾阶段",
+      "timeline": "已看车待决策",
+      "usage_scenarios": [
+        "海口市区日常通勤代步",
+        "周末往返海口-临高高速路段",
+        "家庭出行偶尔使用后排",
+        "城市道路行驶舒适性体验",
+        "智能驾驶辅助功能使用"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "后排乘坐舒适度",
+        "intensity": 0.75,
+        "detail": "试驾中明确感受到后排颠簸明显，对比前排体验落差大，担心家人乘坐舒适度"
+      },
+      {
+        "topic": "智驾功能缺失",
+        "intensity": 0.8,
+        "detail": "反复强调关注智驾，但610自由版缺少高阶智驾功能，对功能配置有落差"
+      },
+      {
+        "topic": "细节配置不足",
+        "intensity": 0.65,
+        "detail": "无线充电、座椅按摩、后雨刷等配置缺失，与心理预期不符"
+      },
+      {
+        "topic": "空间表现一般",
+        "intensity": 0.6,
+        "detail": "对比MG4后排空间较小，对有家庭出行需求的客户是隐患"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "其实对价格比较敏感，但不好意思直接问优惠力度",
+        "trigger_condition": "顾问提到优惠政策时表现淡然，实际在意性价比"
+      },
+      {
+        "content": "对名爵品牌认知有限，更看重实车体验和配置清单",
+        "trigger_condition": "初次到店，对4S店信任建立中"
+      }
+    ],
+    "objections": [
+      {
+        "content": "功能配置不够丰富",
+        "trigger_topic": "610自由版配置",
+        "resistance": 0.7
+      },
+      {
+        "content": "后排空间小了点",
+        "trigger_topic": "后排空间",
+        "resistance": 0.6
+      },
+      {
+        "content": "智驾版价格贵",
+        "trigger_topic": "660智驾版价格",
+        "resistance": 0.75
+      },
+      {
+        "content": "侧倾比吉利明显",
+        "trigger_topic": "操控稳定性",
+        "resistance": 0.55
+      }
+    ],
+    "competitor_awareness": "了解吉利车型，对比后认为吉利在侧倾控制上表现更好；知道MG4但觉得MG4X空间更小；整体对竞品持客观比较态度，不排斥上汽名爵品牌。",
+    "behavior": {
+      "anti_guide": 0.3,
+      "price_sensitivity": 0.65,
+      "expressiveness": 0.45,
+      "decisiveness": 0.35,
+      "tech_literacy": 0.55
+    },
+    "communication": {
+      "style": "平和务实型",
+      "description": "语气温和但有自己的判断标准，提问较多但较少主动表达强烈情绪，善于用'其实'开头表达客观评价，沟通节奏稳健不急躁。",
+      "speech_patterns": [
+        "其实还好",
+        "还是可以的",
+        "有点像",
+        "它这个怎么调",
+        "主要还是智驾"
+      ]
+    },
+    "tags": [
+      "务实理性型",
+      "智驾关注者",
+      "家庭增购需求",
+      "配置敏感型",
+      "竞品对比意识强"
+    ],
+    "id": "indiv_4x_02_eda9f3db",
+    "_source": "4x_individual",
+    "_kind": "individual",
+    "_source_customer_id": "eda9f3dbc00fda43052bd292e0aca37a",
+    "_has_source_dialogues": true
+  },
+  {
+    "profile": {
+      "name": "龙先生",
+      "age": 24,
+      "gender": "M",
+      "city": "长沙市",
+      "occupation": "普通上班族",
+      "family": "独居或与父母同住，有腰痛问题需注意驾驶舒适度",
+      "current_car": "哈弗H6（老油车），计划置换"
+    },
+    "purchase": {
+      "budget_stated": "对外未明确说预算",
+      "budget_real": "首付不到3万，需贷款约90%，心理预期月供可接受但对利率敏感",
+      "car_type": "纯电动车型（MG4 EV）",
+      "stage": "试驾深化阶段，有购买意向但决策谨慎",
+      "timeline": "不急迫，表现出拖延倾向",
+      "usage_scenarios": [
+        "上下班通勤",
+        "日常代步",
+        "偶尔长途出行"
+      ]
+    },
+    "pain_points": [
+      {
+        "topic": "贷款利息顾虑",
+        "intensity": 0.82,
+        "detail": "首付能力有限需贷90%，对4厘多利率反复确认纠结，担心还款负担"
+      },
+      {
+        "topic": "续航实际打折",
+        "intensity": 0.78,
+        "detail": "对官方续航持谨慎态度，坚持按打八折计算实际里程（500多公里）"
+      },
+      {
+        "topic": "低配功能缺失",
+        "intensity": 0.65,
+        "detail": "试驾自由版缺失氛围灯、座椅按摩等功能，多次表现出对高配功能的兴趣"
+      }
+    ],
+    "hidden_info": [
+      {
+        "content": "其实更想要高配车型但预算不够不好意思说",
+        "trigger_condition": "反复询问高配功能时"
+      },
+      {
+        "content": "对名爵品牌了解不多，主要是被价格吸引",
+        "trigger_condition": "讨论贷款方案时"
+      },
+      {
+        "content": "换车决定可能受家人影响，不确定能不能做主",
+        "trigger_condition": "拖延说'到时候再开'时"
+      }
+    ],
+    "objections": [
+      {
+        "content": "利率有点高",
+        "trigger_topic": "贷款方案",
+        "resistance": 0.72
+      },
+      {
+        "content": "能再便宜点吗",
+        "trigger_topic": "价格优惠",
+        "resistance": 0.65
+      },
+      {
+        "content": "续航能跑多少",
+        "trigger_topic": "续航里程",
+        "resistance": 0.55
+      },
+      {
+        "content": "到时候再说",
+        "trigger_topic": "决策时机",
+        "resistance": 0.6
+      }
+    ],
+    "competitor_awareness": "了解吉利星愿车型，网上查过报价用来做价格对比参考，对国产品牌有一定认知但不够深入，主要关注性价比和落地价格",
+    "behavior": {
+      "anti_guide": 0.45,
+      "price_sensitivity": 0.88,
+      "expressiveness": 0.3,
+      "decisiveness": 0.35,
+      "tech_literacy": 0.55
+    },
+    "communication": {
+      "style": "被动内敛型",
+      "description": "电话中声音较小、回应简短被动；试驾时相对活跃但仍话不多，表达务实直接，喜欢用方言俚语",
+      "speech_patterns": [
+        "嗯",
+        "到时候再说",
+        "打八折",
+        "蛮好的",
+        "可以再谈",
+        "还有吗"
+      ]
+    },
+    "tags": [
+      "预算紧张",
+      "价格敏感",
+      "贷款依赖",
+      "谨慎务实",
+      "拖延决策"
+    ],
+    "id": "indiv_4x_04_1b0b58d6",
+    "_source": "4x_individual",
+    "_kind": "individual",
+    "_source_customer_id": "1b0b58d64a23bba47c74e47d0765cf69",
+    "_has_source_dialogues": true
   }
 ]

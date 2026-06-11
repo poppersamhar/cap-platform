@@ -8,7 +8,7 @@ export function EncounterScreen() {
   const [input, setInput] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const prevLoadingRef = useRef(isLoading);
+  const fetchedForMsgCountRef = useRef(0);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -16,19 +16,24 @@ export function EncounterScreen() {
 
   // 智能追问建议：avatar 回复完成后，research 模式下获取建议
   useEffect(() => {
-    if (!session) return;
-    const wasLoading = prevLoadingRef.current;
-    prevLoadingRef.current = isLoading;
+    if (!session || session.mode !== 'research') return;
 
-    if (wasLoading && !isLoading && session.mode === 'research') {
-      const lastMsg = session.messages[session.messages.length - 1];
-      if (lastMsg && lastMsg.role === 'client') {
-        store.fetchSuggestions(session.id).then((sugs) => {
-          if (sugs.length > 0) setSuggestions(sugs);
-        });
-      }
+    const msgCount = session.messages.length;
+    const lastMsg = msgCount > 0 ? session.messages[msgCount - 1] : null;
+
+    // 当消息增加且最后一条是 avatar 回复，且未为此消息获取过建议时触发
+    if (
+      msgCount > fetchedForMsgCountRef.current &&
+      lastMsg &&
+      lastMsg.role === 'client' &&
+      !isLoading
+    ) {
+      fetchedForMsgCountRef.current = msgCount;
+      store.fetchSuggestions(session.id).then((sugs) => {
+        if (sugs.length > 0) setSuggestions(sugs);
+      });
     }
-  }, [isLoading, session]);
+  }, [session?.messages, isLoading, session]);
 
   if (!session) {
     store.setScreen('home');
@@ -314,6 +319,33 @@ function MessageBubble({ message, mode }: { message: ChatMessage; mode: string }
                 🔓 {h}
               </span>
             ))}
+          </div>
+        )}
+        {/* 对话溯源 — 仅有个体用户原始对话引用时显示 */}
+        {!isUser && message.source_quotes && message.source_quotes.length > 0 && (
+          <div className="mt-2 group/trace relative inline-block">
+            <button className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-cap-sky-soft text-cap-sky-deep border border-cap-sky/20 hover:bg-cap-sky/20 transition-colors cursor-pointer">
+              <span>🔗</span>
+              引用自原始对话
+            </button>
+            {/* Hover tooltip */}
+            <div className="absolute left-0 bottom-full mb-2 w-80 p-3 rounded-xl bg-white border border-cap-line shadow-lg opacity-0 invisible group-hover/trace:opacity-100 group-hover/trace:visible transition-all z-10">
+              <p className="text-[10px] font-bold text-cap-ink-2 uppercase mb-2">原始对话溯源</p>
+              <div className="space-y-2">
+                {message.source_quotes.map((sq, idx) => (
+                  <div key={idx} className="text-xs text-cap-ink font-medium leading-relaxed">
+                    <span className="text-cap-sky-deep font-bold">「{sq.matched_substring || sq.text.slice(0, 20)}」</span>
+                    <span className="text-cap-ink-2"> — 来自{sq.type === 'outbound_call' ? '外呼通话' : sq.type === 'test_drive' ? '试驾录音' : '原始对话'}</span>
+                    {sq.context && (
+                      <p className="text-[11px] text-cap-ink-2 mt-0.5 italic truncate">
+                        原文：{sq.context.slice(0, 60)}...
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="absolute left-4 bottom-[-6px] w-3 h-3 bg-white border-b border-r border-cap-line rotate-45" />
+            </div>
           </div>
         )}
       </div>

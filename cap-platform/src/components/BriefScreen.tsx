@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { store, useSession } from '../store/Store';
+import { SourceDialogueModal } from './SourceDialogueModal';
 
 export function BriefScreen() {
   const session = useSession();
+  const [showSourceDialogues, setShowSourceDialogues] = useState(false);
 
   if (!session) {
     store.setScreen('personaList');
@@ -63,13 +66,24 @@ export function BriefScreen() {
         {/* ── 开始按钮 ── */}
         <button
           onClick={() => store.setScreen('encounter')}
-          className="w-full btn-plush btn-plush-peach py-4 text-lg mb-8"
+          className="w-full btn-plush btn-plush-peach py-4 text-lg mb-4"
         >
           🚀 开始{isTraining ? '对练' : '访谈'}
         </button>
 
-        {/* ── 隐藏信息 ── */}
-        {p.hidden_info.length > 0 && (
+        {/* ── 查看原始对话（仅有个体溯源数据时显示）── */}
+        {p._has_source_dialogues && (
+          <button
+            onClick={() => setShowSourceDialogues(true)}
+            className="w-full py-3 mb-8 rounded-xl bg-cap-sky-soft border border-cap-sky/30 text-cap-sky-deep text-sm font-bold hover:bg-cap-sky/20 transition-colors flex items-center justify-center gap-2"
+          >
+            <span>📋</span>
+            查看原始对话溯源
+          </button>
+        )}
+
+        {/* ── 隐藏信息（仅对练模式显示）── */}
+        {isTraining && p.hidden_info.length > 0 && (
           <div className="plush-lg p-5 mb-5 border border-cap-rose/20">
             <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
               <span className="text-lg">🔓</span> 隐藏信息（不会主动透露）
@@ -108,25 +122,27 @@ export function BriefScreen() {
           </div>
         </div>
 
-        {/* ── 常见异议 ── */}
-        <div className="plush-lg p-5 mb-5">
-          <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
-            <span className="text-lg">🛡️</span> 常见异议
-          </h3>
-          <div className="space-y-3">
-            {p.objections.map((obj, idx) => (
-              <div key={idx} className="p-3 rounded-xl bg-cap-butter-soft border border-cap-line">
-                <p className="text-sm font-medium text-cap-ink mb-1">「{obj.content}」</p>
-                <div className="flex justify-between items-center">
-                  <p className="text-xs text-cap-ink-2 font-medium">
-                    触发：{obj.trigger_topic}
-                  </p>
-                  <ResistanceBadge value={obj.resistance} />
+        {/* ── 常见异议（仅对练模式显示）── */}
+        {isTraining && (
+          <div className="plush-lg p-5 mb-5">
+            <h3 className="font-bold text-cap-ink mb-3 flex items-center gap-2">
+              <span className="text-lg">🛡️</span> 常见异议
+            </h3>
+            <div className="space-y-3">
+              {p.objections.map((obj, idx) => (
+                <div key={idx} className="p-3 rounded-xl bg-cap-butter-soft border border-cap-line">
+                  <p className="text-sm font-medium text-cap-ink mb-1">「{obj.content}」</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-cap-ink-2 font-medium">
+                      触发：{obj.trigger_topic}
+                    </p>
+                    <ResistanceBadge value={obj.resistance} />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ── 沟通风格 ── */}
         <div className="plush-lg p-5 mb-5">
@@ -138,16 +154,6 @@ export function BriefScreen() {
               <span className="text-xs font-semibold text-cap-ink-2 uppercase block mb-1">风格标签</span>
               <p className="text-cap-ink font-medium text-sm">{p.communication.style}</p>
               <p className="text-cap-ink-2 text-xs font-medium mt-1">{p.communication.description}</p>
-            </div>
-            <div className="p-3 rounded-xl bg-cap-cream-2 border border-cap-line">
-              <span className="text-xs font-semibold text-cap-ink-2 uppercase block mb-2">口头禅</span>
-              <div className="flex flex-wrap gap-2">
-                {p.communication.speech_patterns.map((sp) => (
-                  <span key={sp} className="px-2.5 py-1 rounded-md text-xs font-medium bg-cap-sky-soft border border-cap-sky/20 text-cap-sky-deep">
-                    「{sp}」
-                  </span>
-                ))}
-              </div>
             </div>
           </div>
         </div>
@@ -210,6 +216,15 @@ export function BriefScreen() {
             <InfoRow label="现有车辆" value={p.profile.current_car} />
           </div>
         </div>
+
+        {/* ── 原始对话溯源弹窗 ── */}
+        {showSourceDialogues && (
+          <SourceDialogueModal
+            personaId={p.id}
+            personaName={p.profile.name}
+            onClose={() => setShowSourceDialogues(false)}
+          />
+        )}
       </div>
     </div>
   );

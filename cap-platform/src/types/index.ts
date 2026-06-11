@@ -7,7 +7,11 @@ export type Screen =
   | 'onboarding'
   | 'home'
   | 'mode'
+  | 'researchSelect'
   | 'researchSetup'
+  | 'surveySetup'
+  | 'surveyRunning'
+  | 'surveyResult'
   | 'personaList'
   | 'brief'
   | 'encounter'
@@ -16,7 +20,8 @@ export type Screen =
   | 'history'
   | 'personaEditor'
   | 'importPersona'
-  | 'knowledge';
+  | 'knowledge'
+  | 'factory';
 
 // ── 情绪状态 ──
 export interface EmotionState {
@@ -88,6 +93,30 @@ export interface CommunicationStyle {
   speech_patterns: string[];
 }
 
+// ── 原始对话溯源 ──
+export interface SourceDialogue {
+  type: 'outbound_call' | 'test_drive';
+  title: string;
+  source_field: string;
+  transcript: string;
+  turn_count?: number;
+  record_count?: number;
+}
+
+export interface SourceSummary {
+  type: 'call_summary' | 'drive_summary' | 'concern_tags';
+  title: string;
+  content: string;
+}
+
+export interface SourceDialoguesData {
+  persona_id: string;
+  source_customer_id: string;
+  dialogues: SourceDialogue[];
+  summaries: SourceSummary[];
+  record_count: number;
+}
+
 // ── 分身 ──
 export interface Persona {
   id: string;
@@ -100,6 +129,24 @@ export interface Persona {
   behavior: BehaviorParams;
   communication: CommunicationStyle;
   tags: string[];
+  /** 数据来源标记，如 '4x' 表示来自4X车型数据 */
+  _source?: string;
+  _cluster_title?: string;
+  _cluster_stats?: {
+    unique_customers: number;
+    age_range: [number, number];
+    top_concerns: [string, number][];
+  };
+  /** 是否有原始对话溯源数据 */
+  _has_source_dialogues?: boolean;
+}
+
+// ── 溯源引用 ──
+export interface SourceQuote {
+  text: string;
+  type: string;
+  context: string;
+  matched_substring?: string;
 }
 
 // ── 聊天消息 ──
@@ -109,6 +156,7 @@ export interface ChatMessage {
   timestamp: number;
   triggered_tags?: string[];
   hidden_revealed?: string[];
+  source_quotes?: SourceQuote[];
 }
 
 // ── 督导评分 ──
@@ -202,6 +250,58 @@ export interface ResearchReport {
 
 export type Report = TrainingReport | ResearchReport;
 
+// ── 问卷问题 ──
+export interface SurveyQuestion {
+  id: string;
+  question: string;
+  category: string;
+}
+
+export interface SurveyTemplate {
+  id: string;
+  name: string;
+  description: string;
+  questions: SurveyQuestion[];
+}
+
+// ── 问卷答案 ──
+export interface SurveyAnswer {
+  question_id: string;
+  question: string;
+  answer: string;
+  category: string;
+}
+
+// ── 单个分身问卷报告 ──
+export interface PersonaSurveyReport {
+  persona_id: string;
+  persona_name: string;
+  answers: SurveyAnswer[];
+  generated_at: number;
+}
+
+// ── 问卷运行任务 ──
+export interface SurveyTask {
+  id: string;
+  template: SurveyTemplate;
+  persona_ids: string[];
+  status: 'running' | 'completed' | 'failed';
+  progress: { persona_id: string; persona_name: string; status: 'pending' | 'running' | 'completed' | 'failed' }[];
+  reports: PersonaSurveyReport[];
+  created_at: number;
+}
+
+// ── 问卷历史记录项（持久化用，精简版）──
+export interface SurveyHistoryItem {
+  id: string;
+  template_name: string;
+  persona_count: number;
+  status: 'completed' | 'failed';
+  reports: PersonaSurveyReport[];
+  created_at: number;
+  completed_at: number;
+}
+
 // ── 会话 ──
 export interface Session {
   id: string;
@@ -235,4 +335,10 @@ export interface AppState {
   previewPersona: Persona | null; // 导入过程中的预览分身
   knowledgeSources: string[];
   toast: { message: string; type: 'info' | 'success' | 'error' } | null;
+  /** 客群分组自定义名称 { source: displayName } */
+  personaGroupNames: Record<string, string>;
+  /** 当前问卷任务 */
+  currentSurvey: SurveyTask | null;
+  /** 问卷历史记录 */
+  surveyHistory: SurveyHistoryItem[];
 }

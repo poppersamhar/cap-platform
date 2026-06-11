@@ -103,7 +103,38 @@ def _emotion_to_description(emotion: EmotionState, mode: str = "training") -> st
     return "\n".join(f"- {p}" for p in parts)
 
 
-def build_persona_prompt(persona: Persona, emotion: EmotionState, mode: str = "training") -> str:
+def _build_source_quotes_prompt(source_quotes: list[dict]) -> str:
+    """构建原始对话风格参考提示片段
+
+    关键纪律：这些片段只用于参考客户的表达习惯（用词偏好、句式特点），
+    绝不应该影响回复的实质内容。数字人必须基于当前对话场景和人设来回答，
+    而不是复述历史对话中的内容。
+    """
+    if not source_quotes:
+        return ""
+    lines = [
+        "═══ 真实对话表达参考（仅参考用词/句式习惯，不要参考具体内容）════",
+        "以下是该客户在真实通话中高频使用的表达方式。它们的作用是帮助你了解：",
+        "- 他是习惯直接说'十万以内'还是委婉说'预算有限'",
+        "- 他是习惯用长句解释还是短句回应",
+        "- 他提到家人时通常怎么说（'我媳妇'/'我老婆'/'家里'）",
+    ]
+    for q in source_quotes[:8]:  # 最多8条，避免 prompt 过长
+        lines.append(f"  - 表达习惯：「{q['text']}」")
+    lines.extend([
+        "",
+        "【表达纪律】",
+        "1. 以上片段 ONLY 用于参考用词和句式偏好，绝不用于决定你要说什么内容",
+        "2. 你的回复内容必须完全基于当前对话场景、你的人设和当前情绪状态",
+        "3. 禁止复述或改写上述历史对话中的具体内容来回答当前问题",
+        "4. 正常说话即可，不要刻意添加语气词（嗯、啊、哦、嘛、吧）",
+        "5. 不要刻意使用口头禅，自然表达优先。如果当前场景不适合，完全不用",
+        "6. 训练目标是让销售学会应对真实客户，所以你只需要像一个正常的购车客户那样说话",
+    ])
+    return "\n".join(lines)
+
+
+def build_persona_prompt(persona: Persona, emotion: EmotionState, mode: str = "training", source_quotes: list[dict] | None = None) -> str:
     """角色层 Prompt：只包含具体角色设定，与场景无关。
 
     后续 Prompt Creator Agent 的目标就是生成这一段内容。
@@ -152,21 +183,24 @@ def build_persona_prompt(persona: Persona, emotion: EmotionState, mode: str = "t
         emotion_label = "═══ 你现在的状态 ═══"
         discipline = "【情绪纪律】你的回复要体现当前状态。如果抵触高，回复带刺；如果信任高，回复随和；如果焦虑高，回复犹豫、反复确认。"
 
+    # 原始对话引用
+    source_quotes_prompt = _build_source_quotes_prompt(source_quotes) if source_quotes else ""
+
     return f"""你是{persona.profile.name}，{persona.profile.age}岁{'男' if persona.profile.gender == 'M' else '女'}，{persona.profile.city}人，{persona.profile.occupation}。{persona.profile.family}。现有车：{persona.profile.current_car}。
 
 ═══ 你的说话方式 ═══
 【风格】{persona.communication.style}。{persona.communication.description}
-【口头禅】以下句子是你在真实对话中高频使用的，回复时必须自然地、随机地融入其中（不要每句都用，也不要完全不用）：
+【口头禅参考】以下是你偶尔会说的表达，熟悉一下即可，不需要刻意使用：
 {patterns_text}
+【口头禅纪律】正常说话，不要刻意使用口头禅。如果某个口头禅在当前语境下说出来很自然，可以带一句；如果说不顺口，完全不用。训练目标是让销售学会应对真实客户，你不需要表演。
 【技术认知水平（{tech_level:.0%}）】{tech_desc}
 
 {emotion_label}
 {emotion_desc}
 
 {car_bg_label}
-意向车型：{persona.purchase.car_type}
-对外预算：{persona.purchase.budget_stated}
-真实预算：{persona.purchase.budget_real}（这个信息绝不会主动暴露，除非被深入引导且你已经愿意分享）
+你打算买的车型：{persona.purchase.car_type}
+你心里实际的预算：{persona.purchase.budget_real}（这是你对价格的真实接受度，不会轻易暴露；即使被问到，你也会先说大概 {persona.purchase.budget_stated} 左右）
 购车阶段：{persona.purchase.stage}
 时间线：{persona.purchase.timeline}
 用车场景：{', '.join(persona.purchase.usage_scenarios)}
@@ -183,9 +217,11 @@ def build_persona_prompt(persona: Persona, emotion: EmotionState, mode: str = "t
 ═══ 竞品认知 ═══
 {persona.competitor_awareness}
 
+{source_quotes_prompt}
+
 ═══ 角色专属纪律 ═══
 {discipline}
-【预算纪律】真实预算（{persona.purchase.budget_real}）是你心里的秘密，绝不会主动暴露。即使被问预算，你也会先说对外预算（{persona.purchase.budget_stated}），只有在被深入引导且你愿意分享时才可能透露真实预算。
+【预算纪律】即使被问到预算，你也不会像汇报数据一样说"我的对外预算是多少"。你会像真实买家一样自然表达，比如"我打算控制在十万左右""最多也就十几万的预算"。你心里的真实接受度是 {persona.purchase.budget_real}，不会轻易透露。
 """
 
 
@@ -326,7 +362,7 @@ def build_scene_prompt(mode: str = "training") -> str:
 """
 
 
-def build_system_prompt(persona: Persona, emotion: EmotionState, mode: str = "training", knowledge_context: str = "") -> str:
+def build_system_prompt(persona: Persona, emotion: EmotionState, mode: str = "training", knowledge_context: str = "", source_quotes: list[dict] | None = None) -> str:
     """构建完整 System Prompt = 角色层 + 场景层 + 知识库层。
 
     拆分为三部分的原因：
@@ -334,7 +370,7 @@ def build_system_prompt(persona: Persona, emotion: EmotionState, mode: str = "tr
     - Scene Prompt：由系统固定维护，随 mode（training/research）切换。
     - Knowledge Context：从培训文档 RAG 检索获得，动态注入。
     """
-    persona_part = build_persona_prompt(persona, emotion, mode)
+    persona_part = build_persona_prompt(persona, emotion, mode, source_quotes)
     scene_part = build_scene_prompt(mode)
     parts = [persona_part, scene_part]
     if knowledge_context:
@@ -458,6 +494,66 @@ def _check_hidden_revealed(persona: Persona, user_message: str, mode: str = "tra
     return revealed[:2]
 
 
+def _find_source_quotes(reply: str, source_quotes: list[dict] | None, speech_patterns: list[str] | None = None) -> list[dict]:
+    """检测回复中是否引用了原始对话中的片段
+
+    使用模糊匹配：如果回复中包含原始对话中4字以上的连续子串，认为是引用。
+    同时检查 speech_patterns（口头禅）的匹配。
+    返回匹配到的原始对话片段列表。
+    """
+    if not source_quotes:
+        return []
+
+    matched = []
+    seen_texts = set()
+    reply_lower = reply.lower()
+    reply_no_punct = re.sub(r'[^\w\s]', '', reply_lower)
+
+    def _try_match(text: str, typ: str, context: str = "") -> bool:
+        if not text or text in seen_texts:
+            return False
+        text_clean = text.strip().lower()
+        text_no_punct = re.sub(r'[^\w\s]', '', text_clean)
+
+        # 完整匹配（4字以上）
+        if text_no_punct in reply_no_punct and len(text_no_punct) >= 4:
+            matched.append({
+                "text": text,
+                "type": typ,
+                "context": context,
+            })
+            seen_texts.add(text)
+            return True
+
+        # 滑动窗口子串匹配（4-12字）
+        for length in range(min(len(text_no_punct), 12), 3, -1):
+            for i in range(len(text_no_punct) - length + 1):
+                sub = text_no_punct[i:i + length]
+                if sub in reply_no_punct:
+                    matched.append({
+                        "text": text,
+                        "type": typ,
+                        "context": context,
+                        "matched_substring": sub,
+                    })
+                    seen_texts.add(text)
+                    return True
+        return False
+
+    # 1. 匹配原始对话中的客户原话
+    for q in source_quotes:
+        if _try_match(q.get("text", ""), q.get("type", "quote"), q.get("context", "")):
+            pass
+
+    # 2. 匹配 speech_patterns（口头禅）
+    if speech_patterns:
+        for sp in speech_patterns:
+            if _try_match(sp, "speech_pattern"):
+                pass
+
+    return matched[:3]  # 最多返回3条溯源
+
+
 async def chat(
     persona: Persona,
     emotion: EmotionState,
@@ -465,13 +561,14 @@ async def chat(
     user_message: str,
     mode: str = "training",
     knowledge_context: str = "",
+    source_quotes: list[dict] | None = None,
 ) -> dict[str, Any]:
     """调用 MiniMax API，获取分身回复"""
     if not MINIMAX_API_KEY:
         logger.error("MINIMAX_API_KEY not set")
         raise RuntimeError("MINIMAX_API_KEY not configured")
 
-    system_prompt = build_system_prompt(persona, emotion, mode, knowledge_context)
+    system_prompt = build_system_prompt(persona, emotion, mode, knowledge_context, source_quotes)
 
     messages = [{"role": "system", "content": system_prompt}]
     for h in history:
@@ -512,9 +609,21 @@ async def chat(
     triggered_tags = _infer_tags(persona, user_message, reply, mode)
     hidden_revealed = _check_hidden_revealed(persona, user_message, mode)
 
+    # 对话溯源：检测回复中是否引用了原始对话
+    matched_quotes = _find_source_quotes(reply, source_quotes, persona.communication.speech_patterns)
+
+    # 提取 token 使用量
+    usage = data.get("usage", {})
+
     return {
         "reply": reply,
         "emotion_delta": emotion_delta,
         "triggered_tags": triggered_tags,
         "hidden_revealed": hidden_revealed,
+        "source_quotes": matched_quotes,
+        "usage": {
+            "prompt_tokens": usage.get("prompt_tokens", 0),
+            "completion_tokens": usage.get("completion_tokens", 0),
+            "total_tokens": usage.get("total_tokens", 0),
+        },
     }

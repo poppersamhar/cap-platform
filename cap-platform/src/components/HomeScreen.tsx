@@ -31,6 +31,24 @@ export function HomeScreen() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-2xl w-full relative z-10">
+        {/* Research */}
+        <button
+          onClick={() => store.setScreen('researchSelect')}
+          className="group p-7 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200"
+        >
+          <div className="flex items-center gap-4 mb-5">
+            <div className="w-12 h-12 rounded-xl bg-cap-mint-soft flex items-center justify-center">
+              <span className="text-2xl">🔍</span>
+            </div>
+            <div>
+              <h3 className="font-bold text-cap-ink text-lg">用户调研</h3>
+            </div>
+          </div>
+          <p className="text-cap-ink-2 text-sm font-medium leading-relaxed">
+            深度访谈与问卷调研两种方式，系统挖掘真实需求、痛点与决策动机
+          </p>
+        </button>
+
         {/* Training */}
         <button
           onClick={() => {
@@ -52,24 +70,21 @@ export function HomeScreen() {
           </p>
         </button>
 
-        {/* Research */}
+        {/* Persona Factory */}
         <button
-          onClick={() => {
-            store.setMode('research');
-            store.setScreen('researchSetup');
-          }}
+          onClick={() => store.setScreen('factory')}
           className="group p-7 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200"
         >
           <div className="flex items-center gap-4 mb-5">
-            <div className="w-12 h-12 rounded-xl bg-cap-mint-soft flex items-center justify-center">
-              <span className="text-2xl">🔍</span>
+            <div className="w-12 h-12 rounded-xl bg-cap-sky-soft flex items-center justify-center">
+              <span className="text-2xl">🏭</span>
             </div>
             <div>
-              <h3 className="font-bold text-cap-ink text-lg">用户调研</h3>
+              <h3 className="font-bold text-cap-ink text-lg">分身工厂</h3>
             </div>
           </div>
           <p className="text-cap-ink-2 text-sm font-medium leading-relaxed">
-            与 AI 虚拟用户深度访谈，系统挖掘真实需求、痛点与决策动机
+            上传真实用户数据 Excel，AI 自动聚类并生成 3-4 个典型客户分身
           </p>
         </button>
 
@@ -79,7 +94,7 @@ export function HomeScreen() {
             store.setScreen('knowledge');
             store.loadKnowledgeSources();
           }}
-          className="group p-7 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200 md:col-span-2"
+          className="group p-7 plush-lg text-left hover:-translate-y-0.5 transition-all duration-200"
         >
           <div className="flex items-center gap-4 mb-5">
             <div className="w-12 h-12 rounded-xl bg-cap-butter-soft flex items-center justify-center">
