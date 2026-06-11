@@ -7,7 +7,6 @@ const POLL_INTERVAL = 3000;
 
 export function SurveyRunningScreen() {
   const survey = useStore((s) => s.currentSurvey);
-  const [reports, setReports] = useState<PersonaSurveyReport[]>([]);
   const [progress, setProgress] = useState(survey?.progress || []);
   const [status, setStatus] = useState(survey?.status || 'running');
   const [error, setError] = useState<string | null>(null);
@@ -15,16 +14,21 @@ export function SurveyRunningScreen() {
   const startedRef = useRef(false);
   const savedToHistoryRef = useRef(false);
 
+  // 使用 ref 保存 survey 的最新值，避免 finishAndSave 依赖变化导致 useEffect 反复重启轮询
+  const surveyRef = useRef(survey);
+  surveyRef.current = survey;
+
   const finishAndSave = useCallback((finalStatus: 'completed' | 'failed', finalReports: PersonaSurveyReport[]) => {
     if (savedToHistoryRef.current) return;
     savedToHistoryRef.current = true;
 
-    if (survey) {
+    const currentSurvey = surveyRef.current;
+    if (currentSurvey) {
       const updatedSurvey = {
-        ...survey,
+        ...currentSurvey,
         status: finalStatus,
         reports: finalReports,
-        progress: progress.map((p) => ({ ...p, status: 'completed' as const })),
+        progress: currentSurvey.progress.map((p) => ({ ...p, status: 'completed' as const })),
       };
       store.setCurrentSurvey(updatedSurvey);
       store.addSurveyToHistory(updatedSurvey);
@@ -33,7 +37,7 @@ export function SurveyRunningScreen() {
         store.showToast('问卷调研已完成，报告已保存到历史记录', 'success');
       }
     }
-  }, [survey, progress]);
+  }, []);
 
   useEffect(() => {
     if (!survey || startedRef.current) return;
@@ -54,7 +58,6 @@ export function SurveyRunningScreen() {
           if (reportsResp.ok) {
             const reportsData = await reportsResp.json();
             loadedReports = reportsData.reports || [];
-            setReports(loadedReports);
           }
 
           if (pollTimerRef.current) {
@@ -91,7 +94,8 @@ export function SurveyRunningScreen() {
         clearInterval(pollTimerRef.current);
       }
     };
-  }, [survey?.id, finishAndSave]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [survey?.id]);
 
   if (!survey) {
     return (
@@ -151,7 +155,8 @@ export function SurveyRunningScreen() {
             const completed = p.status === 'completed';
             const failed = p.status === 'failed';
             const running = p.status === 'running';
-            const pct = Math.round((p.completed_questions / totalQuestions) * 100);
+            const completedQuestions = p.completed_questions ?? 0;
+            const pct = Math.round((completedQuestions / totalQuestions) * 100);
 
             return (
               <div key={p.persona_id} className="plush-lg p-5">
@@ -174,7 +179,7 @@ export function SurveyRunningScreen() {
                     </div>
                   </div>
                   <span className="text-sm font-bold text-cap-ink">
-                    {p.completed_questions}/{totalQuestions}
+                    {completedQuestions}/{totalQuestions}
                   </span>
                 </div>
                 <div className="h-2 bg-cap-line-light rounded-full overflow-hidden">

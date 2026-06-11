@@ -179,6 +179,8 @@ async def extract_persona(data_text: str) -> dict[str, Any]:
     raw_content = data["choices"][0]["message"]["content"]
     clean_content = _clean_json_output(raw_content)
 
+    usage = data.get("usage", {})
+
     try:
         persona_data = json.loads(clean_content)
     except json.JSONDecodeError as e:
@@ -197,6 +199,14 @@ async def extract_persona(data_text: str) -> dict[str, Any]:
 
     import uuid
     persona_data["id"] = f"indiv_{uuid.uuid4().hex[:8]}"
+
+    persona_data["_usage"] = {
+        "prompt_tokens": usage.get("prompt_tokens", 0),
+        "completion_tokens": usage.get("completion_tokens", 0),
+        "total_tokens": usage.get("total_tokens", 0),
+        "cache_read_input_tokens": usage.get("cache_read_input_tokens", 0),
+        "cache_creation_input_tokens": usage.get("cache_creation_input_tokens", 0),
+    }
 
     logger.info(f"Extractor success: id={persona_data['id']}, name={persona_data.get('profile', {}).get('name', 'unknown')}")
     return persona_data

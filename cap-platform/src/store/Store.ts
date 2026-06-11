@@ -84,6 +84,8 @@ class Store {
   };
 
   private listeners = new Set<() => void>();
+  private surveyPollTimer: ReturnType<typeof setInterval> | null = null;
+  private surveySavedToHistory = false;
 
   getState = (): AppState => this.state;
 
@@ -125,7 +127,82 @@ class Store {
   setMode = (mode: AppMode) => this.set({ mode });
 
   // ── Survey ──
-  setCurrentSurvey = (survey: SurveyTask | null) => this.set({ currentSurvey: survey });
+  setCurrentSurvey = (survey: SurveyTask | null) => {
+    this.set({ currentSurvey: survey });
+    // 启动后台轮询：即使页面离开也能自动保存到历史记录
+    if (survey && survey.status === 'running') {
+      this._startSurveyPolling(survey.id);
+    }
+  };
+
+  private _startSurveyPolling(surveyId: string) {
+    if (this.surveyPollTimer) {
+      clearInterval(this.surveyPollTimer);
+    }
+    this.surveySavedToHistory = false;
+
+    const poll = async () => {
+      const current = this.state.currentSurvey;
+      if (!current || current.id !== surveyId) {
+        this._stopSurveyPolling();
+        return;
+      }
+      if (current.status !== 'running') {
+        return; // 已经是终态，由组件层 finishAndSave 处理
+      }
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/survey/${surveyId}/progress`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        // 更新进度到 store（让重新进入页面时能看到最新进度）
+        this.set({
+          currentSurvey: {
+            ...current,
+            status: data.status,
+            progress: data.progress || current.progress,
+          },
+        });
+
+        if (data.status === 'completed' && !this.surveySavedToHistory) {
+          this.surveySavedToHistory = true;
+          // 拉取报告
+          const reportsResp = await fetch(`${API_BASE}/api/survey/${surveyId}/reports`);
+          let reports = current.reports;
+          if (reportsResp.ok) {
+            const reportsData = await reportsResp.json();
+            reports = reportsData.reports || [];
+          }
+          const finalSurvey: SurveyTask = {
+            ...current,
+            status: 'completed',
+            progress: data.progress || current.progress,
+            reports,
+          };
+          this.set({ currentSurvey: finalSurvey });
+          this.addSurveyToHistory(finalSurvey);
+          this.showToast('问卷调研已完成，报告已保存到历史记录', 'success');
+          this._stopSurveyPolling();
+        } else if (data.status === 'failed') {
+          this._stopSurveyPolling();
+        }
+      } catch {
+        // 轮询失败不中断
+      }
+    };
+
+    // 立即执行一次，然后每 3 秒轮询
+    poll();
+    this.surveyPollTimer = setInterval(poll, 3000);
+  }
+
+  private _stopSurveyPolling() {
+    if (this.surveyPollTimer) {
+      clearInterval(this.surveyPollTimer);
+      this.surveyPollTimer = null;
+    }
+  }
 
   // ── Personas ──
   async loadPersonas() {
@@ -437,6 +514,10 @@ class Store {
 
   // ── Survey History ──
   addSurveyToHistory = (task: SurveyTask) => {
+    // 去重：同一 survey_id 只保存一次
+    if (this.state.surveyHistory.some((s) => s.id === task.id)) {
+      return;
+    }
     const item: SurveyHistoryItem = {
       id: task.id,
       template_name: task.template.name,

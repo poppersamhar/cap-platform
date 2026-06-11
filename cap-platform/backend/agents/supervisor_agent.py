@@ -4,6 +4,7 @@ Training 模式：资深汽车销售培训督导，逐轮诊断销售技巧缺�
 Research 模式：资深用户研究专家，逐轮诊断访谈深度与信息挖掘质量
 """
 
+import asyncio
 import json
 import os
 import logging
@@ -18,6 +19,11 @@ logger = logging.getLogger("cap.supervisor")
 MINIMAX_API_KEY = os.getenv("MINIMAX_API_KEY", "")
 MINIMAX_API_URL = os.getenv("MINIMAX_API_URL", "https://api.minimax.chat/v1/text/chatcompletion_v2")
 MINIMAX_MODEL = os.getenv("MINIMAX_MODEL", "MiniMax-Text-01")
+
+# 限制 Supervisor 并发数，避免同时大量请求打到 MiniMax API 导致 502/超时
+_SUPERVISOR_SEMAPHORE = asyncio.Semaphore(3)
+_MAX_RETRIES = 2
+_BASE_RETRY_DELAY = 2.0
 
 
 # ── Training Mode: 销售培训督导 ──
@@ -213,7 +219,7 @@ def _build_evaluation_prompt(persona: Persona, history: list[dict], mode: str) -
 
 
 async def evaluate(persona: Persona, history: list[dict], mode: str = "training") -> dict[str, Any]:
-    """评估表现
+    """评估表现（带并发限流 + 指数退避重试）
 
     Args:
         persona: 客户数字分身
@@ -239,27 +245,44 @@ async def evaluate(persona: Persona, history: list[dict], mode: str = "training"
         "max_tokens": 4096,
     }
 
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        resp = await client.post(
-            MINIMAX_API_URL,
-            headers={
-                "Authorization": f"Bearer {MINIMAX_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json=payload,
-        )
-        resp.raise_for_status()
-        data = resp.json()
+    async with _SUPERVISOR_SEMAPHORE:
+        last_err = None
+        for attempt in range(_MAX_RETRIES + 1):
+            try:
+                async with httpx.AsyncClient(timeout=60.0) as client:
+                    resp = await client.post(
+                        MINIMAX_API_URL,
+                        headers={
+                            "Authorization": f"Bearer {MINIMAX_API_KEY}",
+                            "Content-Type": "application/json",
+                        },
+                        json=payload,
+                    )
+                    resp.raise_for_status()
+                    data = resp.json()
 
-    content = data["choices"][0]["message"]["content"]
-    usage = data.get("usage", {})
-    result = _parse_evaluation(content, mode)
-    result["_usage"] = {
-        "prompt_tokens": usage.get("prompt_tokens", 0),
-        "completion_tokens": usage.get("completion_tokens", 0),
-        "total_tokens": usage.get("total_tokens", 0),
-    }
-    return result
+                content = data["choices"][0]["message"]["content"]
+                usage = data.get("usage", {})
+                result = _parse_evaluation(content, mode)
+                result["_usage"] = {
+                    "prompt_tokens": usage.get("prompt_tokens", 0),
+                    "completion_tokens": usage.get("completion_tokens", 0),
+                    "total_tokens": usage.get("total_tokens", 0),
+                    "cache_read_input_tokens": usage.get("cache_read_input_tokens", 0),
+                    "cache_creation_input_tokens": usage.get("cache_creation_input_tokens", 0),
+                }
+                return result
+            except Exception as e:
+                last_err = e
+                if attempt < _MAX_RETRIES:
+                    delay = _BASE_RETRY_DELAY * (2 ** attempt)
+                    logger.warning(
+                        f"Supervisor evaluate attempt {attempt + 1} failed ({e}), retrying in {delay}s..."
+                    )
+                    await asyncio.sleep(delay)
+                else:
+                    logger.error(f"Supervisor evaluate failed after {_MAX_RETRIES + 1} attempts: {e}")
+        raise last_err
 
 
 def _parse_evaluation(content: str, mode: str) -> dict[str, Any]:

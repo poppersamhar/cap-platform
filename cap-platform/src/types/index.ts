@@ -286,7 +286,7 @@ export interface SurveyTask {
   template: SurveyTemplate;
   persona_ids: string[];
   status: 'running' | 'completed' | 'failed';
-  progress: { persona_id: string; persona_name: string; status: 'pending' | 'running' | 'completed' | 'failed' }[];
+  progress: { persona_id: string; persona_name: string; persona_gender?: string; status: 'pending' | 'running' | 'completed' | 'failed'; completed_questions?: number; total_questions?: number }[];
   reports: PersonaSurveyReport[];
   created_at: number;
 }

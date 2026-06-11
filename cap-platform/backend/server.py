@@ -43,6 +43,32 @@ _sessions: dict[str, dict] = {}
 # survey_id -> { id, template, persona_ids, status, progress, reports, created_at }
 _survey_tasks: dict[str, dict] = {}
 
+# ── Supervisor 评估队列（顺序后台执行，避免并发打爆 API） ──
+_eval_queue: asyncio.Queue = asyncio.Queue()
+_eval_worker_started: bool = False
+
+
+async def _eval_worker():
+    """后台顺序消费 Supervisor 评估任务"""
+    logger.info("Supervisor eval worker started")
+    while True:
+        session, persona = await _eval_queue.get()
+        try:
+            await _async_evaluate(session, persona)
+        except Exception as e:
+            logger.warning(f"Queued evaluation failed: {e}")
+        finally:
+            _eval_queue.task_done()
+
+
+def _ensure_eval_worker():
+    """确保后台 Worker 已启动"""
+    global _eval_worker_started
+    if not _eval_worker_started:
+        asyncio.create_task(_eval_worker())
+        _eval_worker_started = True
+        logger.info("Supervisor eval worker launched")
+
 
 def _clean_text(text: str) -> str:
     """清理文本中的非法控制字符，保留换行和制表符"""
@@ -467,6 +493,8 @@ async def chat(req: ChatRequest):
             "prompt_tokens": usage.get("prompt_tokens", 0),
             "completion_tokens": usage.get("completion_tokens", 0),
             "total_tokens": usage.get("total_tokens", 0),
+            "cache_read_input_tokens": usage.get("cache_read_input_tokens", 0),
+            "cache_creation_input_tokens": usage.get("cache_creation_input_tokens", 0),
         })
 
     # 记录消息
@@ -479,10 +507,6 @@ async def chat(req: ChatRequest):
         "hidden_revealed": result.get("hidden_revealed", []),
         "source_quotes": matched_quotes,
     })
-
-    # 异步触发督导评估（仅对练模式）
-    if session.get("mode") == "training":
-        asyncio.create_task(_async_evaluate(session, persona))
 
     return {
         "reply": reply_clean,
@@ -584,8 +608,9 @@ async def run_eval(req: EvalRunRequest):
 
         logger.info(f"Eval round {round_num}: sales='{sales_msg[:40]}...' avatar='{avatar_reply[:40]}...'")
 
-    # 触发督导评估
-    asyncio.create_task(_async_evaluate(session, persona))
+    # 入队督导评估（顺序后台执行避免并发）
+    _ensure_eval_worker()
+    asyncio.create_task(_eval_queue.put((session, persona)))
 
     return {
         "session_id": session_id,
@@ -618,6 +643,8 @@ async def _async_evaluate(session: dict, persona: Persona):
                 "prompt_tokens": usage.get("prompt_tokens", 0),
                 "completion_tokens": usage.get("completion_tokens", 0),
                 "total_tokens": usage.get("total_tokens", 0),
+                "cache_read_input_tokens": usage.get("cache_read_input_tokens", 0),
+                "cache_creation_input_tokens": usage.get("cache_creation_input_tokens", 0),
             })
         logger.info(f"Evaluation updated for session {session['id']}")
     except Exception as e:
@@ -665,6 +692,8 @@ async def generate_report(session_id: str):
                 "prompt_tokens": usage.get("prompt_tokens", 0),
                 "completion_tokens": usage.get("completion_tokens", 0),
                 "total_tokens": usage.get("total_tokens", 0),
+                "cache_read_input_tokens": usage.get("cache_read_input_tokens", 0),
+                "cache_creation_input_tokens": usage.get("cache_creation_input_tokens", 0),
             })
     except Exception as e:
         logger.warning(f"Analyst agent failed: {e}, using fallback")
@@ -853,6 +882,14 @@ async def end_session(session_id: str):
         raise HTTPException(status_code=404, detail="Session not found")
 
     session["status"] = "ended"
+
+    # 对练模式：对话结束后一次性触发督导评估
+    if session.get("mode") == "training":
+        persona = get_persona(session["persona_id"])
+        if persona:
+            _ensure_eval_worker()
+            asyncio.create_task(_eval_queue.put((session, persona)))
+
     return {"status": "ended"}
 
 
@@ -1252,11 +1289,18 @@ async def _run_survey_async(survey_id: str, personas: list[Persona], questions: 
             if persona.id.startswith("indiv_"):
                 source_quotes = _load_source_quotes_for_persona(persona.id)
 
-            # 执行问卷
+            # 执行问卷，逐题更新进度
+            def _update_progress(completed_count: int):
+                for p in task["progress"]:
+                    if p["persona_id"] == persona.id:
+                        p["completed_questions"] = completed_count
+                        break
+
             result = await survey_agent.run_survey_for_persona(
                 persona=persona,
                 questions=questions,
                 source_quotes=source_quotes,
+                on_progress=_update_progress,
             )
 
             reports.append(result)

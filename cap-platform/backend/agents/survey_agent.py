@@ -99,7 +99,10 @@ async def answer_question(
     """
     if not api_key:
         logger.warning("MINIMAX_API_KEY not set, returning mock answer")
-        return f"[模拟回答] 作为{persona.profile.name}，我认为这个问题很重要。"
+        return {
+            "answer": f"[模拟回答] 作为{persona.profile.name}，我认为这个问题很重要。",
+            "usage": {},
+        }
 
     persona_ctx = _build_persona_context(persona)
     style_prompt = _build_source_quotes_prompt(source_quotes or [])
@@ -171,8 +174,12 @@ async def run_survey_for_persona(
     persona: Persona,
     questions: list[dict],
     source_quotes: list[dict] | None = None,
+    on_progress: callable | None = None,
 ) -> dict:
     """为一个 persona 执行完整问卷
+
+    Args:
+        on_progress: 可选回调，每完成一题调用一次 on_progress(completed_count)
 
     Returns:
         {
@@ -211,6 +218,12 @@ async def run_survey_for_persona(
         total_prompt_tokens += usage.get("prompt_tokens", 0)
         total_completion_tokens += usage.get("completion_tokens", 0)
         total_tokens += usage.get("total_tokens", 0)
+
+        if on_progress:
+            try:
+                on_progress(idx + 1)
+            except Exception:
+                pass
 
     return {
         "persona_id": persona.id,
